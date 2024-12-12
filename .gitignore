@@ -3,3 +3,4 @@ data/*
 chromaDb/
 **/__pycache__/
 .env
+.DS_Store

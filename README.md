@@ -7,7 +7,7 @@ This repository demonstrates the use of Retrieval-Augmented Generation (RAG) to 
 ## Features
 
 - Uses `all-MiniLM-L6-v2` for embeddings creation.
-- Employs `phi3.5` for LLM inference.
+- Employs `llama3` for LLM inference.
 - Integrates document retrieval with natural language generation.
 
 ### Prerequisites
