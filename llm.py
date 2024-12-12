@@ -16,15 +16,22 @@ class State(TypedDict):
     answer: str
 
 class LLM() :
-    def __init__(self, model, RAG, role='user'):
+    def __init__(self, model, RAG, systemFile, role='user'):
         self.model = model
         self.client = Client(
             host=environ.get('OLLAMA_HOST'),
             headers={'x-some-header': 'some-value'}
             )
+        self.systemPrompt = self.loadSystemPrompt(systemFile)
         self.role = role
         self.rag = RAG
         self.graph = None
+
+    @staticmethod
+    def loadSystemPrompt(filePath):
+        with open(filePath, 'r', encoding='utf-8') as file:
+            prompt = file.read()
+        return prompt
 
     def chat(self, input, k=2):
         response = self.client.chat(model=self.model, messages=[
@@ -41,6 +48,7 @@ class LLM() :
     def generate(self, state):
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
         promptJson = {
+            "system prompt": self.systemPrompt,
             "question": state["question"],
             "context": docs_content
         }

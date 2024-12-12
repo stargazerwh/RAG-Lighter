@@ -9,10 +9,10 @@ rag = RAG(
     collectionName='test'
 )
 
-llm = LLM(model='llama3', RAG=rag)
+llm = LLM(model='llama3', RAG=rag, systemFile='./systemPrompt.txt')
 
-rag.ingestData()
+# rag.ingestData()
 
 llm.createGraph()
 
-llm.test({"question": "Réponds en francais et focus toi uniquement sur la question qui suit ! Ne réponds rien qui changera de ca Comment gérer mon alimentation pendant un marathon ?"})
+llm.test({"question": "Comment gérer mon alimentation pendant un marathon ?"})
