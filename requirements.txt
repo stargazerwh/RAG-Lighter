@@ -1,0 +1,5 @@
+langgraph==0.2.59
+langchain_ollama==0.2.1
+langchain_chroma==0.1.4
+unstructured==0.16.11
+langchain_huggingface==0.1.2
