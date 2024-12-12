@@ -22,8 +22,8 @@ This repository demonstrates the use of Retrieval-Augmented Generation (RAG) to 
 Clone the repository and install the required dependencies:
 
 ```bash
-git clone <repository_url>
-cd <repository_name>
+git clone https://github.com/Bessouat40/rag-example.git
+cd rag-example
 pip install -r requirements.txt
 ```
 
