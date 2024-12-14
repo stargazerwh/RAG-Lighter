@@ -35,6 +35,11 @@ mv .env.example .env
 
 Then fill your env file with your ollama client.
 
+### Data
+
+Please add your files inside `data` folder.
+Current code only supports `PDF` files.
+
 ## Test code
 
 ```bash
