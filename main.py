@@ -11,7 +11,7 @@ rag = RAG(
 
 llm = LLM(model='llama3', RAG=rag, systemFile='./systemPrompt.txt')
 
-# rag.ingestData()
+rag.ingestData()
 
 llm.createGraph()
 
