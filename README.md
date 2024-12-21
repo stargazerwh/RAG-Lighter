@@ -1,9 +1,7 @@
-# RAG Example
+# RAGLight
 
-## Introduction
-
-This project demonstrates the use of **Retrieval-Augmented Generation (RAG)** to enhance the capabilities of a Large Language Model (LLM) by combining document retrieval with natural language inference.  
-The application leverages **Ollama** to serve the LLM and utilizes vector embeddings for efficient document similarity searches.
+RAGLight is a lightweight and modular framework for implementing Retrieval-Augmented Generation (RAG). It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
+Designed for simplicity and flexibility, RAGLight leverages Ollama for LLM interaction and vector embeddings for efficient document similarity searches, making it an ideal tool for building context-aware AI solutions.
 
 ---
 
