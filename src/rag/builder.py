@@ -4,7 +4,7 @@ from ..config.settings import Settings
 from .rag import RAG
 from ..embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddings
 
-class RAGBuilder:
+class Builder:
     def __init__(self):
         self.vector_store = None
         self.embeddings = None
@@ -40,7 +40,7 @@ class RAGBuilder:
         print("✅ LLM created")
         return self
 
-    def build(self):
+    def build_rag(self):
         if self.vector_store is None:
             raise ValueError("VectorStore is required")
         if self.llm is None:
@@ -49,3 +49,10 @@ class RAGBuilder:
             raise ValueError("Embeddings Model is required")
         self.rag = RAG(self.embeddings, self.vector_store, self.llm)
         return self.rag
+    
+    def build_vector_store(self):
+        if self.vector_store is None:
+            raise ValueError("VectorStore is required")
+        if self.embeddings is None:
+            raise ValueError("Embeddings Model is required")
+        return self.vector_store

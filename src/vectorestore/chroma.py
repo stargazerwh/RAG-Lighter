@@ -11,8 +11,8 @@ class ChromaVS(VectorStore):
         self.persist_directory = persist_directory
 
     @override
-    def ingest(self):
-        docs = self.load_docs()
+    def ingest(self, file_extension, data_path):
+        docs = self.load_docs(file_extension, data_path)
         all_splits = self.split_docs(docs)
         _ = self.add_index(all_splits)
         print('🎉 All documents ingested and indexed')

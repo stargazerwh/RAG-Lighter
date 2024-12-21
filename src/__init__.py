@@ -8,6 +8,6 @@ from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddings
 from .llm.ollamaModel import OllamaModel
 
 from .rag.rag import RAG
-from .rag.ragBuilder import RAGBuilder
+from .rag.builder import Builder
 
 from .config.settings import Settings
