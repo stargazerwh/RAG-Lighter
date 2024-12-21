@@ -7,7 +7,7 @@ class VectorStore(ABC):
         self.vectoreStore = None
 
     @abstractmethod
-    def ingest(self):
+    def ingest(self, **kwargs):
         pass
     
     @abstractmethod
