@@ -1,18 +1,9 @@
-from llm import LLM
-from rag import RAG
+from src.rag.ragBuilder import RAGBuilder
 
-rag = RAG(
-    embeddingsModel='all-MiniLM-L6-v2',
-    dataPath='./data',
-    fileExtension='**/*.pdf',
-    persistDirectory='./chromaDb',
-    collectionName='test'
-)
+rag = RAGBuilder() \
+.with_embeddings('HuggingFace', model_name='all-MiniLM-L6-v2') \
+.with_vector_store('Chroma', persist_directory='/Users/labess40/dev/rag-example/chromaDb', collection_name='test') \
+.with_llm('Ollama', model_name='llama3', system_prompt_file='/Users/labess40/dev/rag-example/systemPrompt.txt') \
+.build()
 
-llm = LLM(model='llama3', RAG=rag, systemFile='./systemPrompt.txt')
-
-rag.ingestData()
-
-llm.createGraph()
-
-llm.test({"question": "Comment gérer mon alimentation pendant un marathon ?"})
+rag.question_graph("Comment gérer mon alimentation pendant un marathon ?")
