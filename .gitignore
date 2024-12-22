@@ -1,6 +1,6 @@
 data/*
 !data/.gitkeep
-chromaDb/
+chroma*/
 **/__pycache__/
 .env
 .DS_Store
