@@ -1,4 +1,5 @@
 from src.rag.builder import Builder
+from src.config.settings import Settings
 from dotenv import load_dotenv
 import os
 
@@ -8,7 +9,7 @@ model_name = os.environ.get('MODEL_NAME')
 system_prompt_directory = os.environ.get('SYSTEM_PROMPT_DIRECTORY')
 
 llm = Builder() \
-.with_llm('Ollama', model_name=model_name, system_prompt_file=system_prompt_directory) \
+.with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
 .build_llm()
 
 def chat():
