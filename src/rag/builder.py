@@ -56,3 +56,8 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         return self.vector_store
+
+    def build_llm(self):
+        if self.llm is None:
+            raise ValueError("LLM is required")
+        return self.llm

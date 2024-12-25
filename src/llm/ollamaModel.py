@@ -29,7 +29,8 @@ class OllamaModel(LLM):
                 'role': self.role,
                 'content': new_input,
             },
-        ])
+        ],
+        )
         return response.message.content
     
     @staticmethod
