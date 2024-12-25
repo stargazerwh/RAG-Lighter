@@ -86,3 +86,9 @@ The pipeline:
 
 - Retrieves the most relevant documents using the vector model.
 - Uses the llama3 model to generate a response based on the retrieved context.
+
+## TODO
+
+- [ ] Feature : Add possibility to use custom pipeline while ingesting data inside Vector Store,
+- [ ] Feature : Add new Vector Stores,
+- [ ] Feature : Add new LLM Providers (VLLM ?, Huggingface, ...)

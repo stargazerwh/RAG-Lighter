@@ -39,3 +39,4 @@ class RAG():
         state = {"question": question}
         response = self.graph.invoke(state)
         print(response["answer"])
+        return response['answer']
