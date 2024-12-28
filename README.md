@@ -36,7 +36,7 @@ Set up the components of your RAG pipeline:
 
 ```python
 from raglight.rag.builder import Builder
-from src.raglight.config.settings import Settings
+from raglight.config.settings import Settings
 
 rag = Builder() \
     .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
