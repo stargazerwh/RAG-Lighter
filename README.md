@@ -1,49 +1,52 @@
 # RAGLight
 
-RAGLight is a lightweight and modular framework for implementing Retrieval-Augmented Generation (RAG). It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
-Designed for simplicity and flexibility, RAGLight leverages Ollama for LLM interaction and vector embeddings for efficient document similarity searches, making it an ideal tool for building context-aware AI solutions.
+**RAGLight** is a lightweight and modular framework for implementing **Retrieval-Augmented Generation (RAG)**. It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
+
+Designed for simplicity and flexibility, RAGLight leverages **Ollama** for LLM interaction and vector embeddings for efficient document similarity searches, making it an ideal tool for building context-aware AI solutions. ✨
 
 ---
 
 ## Features
 
-- **Embeddings Model**: Uses `all-MiniLM-L6-v2` for creating vector embeddings.
-- **LLM**: Employs `llama3` for inference.
-- **RAG Pipeline**: Integrates document retrieval and natural language generation into a single workflow.
-- **PDF Support**: Currently supports PDF files for ingestion.
+- 🌐 **Embeddings Model**: Uses `all-MiniLM-L6-v2` for creating compact and efficient vector embeddings, ideal for document similarity searches.
+- 🧙🏽 **LLM Integration**: Employs `llama3` for natural language inference, enabling human-like and context-aware responses.
+- ⚖️ **RAG Pipeline**: Seamlessly integrates document retrieval with natural language generation into a unified workflow.
+- 🖋️ **PDF Support**: Supports ingestion and indexing of PDF files for easy querying.
 
 ---
 
 ## Prerequisites
 
+Before you get started, make sure you have the following:
+
 - **Python**: Version >= 3.11
-- **Ollama Client**: A properly configured Ollama client.
+- **Ollama Client**: Ensure you have a properly configured Ollama client. You may need an API key or a local Ollama server instance.
 - **Python Dependencies**: See the Installation section below.
 
 ---
 
 ## Installation
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Bessouat40/rag-example.git
 cd rag-example
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
+### 3. Configure Environment Variables
 
 ```bash
 mv .env.example .env
 ```
 
-Then fill in the .env file with the necessary configuration :
+Then fill in the `.env` file with the necessary configuration:
 
 ```bash
 # Example configuration
@@ -58,11 +61,13 @@ COLLECTION_NAME_INGESTION=<Collection name for ingestion>
 DATA_PATH=./data
 ```
 
+---
+
 ## Document Ingestion
 
 To ingest your files (currently only PDF files are supported), place them in the `data` folder or the path specified by the `DATA_PATH` variable in the `.env` file.
 
-Run the following script to index the documents :
+Run the following script to index the documents:
 
 ```bash
 python ingestion_example.py
@@ -70,9 +75,11 @@ python ingestion_example.py
 
 This script:
 
-- Loads the embeddings model specified in `.env`.
-- Uses the `VectorStore` (Chroma) to index the documents.
-- Creates a persistent index in the directory defined by `PERSIST_DIRECTORY_INGESTION`.
+- ⏳ Loads the embeddings model specified in `.env`.
+- 🎮 Uses the `VectorStore` (Chroma) to index the documents.
+- 🔐 Creates a persistent index in the directory defined by `PERSIST_DIRECTORY_INGESTION`.
+
+---
 
 ## Query the Model (RAG Pipeline)
 
@@ -84,11 +91,15 @@ python rag_example.py
 
 The pipeline:
 
-- Retrieves the most relevant documents using the vector model.
-- Uses the llama3 model to generate a response based on the retrieved context.
+- 🔍 Retrieves the most relevant documents using the vector model.
+- 🤖 Uses the `llama3` model to generate a response based on the retrieved context.
+
+---
 
 ## TODO
 
-- [ ] Feature : Add possibility to use custom pipeline while ingesting data inside Vector Store,
-- [ ] Feature : Add new Vector Stores,
-- [ ] Feature : Add new LLM Providers (VLLM ?, Huggingface, ...)
+- [ ] **Feature**: Add the possibility to use custom pipelines while ingesting data into the Vector Store.
+- [ ] **Feature**: Add support for new Vector Stores (e.g., FAISS, Weaviate, Milvus).
+- [ ] **Feature**: Integrate new LLM providers (e.g., VLLM, HuggingFace, GPT-Neo).
+
+---
