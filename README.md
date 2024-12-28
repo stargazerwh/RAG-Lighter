@@ -1,98 +1,86 @@
 # RAGLight
 
-**RAGLight** is a lightweight and modular framework for implementing **Retrieval-Augmented Generation (RAG)**. It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
+**RAGLight** is a lightweight and modular Python library for implementing **Retrieval-Augmented Generation (RAG)**. It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
 
-Designed for simplicity and flexibility, RAGLight leverages **Ollama** for LLM interaction and vector embeddings for efficient document similarity searches, making it an ideal tool for building context-aware AI solutions. ✨
-
----
-
-## Features
-
-- 🌐 **Embeddings Model**: Uses `all-MiniLM-L6-v2` for creating compact and efficient vector embeddings, ideal for document similarity searches.
-- 🧙🏽 **LLM Integration**: Employs `llama3` for natural language inference, enabling human-like and context-aware responses.
-- ⚖️ **RAG Pipeline**: Seamlessly integrates document retrieval with natural language generation into a unified workflow.
-- 🖋️ **PDF Support**: Supports ingestion and indexing of PDF files for easy querying.
+Designed for simplicity and flexibility, RAGLight provides modular components to easily integrate various LLMs, embeddings, and vector stores, making it an ideal tool for building context-aware AI solutions. ✨
 
 ---
 
-## Prerequisites
+## Features 🔥
 
-Before you get started, make sure you have the following:
-
-- **Python**: Version >= 3.11
-- **Ollama Client**: Ensure you have a properly configured Ollama client. You may need an API key or a local Ollama server instance.
-- **Python Dependencies**: See the Installation section below.
+- 🌐 **Embeddings Model Integration**: Plug in your preferred embedding models (e.g., HuggingFace `all-MiniLM-L6-v2`) for compact and efficient vector embeddings.
+- 🧙🏽 **LLM Agnostic**: Seamlessly integrates with different LLMs, such as `llama3` or custom providers, for natural language inference.
+- ⚖️ **RAG Pipeline**: Combines document retrieval and language generation in a unified workflow.
+- 🖋️ **Flexible Document Support**: Ingest and index various document types (e.g., PDF, TXT, DOCX).
+- 🛠️ **Extensible Architecture**: Easily swap vector stores, embedding models, or LLMs to suit your needs.
 
 ---
 
-## Installation
+## Installation 🛠️
 
-### 1. Clone the Repository
+Install RAGLight directly from PyPI:
 
 ```bash
-git clone https://github.com/Bessouat40/rag-example.git
-cd rag-example
+pip install raglight
 ```
 
-### 2. Install Dependencies
+---
 
-```bash
-pip install -r requirements.txt
+## Quick Start 🚀
+
+### **1. Configure Your Pipeline**
+
+Set up the components of your RAG pipeline:
+
+```python
+from raglight.rag.builder import Builder
+from src.raglight.config.settings import Settings
+
+rag = Builder() \
+    .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
+    .with_vector_store(Settings.CHROMA, persist_directory=persist_directory, collection_name=collection_name) \
+    .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
+    .build_rag()
 ```
 
-### 3. Configure Environment Variables
+### **2. Ingest Documents**
 
-```bash
-mv .env.example .env
+Use the pipeline to ingest documents into the vector store:
+
+```python
+rag.vector_store.ingest(file_extension='**/*.pdf', data_path='./data')
 ```
 
-Then fill in the `.env` file with the necessary configuration:
+### **3. Query the Pipeline**
+
+Retrieve and generate answers using the RAG pipeline:
+
+```python
+response = rag.question_graph("How can I optimize my marathon training?")
+print(response)
+```
+
+---
+
+## Advanced Configuration ⚙️
+
+### Environment Variables
+
+Configure the pipeline with environment variables for better modularity:
 
 ```bash
-# Example configuration
-OLLAMA_CLIENT=<URL or key for the Ollama client>
-PERSIST_DIRECTORY=<Path to store inference data>
-PERSIST_DIRECTORY_INGESTION=<Path to store ingestion data>
+export PERSIST_DIRECTORY=./vectorstore
+export MODEL_EMBEDDINGS=all-MiniLM-L6-v2
+export MODEL_NAME=llama3
+```
+
+You can also define these in a `.env` file:
+
+```bash
+PERSIST_DIRECTORY=./vectorstore
 MODEL_EMBEDDINGS=all-MiniLM-L6-v2
 MODEL_NAME=llama3
-SYSTEM_PROMPT_DIRECTORY=<Path to the system prompt file>
-COLLECTION_NAME=<Collection name for inference>
-COLLECTION_NAME_INGESTION=<Collection name for ingestion>
-DATA_PATH=./data
 ```
-
----
-
-## Document Ingestion
-
-To ingest your files (currently only PDF files are supported), place them in the `data` folder or the path specified by the `DATA_PATH` variable in the `.env` file.
-
-Run the following script to index the documents:
-
-```bash
-python ingestion_example.py
-```
-
-This script:
-
-- ⏳ Loads the embeddings model specified in `.env`.
-- 🎮 Uses the `VectorStore` (Chroma) to index the documents.
-- 🔐 Creates a persistent index in the directory defined by `PERSIST_DIRECTORY_INGESTION`.
-
----
-
-## Query the Model (RAG Pipeline)
-
-To query the RAG pipeline, use the following script:
-
-```bash
-python rag_example.py
-```
-
-The pipeline:
-
-- 🔍 Retrieves the most relevant documents using the vector model.
-- 🤖 Uses the `llama3` model to generate a response based on the retrieved context.
 
 ---
 
@@ -103,3 +91,5 @@ The pipeline:
 - [ ] **Feature**: Integrate new LLM providers (e.g., VLLM, HuggingFace, GPT-Neo).
 
 ---
+
+🚀 **Get started with RAGLight today and build smarter, context-aware AI solutions!**
