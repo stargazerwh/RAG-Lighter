@@ -1,5 +1,5 @@
-from src.rag.builder import Builder
-from src.config.settings import Settings
+from src.raglight.rag.builder import Builder
+from src.raglight.config.settings import Settings
 from dotenv import load_dotenv
 import os
 

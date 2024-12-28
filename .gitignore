@@ -5,3 +5,10 @@ chroma*/
 .env
 .DS_Store
 api/
+build/
+setup.py
+MANIFEST.in
+pyproject.toml
+src/raglight.egg-info/
+dist/
+build/
