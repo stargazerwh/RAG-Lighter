@@ -17,5 +17,4 @@ rag = Builder() \
 .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
 .build_rag()
 
-#RAG retrieve data in french so question is in french
-rag.question_graph("Comment gérer mon alimentation pendant un marathon ?")
+rag.question_graph("How to program a marathon preparation ?")
