@@ -50,6 +50,10 @@ pip install -r requirements.txt
 
 ---
 
+## Requirements
+
+All you need actually is Ollama running on your computer.
+
 ## Quick Start 🚀
 
 ### Use Default Pipeline ⭐️
