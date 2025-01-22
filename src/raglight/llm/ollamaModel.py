@@ -22,6 +22,7 @@ class OllamaModel(LLM):
     def __init__(
         self,
         model_name: str,
+        system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
         role: str = "user",
     ) -> None:
@@ -30,16 +31,18 @@ class OllamaModel(LLM):
 
         Args:
             model_name (str): The name of the Ollama model to be loaded.
+            system_prompt (Optional[str]): System prompt. Defaults to None.
             system_prompt_file (Optional[str]): Path to a file containing a custom system prompt. Defaults to None.
             role (str): The role of the user in the chat (e.g., 'user', 'assistant'). Defaults to 'user'.
         """
         super().__init__(model_name)
         self.role: str = role
-        self.system_prompt: str = (
-            ""
-            if system_prompt_file is None
-            else self.load_system_prompt(system_prompt_file)
-        )
+        if system_prompt_file is not None:
+            self.system_prompt: str = self.load_system_prompt(system_prompt_file)
+        elif system_prompt is not None:
+            self.system_prompt: str = system_prompt
+        else:
+            self.system_prompt: str = ""
 
     @override
     def load(self) -> Client:

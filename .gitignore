@@ -12,3 +12,4 @@ src/raglight.egg-info/
 systemPrompt.txt
 dist/
 build/
+defaultDb/
