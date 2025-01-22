@@ -1,13 +1,14 @@
 from raglight.rag.simple_rag_api import RAGPipeline
+from raglight.models.data_source_model import FolderSource
 from raglight.config.settings import Settings
 
 Settings.setup_logging()
 
 pipeline = RAGPipeline(knowledge_base=[
-{"name": "PDFs", "type": "folder", "path": "<path to your folder with pdf>/grece"},
+FolderSource(path="<path to your folder with pdf>/knowledge_base")
 ])
 
 pipeline.build()
 
-response = pipeline.generate("Tell me something about grece mythology please")
+response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
 print(response)

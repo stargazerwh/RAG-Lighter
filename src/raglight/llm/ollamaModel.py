@@ -6,6 +6,7 @@ from ollama import Client
 from os import environ
 from json import dumps
 
+
 class OllamaModel(LLM):
     """
     Implementation of the LLM abstract base class for the Ollama model.
@@ -37,12 +38,13 @@ class OllamaModel(LLM):
         """
         super().__init__(model_name)
         self.role: str = role
+        self.system_prompt: str = ""
         if system_prompt_file is not None:
-            self.system_prompt: str = self.load_system_prompt(system_prompt_file)
+            self.system_prompt = self.load_system_prompt(system_prompt_file)
         elif system_prompt is not None:
-            self.system_prompt: str = system_prompt
+            self.system_prompt = system_prompt
         else:
-            self.system_prompt: str = ""
+            self.system_prompt = ""
 
     @override
     def load(self) -> Client:

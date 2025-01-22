@@ -6,10 +6,11 @@ chroma*/
 .DS_Store
 api/
 build/
-setup.py
 MANIFEST.in
 src/raglight.egg-info/
 systemPrompt.txt
 dist/
 build/
 defaultDb/
+.mypy_cache/
+.pytest_cache/
