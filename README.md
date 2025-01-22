@@ -20,7 +20,15 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 ---
 
-## Installation 🛠️
+## Import library 🛠️
+
+If you want to install library, use :
+
+```bash
+pip install raglight
+```
+
+## Installation without import 🛠️
 
 - Install RAGLight directly from PyPI:
 
