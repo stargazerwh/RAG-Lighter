@@ -9,5 +9,6 @@ build/
 setup.py
 MANIFEST.in
 src/raglight.egg-info/
+systemPrompt.txt
 dist/
 build/
