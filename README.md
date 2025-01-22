@@ -52,6 +52,26 @@ pip install -r requirements.txt
 
 ## Quick Start 🚀
 
+### Use Default Pipeline ⭐️
+
+You can setup with two lines your RAG with RAGLight:
+
+```python
+from raglight.rag.simple_rag_api import RAGPipeline
+from raglight.config.settings import Settings
+
+Settings.setup_logging()
+
+pipeline = RAGPipeline(knowledge_base=[
+{"name": "PDFs", "type": "folder", "path": "<path to your folder with pdf>/grece"},
+])
+
+pipeline.build()
+
+response = pipeline.generate("Tell me something about grece mythology please")
+print(response)
+```
+
 ### **1. Configure Your Pipeline**
 
 Set up the components of your RAG pipeline:
