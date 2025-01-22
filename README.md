@@ -52,6 +52,27 @@ pip install -r requirements.txt
 
 ## Quick Start 🚀
 
+### Use Default Pipeline ⭐️
+
+You can setup with two lines your RAG with RAGLight:
+
+```python
+from raglight.rag.simple_rag_api import RAGPipeline
+from raglight.models.data_source_model import FolderSource
+from raglight.config.settings import Settings
+
+Settings.setup_logging()
+
+pipeline = RAGPipeline(knowledge_base=[
+FolderSource(path="<path to your folder with pdf>/knowledge_base")
+])
+
+pipeline.build()
+
+response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
+print(response)
+```
+
 ### **1. Configure Your Pipeline**
 
 Set up the components of your RAG pipeline:
