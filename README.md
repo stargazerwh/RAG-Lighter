@@ -20,10 +20,22 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 ## Installation 🛠️
 
-Install RAGLight directly from PyPI:
+- Install RAGLight directly from PyPI:
 
 ```bash
-pip install raglight
+poetry install
+```
+
+Then you can run your code :
+
+```bash
+poetry run python my_code.py
+```
+
+- If you want to use `pip install` :
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
