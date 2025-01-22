@@ -1,0 +1,27 @@
+[project]
+name = "raglight"
+version = "0.1.4"
+description = "RAGLight is a lightweight and modular Python library for implementing Retrieval-Augmented Generation (RAG). It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference."
+authors = [
+    {name = "Bessouat40",email = "roman.bessouat@orange.fr"}
+]
+license = {text = "Designed for simplicity and flexibility, RAGLight provides modular components to easily integrate various LLMs, embeddings, and vector stores, making it an ideal tool for building context-aware AI solutions. ✨MIT"}
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "langgraph (==0.2.59)",
+    "langchain_ollama (==0.2.1)",
+    "langchain_chroma (==0.1.4)",
+    "langchain_huggingface (==0.1.2)",
+    "typing (==3.7.4.3)",
+    "langchain_community (==0.3.11)",
+    "typing_extensions (==4.12.2)",
+    "langchain_text_splitters (==0.3.2)",
+    "langchain_core (==0.3.24)",
+    "ollama (==0.4.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
