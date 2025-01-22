@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+Settings.setup_logging()
 
 persist_directory = os.environ.get('PERSIST_DIRECTORY_INGESTION')
 model_embeddings = os.environ.get('MODEL_EMBEDDINGS')

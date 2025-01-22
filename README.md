@@ -1,5 +1,12 @@
 # RAGLight
 
+<<<<<<< HEAD
+=======
+[![PyPI version](https://badge.fury.io/py/raglight.svg)](https://badge.fury.io/py/raglight)
+![License](https://img.shields.io/github/license/Bessouat40/RAGLight)
+![PyPI Downloads](https://img.shields.io/pypi/dm/raglight)
+
+>>>>>>> refacto
 **RAGLight** is a lightweight and modular Python library for implementing **Retrieval-Augmented Generation (RAG)**. It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
 
 Designed for simplicity and flexibility, RAGLight provides modular components to easily integrate various LLMs, embeddings, and vector stores, making it an ideal tool for building context-aware AI solutions. ✨
@@ -18,10 +25,22 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 ## Installation 🛠️
 
-Install RAGLight directly from PyPI:
+- Install RAGLight directly from PyPI:
 
 ```bash
-pip install raglight
+poetry install
+```
+
+Then you can run your code :
+
+```bash
+poetry run python my_code.py
+```
+
+- If you want to use `pip install` :
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---

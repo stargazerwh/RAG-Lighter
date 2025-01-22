@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+Settings.setup_logging()
 
 model_name = os.environ.get('MODEL_NAME')
 system_prompt_directory = os.environ.get('SYSTEM_PROMPT_DIRECTORY')

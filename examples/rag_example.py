@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+Settings.setup_logging()
 
 persist_directory = os.environ.get('PERSIST_DIRECTORY')
 model_embeddings = os.environ.get('MODEL_EMBEDDINGS')
@@ -17,4 +18,5 @@ rag = Builder() \
 .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
 .build_rag()
 
-rag.question_graph("How to program a marathon preparation ?")
+response = rag.question_graph("Can you tell me something about grece mythology ?")
+print(response)

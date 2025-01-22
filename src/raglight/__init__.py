@@ -4,7 +4,7 @@ from .vectorestore.chroma import ChromaVS
 from .embeddings.embeddingsModel import EmbeddingsModel
 
 from .llm.llm import LLM
-from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddings
+from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
 from .llm.ollamaModel import OllamaModel
 
 from .rag.rag import RAG
