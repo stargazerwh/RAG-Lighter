@@ -4,7 +4,7 @@ from raglight.config.settings import Settings
 Settings.setup_logging()
 
 pipeline = RAGPipeline(knowledge_base=[
-{"name": "PDFs", "type": "folder", "path": "/Users/labess40/Desktop/nutrition/grece"},
+{"name": "PDFs", "type": "folder", "path": "<path to your folder with pdf>/grece"},
 ])
 
 pipeline.build()
