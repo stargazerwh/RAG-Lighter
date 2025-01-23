@@ -5,6 +5,7 @@ from typing import List
 import logging
 from ..models.data_source_model import GitHubSource
 
+
 class GithubScrapper:
     """
     A utility class for cloning and managing GitHub repositories.
@@ -13,14 +14,14 @@ class GithubScrapper:
         repo_urls (List[str]): A list of GitHub repository URLs to manage.
     """
 
-    def __init__(self, repositories: List[GitHubSource] = None) -> None:
+    def __init__(self) -> None:
         """
         Initializes a GithubScrapper instance.
 
         Args:
             repositories (List[GitHubSource], optional): A list of GitHub repository sources to manage. Defaults to None.
         """
-        self.repo_urls: List[str] = [repo.url for repo in repositories] if repositories else []
+        pass
 
     @staticmethod
     def clone_github_repo(repo_url: str, clone_path: str, branch: str = "main") -> None:
@@ -36,10 +37,10 @@ class GithubScrapper:
             subprocess.CalledProcessError: If the git command fails.
             Exception: If an unexpected error occurs during cloning.
         """
-        try:    
+        try:
             command = ["git", "clone", "--branch", branch, repo_url, clone_path]
             logging.info(f"Executing: {' '.join(command)}")
-            
+
             subprocess.run(command, check=True)
             logging.info("✅ Clone successful!")
         except subprocess.CalledProcessError as e:
@@ -60,12 +61,12 @@ class GithubScrapper:
         temp_dir = tempfile.mkdtemp()
         temp_path = Path(temp_dir)
         logging.info(f"Cloning repositories into folder: {temp_path}")
-        
+
         for url in self.repo_urls:
             repo_name = url.split("/")[-1].replace(".git", "")
             clone_path = temp_path / repo_name
             self.clone_github_repo(url, str(clone_path), branch)
-        
+
         return str(temp_path)
 
     def get_urls(self) -> List[str]:
@@ -76,12 +77,12 @@ class GithubScrapper:
             List[str]: The list of repository URLs.
         """
         return self.repo_urls
-    
-    def set_repositories(self, repositories: List[GitHubSource]) -> None:
+
+    def set_repositories(self, repositories: List[str]) -> None:
         """
         Sets the list of GitHub repositories to manage.
 
         Args:
             repositories (List[GitHubSource]): A list of GitHub repository sources to manage.
         """
-        self.repo_urls = [repo.url for repo in repositories]
+        self.repo_urls = repositories

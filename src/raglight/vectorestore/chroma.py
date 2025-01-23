@@ -126,9 +126,9 @@ class ChromaVS(VectorStore):
         docs = loader.load()
         logging.info(f"✅ {len(docs)} documents loaded")
         return docs
-    
+
     @override
-    def ingest_code(self, repos_path: str) -> None:
+    def ingest_code(self, **kwargs: Any) -> None:
         """
         Ingests code from repositories, splits it based on the language, and indexes it.
 
@@ -136,6 +136,7 @@ class ChromaVS(VectorStore):
             repo_urls (List[str]): List of GitHub repository URLs to ingest.
             branch (str, optional): The branch of each repository to clone. Defaults to "main".
         """
+        repos_path = kwargs.get("repos_path", "")
         all_splits = []
         for root, _, files in os.walk(repos_path):
             for file in files:
@@ -157,7 +158,7 @@ class ChromaVS(VectorStore):
         self.add_index(all_splits)
         logging.info("🎉 All code files ingested and indexed")
 
-    def get_language_from_extension(self, extension: str) -> Language:
+    def get_language_from_extension(self, extension: str) -> Language | None:
         """
         Maps a file extension to a Language enum.
 

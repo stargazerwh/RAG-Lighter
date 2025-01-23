@@ -1,5 +1,5 @@
 from typing import List
-import os
+import shutil
 import logging
 from ..rag.builder import Builder
 from ..rag.rag import RAG
@@ -74,8 +74,8 @@ class RAGPipeline:
         """
         self.github_scrapper.set_repositories(repositories)
         repos_path: str = self.github_scrapper.clone_all()
-        self.rag.vector_store.ingest_code(repos_path)
-        os.rmdir(repos_path)
+        self.rag.vector_store.ingest_code(repos_path=repos_path)
+        shutil.rmtree(repos_path)
         logging.info("✅ GitHub repositories cleaned successfully!")
 
     def generate(self, question: str) -> str:
