@@ -9,7 +9,7 @@ class FolderSource(BaseModel):
 
 class GitHubSource(BaseModel):
     type: Literal["github"] = "github"
-    urls: List[HttpUrl]
+    url: str
 
 
 DataSource = Union[FolderSource, GitHubSource]

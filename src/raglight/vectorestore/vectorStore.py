@@ -42,6 +42,16 @@ class VectorStore(ABC):
         pass
 
     @abstractmethod
+    def ingest_code(self, **kwargs: Any) -> None:
+        """
+        Abstract method to ingest and index code in the vector store.
+
+        Args:
+            **kwargs (Any): Additional parameters required for ingestion, depending on the implementation.
+        """
+        pass
+
+    @abstractmethod
     def similarity_search(self, question: str, k: int = 2) -> List[Any]:
         """
         Abstract method to perform similarity search in the vector store.
