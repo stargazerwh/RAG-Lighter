@@ -1,17 +1,30 @@
+from typing import List
+import os
+import logging
 from ..rag.builder import Builder
 from ..rag.rag import RAG
 from ..config.settings import Settings
-from typing import List
-from ..models.data_source_model import DataSource, FolderSource
+from ..models.data_source_model import DataSource, FolderSource, GitHubSource
+from ..scrapper.github_scrapper import GithubScrapper
 
 
 class RAGPipeline:
+    """
+    A class that represents a Retrieval-Augmented Generation (RAG) pipeline.
+
+    The pipeline combines various data sources (e.g., local folders, GitHub repositories),
+    embeddings, and a language model to provide context-aware answers to questions.
+    """
+
     def __init__(
-        self, knowledge_base: List[DataSource], model_name=Settings.DEFAULT_LLM
+        self, knowledge_base: List[DataSource], model_name: str = Settings.DEFAULT_LLM
     ) -> None:
         """
-        Initialize the pipeline with data sources.
-        :param data_sources: List of data source objects.
+        Initializes the RAGPipeline with a knowledge base and model.
+
+        Args:
+            knowledge_base (List[DataSource]): A list of data source objects (e.g., FolderSource, GitHubSource).
+            model_name (str, optional): The name of the LLM to use. Defaults to Settings.DEFAULT_LLM.
         """
         self.knowledge_base: List[DataSource] = knowledge_base
         model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
@@ -32,22 +45,48 @@ class RAGPipeline:
             )
             .build_rag()
         )
+        self.github_scrapper: GithubScrapper = GithubScrapper()
 
     def build(self) -> None:
         """
-        Build the pipeline by creating embeddings and setting up the vector store.
+        Builds the RAG pipeline by ingesting data from the knowledge base.
+
+        This method processes the data sources (e.g., folders, GitHub repositories)
+        and creates the embeddings for the vector store.
         """
+        repositories: List[str] = []
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.rag.vector_store.ingest(
                     file_extension=self.file_extension, data_path=source.path
                 )
+            if isinstance(source, GitHubSource):
+                repositories.append(source.url)
+        if len(repositories) > 0:
+            self.ingest_github_repositories(repositories)
+
+    def ingest_github_repositories(self, repositories: List[str]) -> None:
+        """
+        Clones and processes GitHub repositories for the pipeline.
+
+        Args:
+            repositories (List[str]): A list of GitHub repository URLs to clone and ingest.
+        """
+        self.github_scrapper.set_repositories(repositories)
+        repos_path: str = self.github_scrapper.clone_all()
+        self.rag.vector_store.ingest_code(repos_path)
+        os.rmdir(repos_path)
+        logging.info("✅ GitHub repositories cleaned successfully!")
 
     def generate(self, question: str) -> str:
         """
-        Ask a question to the pipeline.
-        :param question: The question to ask.
-        :return: The generated answer.
+        Asks a question to the pipeline and retrieves the generated answer.
+
+        Args:
+            question (str): The question to ask the pipeline.
+
+        Returns:
+            str: The generated answer from the pipeline.
         """
-        response = self.rag.question_graph(question)
+        response: str = self.rag.question_graph(question)
         return response

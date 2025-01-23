@@ -4,7 +4,8 @@ from typing_extensions import override
 from .vectorStore import VectorStore
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
+import os
 from ..embeddings.embeddingsModel import EmbeddingsModel
 
 
@@ -125,3 +126,66 @@ class ChromaVS(VectorStore):
         docs = loader.load()
         logging.info(f"✅ {len(docs)} documents loaded")
         return docs
+    
+    @override
+    def ingest_code(self, repos_path: str) -> None:
+        """
+        Ingests code from repositories, splits it based on the language, and indexes it.
+
+        Args:
+            repo_urls (List[str]): List of GitHub repository URLs to ingest.
+            branch (str, optional): The branch of each repository to clone. Defaults to "main".
+        """
+        all_splits = []
+        for root, _, files in os.walk(repos_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                file_extension = os.path.splitext(file)[1][1:]
+                language = self.get_language_from_extension(file_extension)
+                if language:
+                    logging.info(f"⏳ Processing {file_path} as {language}")
+                    with open(file_path, "r") as f:
+                        code = f.read()
+                    splitter = RecursiveCharacterTextSplitter.from_language(
+                        language=language, chunk_size=1000, chunk_overlap=100
+                    )
+                    splits = splitter.create_documents([code])
+                    all_splits.extend(splits)
+                else:
+                    logging.warning(f"⚠️ Unsupported file type: {file_path}")
+
+        self.add_index(all_splits)
+        logging.info("🎉 All code files ingested and indexed")
+
+    def get_language_from_extension(self, extension: str) -> Language:
+        """
+        Maps a file extension to a Language enum.
+
+        Args:
+            extension (str): File extension (e.g., 'py', 'js').
+
+        Returns:
+            Language: Corresponding Language enum, or None if not supported.
+        """
+        extension_to_language = {
+            "py": Language.PYTHON,
+            "js": Language.JS,
+            "ts": Language.TS,
+            "java": Language.JAVA,
+            "cpp": Language.CPP,
+            "go": Language.GO,
+            "php": Language.PHP,
+            "rb": Language.RUBY,
+            "rs": Language.RUST,
+            "scala": Language.SCALA,
+            "swift": Language.SWIFT,
+            "md": Language.MARKDOWN,
+            "html": Language.HTML,
+            "sol": Language.SOL,
+            "cs": Language.CSHARP,
+            "c": Language.C,
+            "lua": Language.LUA,
+            "pl": Language.PERL,
+            "hs": Language.HASKELL,
+        }
+        return extension_to_language.get(extension)
