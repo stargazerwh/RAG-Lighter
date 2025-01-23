@@ -5,6 +5,7 @@ from .llm import LLM
 from ollama import Client
 from os import environ
 from json import dumps
+import logging
 
 
 class OllamaModel(LLM):
@@ -37,6 +38,7 @@ class OllamaModel(LLM):
             role (str): The role of the user in the chat (e.g., 'user', 'assistant'). Defaults to 'user'.
         """
         super().__init__(model_name)
+        logging.info(f"Using Ollama with {model_name} model 🤖")
         self.role: str = role
         self.system_prompt: str = ""
         if system_prompt_file is not None:

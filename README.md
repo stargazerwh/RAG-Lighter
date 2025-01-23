@@ -9,6 +9,10 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 ---
 
+> ## Requirements
+>
+> Actually you need Ollama running on your computer.
+
 ## Features 🔥
 
 - 🌐 **Embeddings Model Integration**: Plug in your preferred embedding models (e.g., HuggingFace `all-MiniLM-L6-v2`) for compact and efficient vector embeddings.
@@ -48,10 +52,6 @@ pip install -r requirements.txt
 ```
 
 ---
-
-## Requirements
-
-All you need actually is Ollama running on your computer.
 
 ## Quick Start 🚀
 

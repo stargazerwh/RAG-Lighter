@@ -6,7 +6,7 @@ Settings.setup_logging()
 
 pipeline = RAGPipeline(knowledge_base=[
 FolderSource(path="<path to your folder with pdf>/knowledge_base")
-])
+], model_name="llama3")
 
 pipeline.build()
 
