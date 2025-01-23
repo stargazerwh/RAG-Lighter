@@ -1,6 +1,5 @@
 # RAGLight
 
-[![PyPI version](https://badge.fury.io/py/raglight.svg)](https://badge.fury.io/py/raglight)
 ![License](https://img.shields.io/github/license/Bessouat40/RAGLight)
 [![Downloads](https://static.pepy.tech/personalized-badge/raglight?period=total&units=international_system&left_color=grey&right_color=red&left_text=Downloads)](https://pepy.tech/projects/raglight)
 
