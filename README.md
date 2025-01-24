@@ -3,6 +3,10 @@
 ![License](https://img.shields.io/github/license/Bessouat40/RAGLight)
 [![Downloads](https://static.pepy.tech/personalized-badge/raglight?period=total&units=international_system&left_color=grey&right_color=red&left_text=Downloads)](https://pepy.tech/projects/raglight)
 
+<div align="center">
+    <img alt="ollama" height="200px" src="./media/raglight.png">
+</div>
+
 **RAGLight** is a lightweight and modular Python library for implementing **Retrieval-Augmented Generation (RAG)**. It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference.
 
 Designed for simplicity and flexibility, RAGLight provides modular components to easily integrate various LLMs, embeddings, and vector stores, making it an ideal tool for building context-aware AI solutions. ✨
