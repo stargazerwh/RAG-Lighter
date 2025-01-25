@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Dict, Any
 from typing_extensions import override
+from ..config.settings import Settings
 from .llm import LLM
 from ollama import Client
 from os import environ
@@ -57,7 +58,7 @@ class OllamaModel(LLM):
             Client: An instance of the Ollama model client, configured with the necessary host and headers.
         """
         return Client(
-            host=environ.get("OLLAMA_HOST"), headers={"x-some-header": "some-value"}
+            host=Settings.DEFAULT_OLLAMA_CLIENT, headers={"x-some-header": "some-value"}
         )
 
     @override
