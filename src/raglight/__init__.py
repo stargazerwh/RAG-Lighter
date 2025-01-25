@@ -11,4 +11,6 @@ from .rag.rag import RAG
 from .rag.simple_rag_api import RAGPipeline
 from .rag.builder import Builder
 
+from .rat.rat import RAT
+
 from .config.settings import Settings

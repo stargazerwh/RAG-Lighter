@@ -3,6 +3,7 @@ import shutil
 import logging
 from ..rag.builder import Builder
 from ..rag.rag import RAG
+from ..vectorestore.vectorStore import VectorStore
 from ..config.settings import Settings
 from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 from ..scrapper.github_scrapper import GithubScrapper
@@ -47,6 +48,9 @@ class RAGPipeline:
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 
+    def get_vector_store(self) -> VectorStore:
+        return self.rag.vector_store
+
     def build(self) -> None:
         """
         Builds the RAG pipeline by ingesting data from the knowledge base.
@@ -57,7 +61,7 @@ class RAGPipeline:
         repositories: List[str] = []
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
-                self.rag.vector_store.ingest(
+                self.get_vector_store().ingest(
                     file_extension=self.file_extension, data_path=source.path
                 )
             if isinstance(source, GitHubSource):
@@ -74,7 +78,7 @@ class RAGPipeline:
         """
         self.github_scrapper.set_repositories(repositories)
         repos_path: str = self.github_scrapper.clone_all()
-        self.rag.vector_store.ingest_code(repos_path=repos_path)
+        self.get_vector_store().ingest_code(repos_path=repos_path)
         shutil.rmtree(repos_path)
         logging.info("✅ GitHub repositories cleaned successfully!")
 
