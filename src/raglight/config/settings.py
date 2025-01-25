@@ -1,4 +1,5 @@
 import logging
+import os
 
 
 class Settings:
@@ -44,5 +45,5 @@ class Settings:
         """
     DEFAULT_COLLECTION_NAME = "default"
     DEFAULT_PERSIST_DIRECTORY = "./defaultDb"
-    DEFAULT_OLLAMA_CLIENT = "http://localhost:11434"
+    DEFAULT_OLLAMA_CLIENT = os.environ.get("OLLAMA_CLIENT_URL", "http://localhost:11434")
     DEFAULT_EXTENSIONS = "**/[!.]*"
