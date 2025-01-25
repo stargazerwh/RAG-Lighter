@@ -1,4 +1,5 @@
 import logging
+import os
 
 
 class Settings:
@@ -17,7 +18,9 @@ class Settings:
     HUGGINGFACE = "HuggingFace"
     DEFAULT_LLM = "llama3"
     DEFAULT_EMBEDDINGS_MODEL = "all-MiniLM-L6-v2"
-    DEFAULT_SYSTEM_PROMPT=contextual_prompt = """
+    DEFAULT_SYSTEM_PROMPT = (
+        contextual_prompt
+    ) = """
         # I am a Context-Aware Assistant:
         - My primary role is to utilize the provided context (e.g., documents, code, or descriptions) to answer user questions accurately and effectively.
         - I adapt my responses based on the given context, aiming to provide relevant, clear, and actionable information.
@@ -42,5 +45,7 @@ class Settings:
         """
     DEFAULT_COLLECTION_NAME = "default"
     DEFAULT_PERSIST_DIRECTORY = "./defaultDb"
-    DEFAULT_OLLAMA_CLIENT = "http://localhost:11434"
+    DEFAULT_OLLAMA_CLIENT = os.environ.get(
+        "OLLAMA_CLIENT_URL", "http://localhost:11434"
+    )
     DEFAULT_EXTENSIONS = "**/[!.]*"
