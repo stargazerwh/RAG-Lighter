@@ -54,8 +54,14 @@ class RAT(RAG):
         reflection = input
         for _ in range(iterations):
             retrieved_docs = self.retrieve({"question": reflection})
-            docs_content = "\n\n".join(doc.page_content for doc in retrieved_docs["context"])
-            prompt_json = {"question": input, "context": docs_content, "reflection": reflection}
+            docs_content = "\n\n".join(
+                doc.page_content for doc in retrieved_docs["context"]
+            )
+            prompt_json = {
+                "question": input,
+                "context": docs_content,
+                "reflection": reflection,
+            }
             response = self.reasoning_llm.generate(prompt_json)
             think = re.findall(Settings.THINKING_PATTERN, response, re.DOTALL)
             if not think:

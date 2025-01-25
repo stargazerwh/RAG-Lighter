@@ -102,7 +102,7 @@ class Builder:
             raise ValueError(f"Unknown LLM type: {type}")
         logging.info("✅ LLM created")
         return self
-    
+
     def with_reasoning_llm(self, type: str, **kwargs) -> "Builder":
         """
         Configures the reasoning large language model (LLM).
@@ -120,7 +120,9 @@ class Builder:
         logging.info("⏳ Creating a reasoning LLM...")
         model_name = kwargs.get("model_name", "")
         if not any(model_name.startswith(prefix) for prefix in Settings.REASONING_LLMS):
-            raise ValueError(f"Invalid LLM type: {type}. Must start with one of {Settings.REASONING_LLM}.")
+            raise ValueError(
+                f"Invalid LLM type: {type}. Must start with one of {Settings.REASONING_LLMS}."
+            )
 
         if type == Settings.OLLAMA:
             self.reasoning_llm = OllamaModel(**kwargs)
@@ -129,7 +131,6 @@ class Builder:
 
         logging.info("✅ Reasoning LLM created")
         return self
-
 
     def build_rag(self) -> RAG:
         """
@@ -151,7 +152,7 @@ class Builder:
         self.rag = RAG(self.embeddings, self.vector_store, self.llm)
         logging.info("✅ RAG pipeline created")
         return self.rag
-    
+
     def build_rat(self) -> RAT:
         if self.vector_store is None:
             raise ValueError("VectorStore is required")
@@ -165,7 +166,7 @@ class Builder:
         self.rat = RAT(self.embeddings, self.vector_store, self.reasoning_llm, self.llm)
         logging.info("✅ RAT pipeline created")
         return self.rat
-    
+
     def build_vector_store(self) -> VectorStore:
         """
         Returns the configured vector store instance.

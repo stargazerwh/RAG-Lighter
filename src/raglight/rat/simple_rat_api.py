@@ -20,13 +20,16 @@ class RATPipeline(RAGPipeline):
     """
 
     def __init__(
-        self, knowledge_base: List[DataSource], model_name: str = Settings.DEFAULT_LLM, reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM
+        self,
+        knowledge_base: List[DataSource],
+        model_name: str = Settings.DEFAULT_LLM,
+        reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM,
     ) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
 
         Args:
-            knowledge_base (List[DataSource]): A list of data sources (e.g., FolderSource, GitHubSource) 
+            knowledge_base (List[DataSource]): A list of data sources (e.g., FolderSource, GitHubSource)
                 to be used for document retrieval and context building.
             model_name (str, optional): The name of the LLM to use for generating answers. Defaults to Settings.DEFAULT_LLM.
             reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
@@ -49,7 +52,9 @@ class RATPipeline(RAGPipeline):
                 Settings.OLLAMA, model_name=model_name, system_prompt=system_prompt
             )
             .with_reasoning_llm(
-                Settings.OLLAMA, model_name=reasoning_model_name, system_prompt=system_prompt
+                Settings.OLLAMA,
+                model_name=reasoning_model_name,
+                system_prompt=system_prompt,
             )
             .build_rat()
         )
