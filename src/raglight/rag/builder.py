@@ -6,6 +6,7 @@ from ..vectorestore.vectorStore import VectorStore
 from ..vectorestore.chroma import ChromaVS
 from ..config.settings import Settings
 from .rag import RAG
+from ..rat.rat import RAT
 from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
 from typing import Optional
@@ -29,6 +30,7 @@ class Builder:
         self.vector_store: Optional[VectorStore] = None
         self.embeddings: Optional[EmbeddingsModel] = None
         self.llm: Optional[LLM] = None
+        self.reasoning_llm: Optional[LLM] = None
         self.rag: Optional[RAG] = None
 
     def with_embeddings(self, type: str, **kwargs) -> Builder:
@@ -101,6 +103,35 @@ class Builder:
         logging.info("✅ LLM created")
         return self
 
+    def with_reasoning_llm(self, type: str, **kwargs) -> "Builder":
+        """
+        Configures the reasoning large language model (LLM).
+
+        Args:
+            type (str): The type of LLM to create (e.g., "deepseek-r1").
+            **kwargs: Additional parameters required to initialize the LLM.
+
+        Returns:
+            Builder: The current instance of the Builder for method chaining.
+
+        Raises:
+            ValueError: If an unknown or invalid LLM type is specified.
+        """
+        logging.info("⏳ Creating a reasoning LLM...")
+        model_name = kwargs.get("model_name", "")
+        if not any(model_name.startswith(prefix) for prefix in Settings.REASONING_LLMS):
+            raise ValueError(
+                f"Invalid LLM type: {type}. Must start with one of {Settings.REASONING_LLMS}."
+            )
+
+        if type == Settings.OLLAMA:
+            self.reasoning_llm = OllamaModel(**kwargs)
+        else:
+            raise ValueError(f"Unknown LLM type: {type}")
+
+        logging.info("✅ Reasoning LLM created")
+        return self
+
     def build_rag(self) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
@@ -121,6 +152,20 @@ class Builder:
         self.rag = RAG(self.embeddings, self.vector_store, self.llm)
         logging.info("✅ RAG pipeline created")
         return self.rag
+
+    def build_rat(self) -> RAT:
+        if self.vector_store is None:
+            raise ValueError("VectorStore is required")
+        if self.llm is None:
+            raise ValueError("LLM is required")
+        if self.reasoning_llm is None:
+            raise ValueError("Reasoning LLM is required")
+        if self.embeddings is None:
+            raise ValueError("Embeddings Model is required")
+        logging.info("⏳ Building the RAG pipeline...")
+        self.rat = RAT(self.embeddings, self.vector_store, self.reasoning_llm, self.llm)
+        logging.info("✅ RAT pipeline created")
+        return self.rat
 
     def build_vector_store(self) -> VectorStore:
         """

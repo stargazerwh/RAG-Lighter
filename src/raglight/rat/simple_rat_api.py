@@ -1,0 +1,85 @@
+from typing import List
+from ..rag.builder import Builder
+from ..rag.simple_rag_api import RAGPipeline
+from .rat import RAT
+from ..config.settings import Settings
+from ..vectorestore.vectorStore import VectorStore
+from ..models.data_source_model import DataSource
+from ..scrapper.github_scrapper import GithubScrapper
+from typing_extensions import override
+
+
+class RATPipeline(RAGPipeline):
+    """
+    A pipeline for Retrieval-Augmented Thinking (RAT).
+
+    This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
+    an additional reasoning step using a specialized reasoning language model (LLM). It combines
+    various data sources (e.g., local folders, GitHub repositories), embeddings, and language models
+    to provide not only answers but also reflections on user queries.
+    """
+
+    def __init__(
+        self,
+        knowledge_base: List[DataSource],
+        model_name: str = Settings.DEFAULT_LLM,
+        reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM,
+    ) -> None:
+        """
+        Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
+
+        Args:
+            knowledge_base (List[DataSource]): A list of data sources (e.g., FolderSource, GitHubSource)
+                to be used for document retrieval and context building.
+            model_name (str, optional): The name of the LLM to use for generating answers. Defaults to Settings.DEFAULT_LLM.
+            reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
+        """
+        self.knowledge_base: List[DataSource] = knowledge_base
+        model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
+        persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
+        collection_name: str = Settings.DEFAULT_COLLECTION_NAME
+        system_prompt: str = Settings.DEFAULT_SYSTEM_PROMPT
+        self.file_extension: str = Settings.DEFAULT_EXTENSIONS
+        self.rat: RAT = (
+            Builder()
+            .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
+            .with_vector_store(
+                Settings.CHROMA,
+                persist_directory=persist_directory,
+                collection_name=collection_name,
+            )
+            .with_llm(
+                Settings.OLLAMA, model_name=model_name, system_prompt=system_prompt
+            )
+            .with_reasoning_llm(
+                Settings.OLLAMA,
+                model_name=reasoning_model_name,
+                system_prompt=system_prompt,
+            )
+            .build_rat()
+        )
+        self.github_scrapper: GithubScrapper = GithubScrapper()
+
+    @override
+    def get_vector_store(self) -> VectorStore:
+        """
+        Retrieves the vector store used in the pipeline.
+
+        Returns:
+            VectorStore: The vector store instance used for document retrieval.
+        """
+        return self.rat.vector_store
+
+    @override
+    def generate(self, question: str) -> str:
+        """
+        Processes a question through the pipeline to retrieve both reasoning and a generated answer.
+
+        Args:
+            question (str): The question to ask the pipeline.
+
+        Returns:
+            str: The generated answer from the pipeline, including reasoning.
+        """
+        response: str = self.rat.question_graph(question)
+        return response

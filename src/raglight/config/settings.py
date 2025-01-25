@@ -49,3 +49,6 @@ class Settings:
         "OLLAMA_CLIENT_URL", "http://localhost:11434"
     )
     DEFAULT_EXTENSIONS = "**/[!.]*"
+    REASONING_LLMS = ["deepseek-r1"]
+    DEFAULT_REASONING_LLM = "deepseek-r1:1.5b"
+    THINKING_PATTERN = r"<think>(.*?)</think>"

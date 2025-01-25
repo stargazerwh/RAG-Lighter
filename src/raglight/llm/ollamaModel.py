@@ -47,7 +47,7 @@ class OllamaModel(LLM):
         elif system_prompt is not None:
             self.system_prompt = system_prompt
         else:
-            self.system_prompt = ""
+            self.system_prompt = Settings.DEFAULT_SYSTEM_PROMPT
 
     @override
     def load(self) -> Client:
