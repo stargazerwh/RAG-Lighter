@@ -96,13 +96,12 @@ Settings.setup_logging()
 pipeline = RATPipeline(knowledge_base=[
 FolderSource(path="<path to your folder with pdf>/knowledge_base"),
 GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-], model_name="llama3", reasoning_model="deepseek-r1:1.5b")
+], model_name="llama3", reasoning_model_name="deepseek-r1:1.5b", reflection=1)
 
 pipeline.build()
 
 response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me the the easier python implementation")
 print(response)
-
 ```
 
 ### **1. Configure Your Pipeline**

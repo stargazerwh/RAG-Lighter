@@ -1,6 +1,6 @@
-from src.raglight.rat.simple_rat_api import RATPipeline
-from src.raglight.models.data_source_model import FolderSource, GitHubSource
-from src.raglight.config.settings import Settings
+from raglight.rat.simple_rat_api import RATPipeline
+from raglight.models.data_source_model import FolderSource, GitHubSource
+from raglight.config.settings import Settings
 
 Settings.setup_logging()
 
