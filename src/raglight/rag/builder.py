@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+from typing import Optional
 from ..llm.llm import LLM
 from ..llm.ollamaModel import OllamaModel
 from ..vectorestore.vectorStore import VectorStore
@@ -9,18 +10,20 @@ from .rag import RAG
 from ..rat.rat import RAT
 from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
-from typing import Optional
 
 
 class Builder:
     """
-    Builder class for creating and configuring components of a Retrieval-Augmented Generation (RAG) pipeline.
+    Builder class for creating and configuring components of a Retrieval-Augmented Generation (RAG)
+    or Retrieval-Augmented Thinking (RAT) pipeline.
 
     Attributes:
         vector_store (Optional[VectorStore]): The configured vector store instance.
         embeddings (Optional[EmbeddingsModel]): The configured embeddings model instance.
         llm (Optional[LLM]): The configured large language model (LLM) instance.
+        reasoning_llm (Optional[LLM]): The configured reasoning LLM instance for RAT pipelines.
         rag (Optional[RAG]): The configured RAG pipeline instance.
+        rat (Optional[RAT]): The configured RAT pipeline instance.
     """
 
     def __init__(self) -> None:
@@ -32,6 +35,7 @@ class Builder:
         self.llm: Optional[LLM] = None
         self.reasoning_llm: Optional[LLM] = None
         self.rag: Optional[RAG] = None
+        self.rat: Optional[RAT] = None
 
     def with_embeddings(self, type: str, **kwargs) -> Builder:
         """
@@ -81,7 +85,7 @@ class Builder:
         logging.info("✅ VectorStore created")
         return self
 
-    def with_llm(self, type: str, **kwargs) -> "Builder":
+    def with_llm(self, type: str, **kwargs) -> Builder:
         """
         Configures the large language model (LLM).
 
@@ -103,12 +107,12 @@ class Builder:
         logging.info("✅ LLM created")
         return self
 
-    def with_reasoning_llm(self, type: str, **kwargs) -> "Builder":
+    def with_reasoning_llm(self, type: str, **kwargs) -> Builder:
         """
-        Configures the reasoning large language model (LLM).
+        Configures the reasoning large language model (LLM) for RAT pipelines.
 
         Args:
-            type (str): The type of LLM to create (e.g., "deepseek-r1").
+            type (str): The type of LLM to create (e.g., deepseek-r1).
             **kwargs: Additional parameters required to initialize the LLM.
 
         Returns:
@@ -153,7 +157,19 @@ class Builder:
         logging.info("✅ RAG pipeline created")
         return self.rag
 
-    def build_rat(self) -> RAT:
+    def build_rat(self, reflection: int = 1) -> RAT:
+        """
+        Builds the RAT pipeline with the configured components.
+
+        Args:
+            reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
+
+        Returns:
+            RAT: The fully configured RAT pipeline instance.
+
+        Raises:
+            ValueError: If any of the required components (vector store, LLM, reasoning LLM, embeddings) are not set.
+        """
         if self.vector_store is None:
             raise ValueError("VectorStore is required")
         if self.llm is None:
@@ -162,8 +178,10 @@ class Builder:
             raise ValueError("Reasoning LLM is required")
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
-        logging.info("⏳ Building the RAG pipeline...")
-        self.rat = RAT(self.embeddings, self.vector_store, self.reasoning_llm, self.llm)
+        logging.info("⏳ Building the RAT pipeline...")
+        self.rat = RAT(
+            self.embeddings, self.vector_store, self.reasoning_llm, self.llm, reflection
+        )
         logging.info("✅ RAT pipeline created")
         return self.rat
 
@@ -172,7 +190,7 @@ class Builder:
         Returns the configured vector store instance.
 
         Returns:
-            ChromaVS: The configured vector store instance.
+            VectorStore: The configured vector store instance.
 
         Raises:
             ValueError: If the vector store or embeddings model is not set.
@@ -189,7 +207,7 @@ class Builder:
         Returns the configured LLM instance.
 
         Returns:
-            OllamaModel: The configured large language model instance.
+            LLM: The configured large language model instance.
 
         Raises:
             ValueError: If the LLM is not set.

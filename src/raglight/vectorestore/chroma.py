@@ -61,7 +61,7 @@ class ChromaVS(VectorStore):
         logging.info("🎉 All documents ingested and indexed")
 
     @override
-    def similarity_search(self, question: str, k: int = 2) -> List[Any]:
+    def similarity_search(self, question: str, k: int = 5) -> List[Any]:
         """
         Performs a similarity search in the vector store.
 

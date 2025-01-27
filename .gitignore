@@ -15,3 +15,4 @@ defaultDb/
 .mypy_cache/
 .pytest_cache/
 test.py
+qdrant_storage/

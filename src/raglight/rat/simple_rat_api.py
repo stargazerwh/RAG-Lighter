@@ -16,7 +16,7 @@ class RATPipeline(RAGPipeline):
     This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
     an additional reasoning step using a specialized reasoning language model (LLM). It combines
     various data sources (e.g., local folders, GitHub repositories), embeddings, and language models
-    to provide not only answers but also reflections on user queries.
+    to provide both answers and reflections on user queries.
     """
 
     def __init__(
@@ -24,6 +24,7 @@ class RATPipeline(RAGPipeline):
         knowledge_base: List[DataSource],
         model_name: str = Settings.DEFAULT_LLM,
         reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM,
+        reflection: int = 1,
     ) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
@@ -33,6 +34,7 @@ class RATPipeline(RAGPipeline):
                 to be used for document retrieval and context building.
             model_name (str, optional): The name of the LLM to use for generating answers. Defaults to Settings.DEFAULT_LLM.
             reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
+            reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
         self.knowledge_base: List[DataSource] = knowledge_base
         model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
@@ -56,7 +58,7 @@ class RATPipeline(RAGPipeline):
                 model_name=reasoning_model_name,
                 system_prompt=system_prompt,
             )
-            .build_rat()
+            .build_rat(reflection)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 
@@ -64,6 +66,9 @@ class RATPipeline(RAGPipeline):
     def get_vector_store(self) -> VectorStore:
         """
         Retrieves the vector store used in the pipeline.
+
+        This method overrides the base RAGPipeline method to return the vector store
+        configured within the RAT pipeline.
 
         Returns:
             VectorStore: The vector store instance used for document retrieval.
@@ -74,6 +79,9 @@ class RATPipeline(RAGPipeline):
     def generate(self, question: str) -> str:
         """
         Processes a question through the pipeline to retrieve both reasoning and a generated answer.
+
+        This method first generates reasoning using the RAT pipeline and then produces a final answer
+        that incorporates the reasoning.
 
         Args:
             question (str): The question to ask the pipeline.
