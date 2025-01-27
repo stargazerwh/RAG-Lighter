@@ -107,7 +107,10 @@ class ChromaVS(VectorStore):
             Any: Result of the indexing operation.
         """
         logging.info("⏳ Adding documents to index...")
-        _ = self.vector_store.add_documents(documents=all_splits)
+        batch_size = 3500
+        for i in range(0, len(all_splits), batch_size):
+            batch = all_splits[i : i + batch_size]
+            _ = self.vector_store.add_documents(documents=batch)
         logging.info("✅ Documents added to index")
 
     def load_docs(self, file_extension: str, data_path: str) -> List[Any]:
