@@ -46,6 +46,16 @@ class RAT(RAG):
         self.reasoning_llm: LLM = reasoning_llm
         self.reflection: int = reflection
 
+    def set_reflection(self, reflection: int) -> None:
+        """
+        Set the reflection attribute for this instance.
+
+        :param reflection: The new reflection value (integer) to assign.
+        :type reflection: int
+        :return: None
+        """
+        self.reflection = reflection
+
     def think(self, input: str) -> str:
         """
         Generates iterative reasoning or reflection based on the input question and retrieved documents.
