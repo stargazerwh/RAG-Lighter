@@ -15,7 +15,7 @@ collection_name = os.environ.get('COLLECTION_NAME')
 rag = Builder() \
 .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
 .with_vector_store(Settings.CHROMA, persist_directory=persist_directory, collection_name=collection_name) \
-.with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
+.with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory, provider=Settings.LMStudio) \
 .build_rag()
 
 response = rag.question_graph("Can you tell me something about grece mythology ?")
