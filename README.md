@@ -126,3 +126,11 @@ Retrieve and generate answers using the RAG pipeline:
 response = rag.question_graph("How can I optimize my marathon training?")
 print(response)
 ```
+
+# UI For RAGLight
+
+You can try this project : [LLMChat](https://github.com/Bessouat40/LLMChat) if you want a UI running locally.
+
+<div align="center">
+    <img alt="RAGLight" height="300" src="./media/llmchat.jpg">
+</div>
