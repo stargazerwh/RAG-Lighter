@@ -15,6 +15,7 @@ class Settings:
 
     CHROMA = "Chroma"
     OLLAMA = "Ollama"
+    LMSTUDIO = "LmStudio"
     HUGGINGFACE = "HuggingFace"
     DEFAULT_LLM = "llama3"
     DEFAULT_EMBEDDINGS_MODEL = "all-MiniLM-L6-v2"
@@ -47,6 +48,9 @@ class Settings:
     DEFAULT_PERSIST_DIRECTORY = "./defaultDb"
     DEFAULT_OLLAMA_CLIENT = os.environ.get(
         "OLLAMA_CLIENT_URL", "http://localhost:11434"
+    )
+    DEFAULT_LMSTUDIO_CLIENT = os.environ.get(
+        "LMSTUDIO_CLIENT", "http://localhost:1234/v1"
     )
     DEFAULT_EXTENSIONS = "**/[!.]*"
     REASONING_LLMS = ["deepseek-r1"]

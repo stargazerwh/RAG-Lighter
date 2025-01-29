@@ -18,7 +18,7 @@ class RAGPipeline:
     """
 
     def __init__(
-        self, knowledge_base: List[DataSource], model_name: str = Settings.DEFAULT_LLM
+        self, knowledge_base: List[DataSource], model_name: str = Settings.DEFAULT_LLM, provider: str = Settings.OLLAMA
     ) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.
@@ -42,7 +42,7 @@ class RAGPipeline:
                 collection_name=collection_name,
             )
             .with_llm(
-                Settings.OLLAMA, model_name=model_name, system_prompt=system_prompt
+                provider, model_name=model_name, system_prompt=system_prompt
             )
             .build_rag()
         )

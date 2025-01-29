@@ -88,12 +88,15 @@ class ChromaVS(VectorStore):
         Returns:
             List[Any]: A list of document chunks.
         """
-        logging.info("⏳ Splitting documents...")
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, chunk_overlap=chunk_overlap
-        )
-        all_splits = text_splitter.split_documents(docs)
-        logging.info(f"✅ {len(all_splits)} document splits created")
+        try :
+            logging.info("⏳ Splitting documents...")
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=chunk_size, chunk_overlap=chunk_overlap
+            )
+            all_splits = text_splitter.split_documents(docs)
+            logging.info(f"✅ {len(all_splits)} document splits created")
+        except Exception as e :
+            logging.warning(f"Error occured during documents processing : {e}")
         return all_splits
 
     def add_index(self, all_splits: List[Any]) -> None:
@@ -124,10 +127,13 @@ class ChromaVS(VectorStore):
         Returns:
             List[Any]: A list of loaded documents.
         """
-        logging.info("⏳ Loading documents...")
-        loader = DirectoryLoader(data_path, glob=file_extension)
-        docs = loader.load()
-        logging.info(f"✅ {len(docs)} documents loaded")
+        try :
+            logging.info("⏳ Loading documents...")
+            loader = DirectoryLoader(data_path, glob=file_extension)
+            docs = loader.load()
+            logging.info(f"✅ {len(docs)} documents loaded")
+        except Exception as e:
+            logging.warning(f"Error occured during documents ingestion : {e}")
         return docs
 
     @override
@@ -147,14 +153,18 @@ class ChromaVS(VectorStore):
                 file_extension = os.path.splitext(file)[1][1:]
                 language = self.get_language_from_extension(file_extension)
                 if language:
-                    logging.info(f"⏳ Processing {file_path} as {language}")
-                    with open(file_path, "r") as f:
-                        code = f.read()
-                    splitter = RecursiveCharacterTextSplitter.from_language(
-                        language=language, chunk_size=1000, chunk_overlap=100
-                    )
-                    splits = splitter.create_documents([code])
-                    all_splits.extend(splits)
+                    try :
+                        logging.info(f"⏳ Processing {file_path} as {language}")
+                        with open(file_path, "r") as f:
+                            code = f.read()
+                        splitter = RecursiveCharacterTextSplitter.from_language(
+                            language=language, chunk_size=1000, chunk_overlap=100
+                        )
+                        splits = splitter.create_documents([code])
+                        all_splits.extend(splits)
+                    except Exception as e:
+                        logging.warning(f"Error occured during {file} processing : {e}")
+
                 else:
                     logging.warning(f"⚠️ Unsupported file type: {file_path}")
 

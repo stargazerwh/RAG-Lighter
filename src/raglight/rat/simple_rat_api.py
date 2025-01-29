@@ -25,6 +25,7 @@ class RATPipeline(RAGPipeline):
         model_name: str = Settings.DEFAULT_LLM,
         reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM,
         reflection: int = 1,
+        provider: str = Settings.OLLAMA
     ) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
@@ -51,10 +52,10 @@ class RATPipeline(RAGPipeline):
                 collection_name=collection_name,
             )
             .with_llm(
-                Settings.OLLAMA, model_name=model_name, system_prompt=system_prompt
+                provider, model_name=model_name, system_prompt=system_prompt
             )
             .with_reasoning_llm(
-                Settings.OLLAMA,
+                provider,
                 model_name=reasoning_model_name,
                 system_prompt=system_prompt,
             )
