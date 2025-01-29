@@ -88,14 +88,14 @@ class ChromaVS(VectorStore):
         Returns:
             List[Any]: A list of document chunks.
         """
-        try :
+        try:
             logging.info("⏳ Splitting documents...")
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=chunk_size, chunk_overlap=chunk_overlap
             )
             all_splits = text_splitter.split_documents(docs)
             logging.info(f"✅ {len(all_splits)} document splits created")
-        except Exception as e :
+        except Exception as e:
             logging.warning(f"Error occured during documents processing : {e}")
         return all_splits
 
@@ -127,7 +127,7 @@ class ChromaVS(VectorStore):
         Returns:
             List[Any]: A list of loaded documents.
         """
-        try :
+        try:
             logging.info("⏳ Loading documents...")
             loader = DirectoryLoader(data_path, glob=file_extension)
             docs = loader.load()
@@ -153,7 +153,7 @@ class ChromaVS(VectorStore):
                 file_extension = os.path.splitext(file)[1][1:]
                 language = self.get_language_from_extension(file_extension)
                 if language:
-                    try :
+                    try:
                         logging.info(f"⏳ Processing {file_path} as {language}")
                         with open(file_path, "r") as f:
                             code = f.read()

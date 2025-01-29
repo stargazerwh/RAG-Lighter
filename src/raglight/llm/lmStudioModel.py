@@ -8,6 +8,7 @@ import logging
 
 from openai import OpenAI
 
+
 class LMStudioModel(LLM):
     def __init__(
         self,
@@ -35,15 +36,15 @@ class LMStudioModel(LLM):
     def generate(self, input: Dict[str, Any]) -> str:
         new_input = dumps(input)
         response = self.model.chat.completions.create(
-        model="model-identifier",
-        messages=[
-            {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": new_input}
-        ],
-        temperature=0.7,
+            model="model-identifier",
+            messages=[
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": new_input},
+            ],
+            temperature=0.7,
         )
         return response.choices[0].message.content
-    
+
     @staticmethod
     def load_system_prompt(filePath: str) -> str:
         with open(filePath, "r", encoding="utf-8") as file:
