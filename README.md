@@ -127,7 +127,28 @@ response = rag.question_graph("How can I optimize my marathon training?")
 print(response)
 ```
 
-# UI For RAGLight
+## Use RAGLight with Docker
+
+You can use RAGLight inside a Docker container easily.
+Find Dockerfile to do it here : **examples/Dockerfile.example**
+
+### Build you image
+
+Just go to **examples** directory and run :
+
+```bash
+docker build -t docker-raglight -f Dockerfile.example .
+```
+
+## Run you image
+
+In order your container can communicate with Ollama or LMStudio, you need to add a custom host-to-IP mapping :
+
+```bash
+docker run --add-host=host.docker.internal:host-gateway docker-raglight
+```
+
+## UI For RAGLight
 
 You can try this project : [LLMChat](https://github.com/Bessouat40/LLMChat) if you want a UI running locally.
 
