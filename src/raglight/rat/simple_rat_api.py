@@ -42,6 +42,7 @@ class RATPipeline(RAGPipeline):
         persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
         collection_name: str = Settings.DEFAULT_COLLECTION_NAME
         system_prompt: str = Settings.DEFAULT_SYSTEM_PROMPT
+        k: int = Settings.DEFAULT_K
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
         self.rat: RAT = (
             Builder()
@@ -57,7 +58,7 @@ class RATPipeline(RAGPipeline):
                 model_name=reasoning_model_name,
                 system_prompt=system_prompt,
             )
-            .build_rat(reflection)
+            .build_rat(reflection, k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 

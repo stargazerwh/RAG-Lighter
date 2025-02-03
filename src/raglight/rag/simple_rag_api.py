@@ -35,6 +35,7 @@ class RAGPipeline:
         persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
         collection_name: str = Settings.DEFAULT_COLLECTION_NAME
         system_prompt: str = Settings.DEFAULT_SYSTEM_PROMPT
+        k: int = Settings.DEFAULT_K
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
         self.rag: RAG = (
             Builder()
@@ -45,7 +46,7 @@ class RAGPipeline:
                 collection_name=collection_name,
             )
             .with_llm(provider, model_name=model_name, system_prompt=system_prompt)
-            .build_rag()
+            .build_rag(k=k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 

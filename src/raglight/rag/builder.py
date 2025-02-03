@@ -11,6 +11,8 @@ from .rag import RAG
 from ..rat.rat import RAT
 from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
+from ..config.rag_config import RAGConfig
+from ..config.rat_config import RATConfig
 
 
 class Builder:
@@ -141,9 +143,12 @@ class Builder:
         logging.info("✅ Reasoning LLM created")
         return self
 
-    def build_rag(self) -> RAG:
+    def build_rag(self, k: int = 2) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
+
+        Args:
+            k (int, optional): The number of top documents to retrieve. Defaults to 2.
 
         Returns:
             RAG: The fully configured RAG pipeline instance.
@@ -158,17 +163,24 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAG pipeline...")
-        self.rag = RAG(self.embeddings, self.vector_store, self.llm)
+        config = RAGConfig(
+            embedding_model=self.embeddings,
+            vector_store=self.vector_store,
+            llm=self.llm,
+            k=5
+        )
+        self.rag = RAG(config)
         logging.info("✅ RAG pipeline created")
         return self.rag
 
-    def build_rat(self, reflection: int = 1) -> RAT:
+    def build_rat(self, reflection: int = 1, k: int = 2) -> RAT:
         """
         Builds the RAT pipeline with the configured components.
 
         Args:
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
-
+            k (int, optional): The number of top documents to retrieve. Defaults to 2.
+            
         Returns:
             RAT: The fully configured RAT pipeline instance.
 
@@ -184,9 +196,15 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAT pipeline...")
-        self.rat = RAT(
-            self.embeddings, self.vector_store, self.reasoning_llm, self.llm, reflection
+        config = RATConfig(
+            embedding_model=self.embeddings,
+            vector_store=self.vector_store,
+            llm=self.llm,
+            k=k,
+            reasoning_llm=self.reasoning_llm,
+            reflection=reflection
         )
+        self.rat = RAT(config)
         logging.info("✅ RAT pipeline created")
         return self.rat
 
