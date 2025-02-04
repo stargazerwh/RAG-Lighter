@@ -22,13 +22,16 @@ class RAGPipeline:
         knowledge_base: List[DataSource],
         model_name: str = Settings.DEFAULT_LLM,
         provider: str = Settings.OLLAMA,
+        k:int = Settings.DEFAULT_K
     ) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.
 
         Args:
             knowledge_base (List[DataSource]): A list of data source objects (e.g., FolderSource, GitHubSource).
+            k (int, optional): The number of top documents to retrieve. Defaults to 5.
             model_name (str, optional): The name of the LLM to use. Defaults to Settings.DEFAULT_LLM.
+            provider (str, optional): The name of the LLM provider you want to use : Ollama/LMStudio.
         """
         self.knowledge_base: List[DataSource] = knowledge_base
         model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
@@ -45,7 +48,7 @@ class RAGPipeline:
                 collection_name=collection_name,
             )
             .with_llm(provider, model_name=model_name, system_prompt=system_prompt)
-            .build_rag()
+            .build_rag(k=k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 

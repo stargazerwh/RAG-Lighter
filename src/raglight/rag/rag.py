@@ -6,6 +6,7 @@ from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict, Dict
 from langchain_core.documents import Document
 from typing import Any
+from ..config.rag_config import RAGConfig
 
 
 class State(TypedDict):
@@ -34,11 +35,12 @@ class RAG:
         embeddings: The embedding model used for vectorization.
         vector_store (VectorStore): The vector store instance for document retrieval.
         llm (LLM): The large language model instance for answer generation.
+        k (int, optional): The number of top documents to retrieve. Defaults to 5.
         graph (StateGraph): The state graph that manages the RAG process flow.
     """
 
     def __init__(
-        self, embedding_model: EmbeddingsModel, vector_store: VectorStore, llm: LLM
+        self, config: RAGConfig
     ) -> None:
         """
         Initializes the RAG pipeline.
@@ -48,25 +50,25 @@ class RAG:
             vector_store (VectorStore): The vector store for retrieving relevant documents.
             llm (LLM): The language model for generating answers.
         """
-        self.embeddings = embedding_model.get_model()
-        self.vector_store: VectorStore = vector_store
-        self.llm: LLM = llm
+        self.embeddings = config.embedding_model.get_model()
+        self.vector_store: VectorStore = config.vector_store
+        self.llm: LLM = config.llm
+        self.k: int = config.k
         self.graph: Any = (
             self.createGraph()
         )  # Here type is CompiledGraph but it's not exposed by https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/graph/graph.py
 
-    def retrieve(self, state: Dict[str, str], k: int = 2) -> Dict[str, List[Document]]:
+    def retrieve(self, state: Dict[str, str]) -> Dict[str, List[Document]]:
         """
         Retrieves relevant documents based on the input question.
 
         Args:
             state (Dict[str, str]): A dictionary containing the input question under the key 'question'.
-            k (int, optional): The number of top documents to retrieve. Defaults to 2.
 
         Returns:
             Dict[str, List[Document]]: A dictionary containing the retrieved documents under the key 'context'.
         """
-        retrieved_docs = self.vector_store.similarity_search(state["question"], k=k)
+        retrieved_docs = self.vector_store.similarity_search(state["question"], k=self.k)
         return {"context": retrieved_docs}
 
     def generate(self, state: Dict[str, List[Document]]) -> Dict[str, str]:

@@ -56,3 +56,4 @@ class Settings:
     REASONING_LLMS = ["deepseek-r1"]
     DEFAULT_REASONING_LLM = "deepseek-r1:1.5b"
     THINKING_PATTERN = r"<think>(.*?)</think>"
+    DEFAULT_K = 5

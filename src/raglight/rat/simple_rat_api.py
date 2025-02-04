@@ -26,6 +26,7 @@ class RATPipeline(RAGPipeline):
         reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM,
         reflection: int = 1,
         provider: str = Settings.OLLAMA,
+        k: int = Settings.DEFAULT_K,
     ) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
@@ -33,6 +34,7 @@ class RATPipeline(RAGPipeline):
         Args:
             knowledge_base (List[DataSource]): A list of data sources (e.g., FolderSource, GitHubSource)
                 to be used for document retrieval and context building.
+            k (int, optional): The number of top documents to retrieve. Defaults to 5.
             model_name (str, optional): The name of the LLM to use for generating answers. Defaults to Settings.DEFAULT_LLM.
             reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
@@ -57,7 +59,7 @@ class RATPipeline(RAGPipeline):
                 model_name=reasoning_model_name,
                 system_prompt=system_prompt,
             )
-            .build_rat(reflection)
+            .build_rat(reflection, k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 

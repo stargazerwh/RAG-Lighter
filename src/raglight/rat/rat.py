@@ -9,6 +9,8 @@ from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..rag.rag import RAG
 from ..llm.llm import LLM
 from ..config.settings import Settings
+from ..config.rat_config import RATConfig
+from ..config.rag_config import RAGConfig
 
 
 class RAT(RAG):
@@ -26,11 +28,7 @@ class RAT(RAG):
 
     def __init__(
         self,
-        embedding_model: EmbeddingsModel,
-        vector_store: VectorStore,
-        reasoning_llm: LLM,
-        llm: LLM,
-        reflection: int = 1,
+        config: RATConfig
     ) -> None:
         """
         Initializes the RAT pipeline with the required components.
@@ -40,11 +38,13 @@ class RAT(RAG):
             vector_store (VectorStore): The vector store for document retrieval.
             reasoning_llm (LLM): The LLM used for reasoning and iterative reflection.
             llm (LLM): The LLM used for generating the final answer.
+            k (int, optional): The number of top documents to retrieve. Defaults to 2.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        super().__init__(embedding_model, vector_store, llm)
-        self.reasoning_llm: LLM = reasoning_llm
-        self.reflection: int = reflection
+        rag_config = config.get_rag_config()
+        super().__init__(rag_config)
+        self.reasoning_llm: LLM = config.reasoning_llm
+        self.reflection: int = config.reflection
 
     def set_reflection(self, reflection: int) -> None:
         """

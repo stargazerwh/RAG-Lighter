@@ -16,3 +16,5 @@ from .rat.rat import RAT
 from .rat.simple_rat_api import RATPipeline
 
 from .config.settings import Settings
+from .config.rag_config import RAGConfig
+from .config.rat_config import RATConfig
