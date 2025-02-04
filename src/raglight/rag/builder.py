@@ -167,7 +167,7 @@ class Builder:
             embedding_model=self.embeddings,
             vector_store=self.vector_store,
             llm=self.llm,
-            k=k
+            k=k,
         )
         self.rag = RAG(config)
         logging.info("✅ RAG pipeline created")
@@ -180,7 +180,7 @@ class Builder:
         Args:
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
             k (int, optional): The number of top documents to retrieve. Defaults to 5.
-            
+
         Returns:
             RAT: The fully configured RAT pipeline instance.
 
@@ -202,7 +202,7 @@ class Builder:
             llm=self.llm,
             k=k,
             reasoning_llm=self.reasoning_llm,
-            reflection=reflection
+            reflection=reflection,
         )
         self.rat = RAT(config)
         logging.info("✅ RAT pipeline created")

@@ -39,9 +39,7 @@ class RAG:
         graph (StateGraph): The state graph that manages the RAG process flow.
     """
 
-    def __init__(
-        self, config: RAGConfig
-    ) -> None:
+    def __init__(self, config: RAGConfig) -> None:
         """
         Initializes the RAG pipeline.
 
@@ -68,7 +66,9 @@ class RAG:
         Returns:
             Dict[str, List[Document]]: A dictionary containing the retrieved documents under the key 'context'.
         """
-        retrieved_docs = self.vector_store.similarity_search(state["question"], k=self.k)
+        retrieved_docs = self.vector_store.similarity_search(
+            state["question"], k=self.k
+        )
         return {"context": retrieved_docs}
 
     def generate(self, state: Dict[str, List[Document]]) -> Dict[str, str]:

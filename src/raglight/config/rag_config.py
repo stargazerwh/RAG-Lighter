@@ -3,6 +3,7 @@ from ..vectorestore.vectorStore import VectorStore
 from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..llm.llm import LLM
 
+
 @dataclass(kw_only=True)
 class RAGConfig:
     embedding_model: EmbeddingsModel

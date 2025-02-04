@@ -26,10 +26,7 @@ class RAT(RAG):
         reflection (int): The number of reasoning iterations to perform for the input query.
     """
 
-    def __init__(
-        self,
-        config: RATConfig
-    ) -> None:
+    def __init__(self, config: RATConfig) -> None:
         """
         Initializes the RAT pipeline with the required components.
 
