@@ -35,7 +35,7 @@ class RAG:
         embeddings: The embedding model used for vectorization.
         vector_store (VectorStore): The vector store instance for document retrieval.
         llm (LLM): The large language model instance for answer generation.
-        k (int, optional): The number of top documents to retrieve. Defaults to 2.
+        k (int, optional): The number of top documents to retrieve. Defaults to 5.
         graph (StateGraph): The state graph that manages the RAG process flow.
     """
 

@@ -84,7 +84,7 @@ Settings.setup_logging()
 pipeline = RATPipeline(knowledge_base=[
 FolderSource(path="<path to your folder with pdf>/knowledge_base"),
 GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-], model_name="llama3", reasoning_model_name="deepseek-r1:1.5b", reflection=1, provider=SETTINGS.OLLAMA) # default : provider = Settings.Ollama
+], model_name="llama3", reasoning_model_name="deepseek-r1:1.5b", reflection=2, provider=SETTINGS.OLLAMA, k=5) # default : provider = Settings.Ollama
 # ], model_name="llama3", reasoning_model_name="deepseek-r1:1.5b", reflection=1, provider=SETTINGS.LMSTUDIO)
 
 pipeline.build()
@@ -106,8 +106,8 @@ from raglight.config.settings import Settings
 rag = Builder() \
     .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
     .with_vector_store(Settings.CHROMA, persist_directory=persist_directory, collection_name=collection_name) \
-    .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory, provider=Settings.LMSTUDIO) \
-    .build_rag()
+    .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory, provider=Settings.LMStudio) \
+    .build_rag(k = 5)
 ```
 
 #### Ingest Documents Inside Your Vector Store

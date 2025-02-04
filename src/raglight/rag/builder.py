@@ -143,12 +143,12 @@ class Builder:
         logging.info("✅ Reasoning LLM created")
         return self
 
-    def build_rag(self, k: int = 2) -> RAG:
+    def build_rag(self, k: int = Settings.DEFAULT_K) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
 
         Args:
-            k (int, optional): The number of top documents to retrieve. Defaults to 2.
+            k (int, optional): The number of top documents to retrieve. Defaults to 5.
 
         Returns:
             RAG: The fully configured RAG pipeline instance.
@@ -167,19 +167,19 @@ class Builder:
             embedding_model=self.embeddings,
             vector_store=self.vector_store,
             llm=self.llm,
-            k=5
+            k=k
         )
         self.rag = RAG(config)
         logging.info("✅ RAG pipeline created")
         return self.rag
 
-    def build_rat(self, reflection: int = 1, k: int = 2) -> RAT:
+    def build_rat(self, reflection: int = 1, k: int = Settings.DEFAULT_K) -> RAT:
         """
         Builds the RAT pipeline with the configured components.
 
         Args:
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
-            k (int, optional): The number of top documents to retrieve. Defaults to 2.
+            k (int, optional): The number of top documents to retrieve. Defaults to 5.
             
         Returns:
             RAT: The fully configured RAT pipeline instance.
