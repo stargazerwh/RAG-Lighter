@@ -41,11 +41,7 @@ class RAT(RAG):
             k (int, optional): The number of top documents to retrieve. Defaults to 2.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        rag_config = RAGConfig(
-            embedding_model=config.embedding_model,
-            vector_store=config.vector_store,
-            llm=config.llm,
-            k=config.k)
+        rag_config = config.get_rag_config()
         super().__init__(rag_config)
         self.reasoning_llm: LLM = config.reasoning_llm
         self.reflection: int = config.reflection
