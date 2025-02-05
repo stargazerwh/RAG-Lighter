@@ -24,6 +24,7 @@ class LLM(ABC):
         """
         self.model_name: str = model_name
         self.model: Any = self.load()
+        self.system_prompt: str = ""
 
     @abstractmethod
     def load(self) -> Any:
