@@ -127,12 +127,7 @@ class Builder:
             ValueError: If an unknown or invalid LLM type is specified.
         """
         logging.info("⏳ Creating a reasoning LLM...")
-        model_name = kwargs.get("model_name", "")
-        if not any(model_name.startswith(prefix) for prefix in Settings.REASONING_LLMS):
-            raise ValueError(
-                f"Invalid LLM type: {type}. Must start with one of {Settings.REASONING_LLMS}."
-            )
-
+        
         if type == Settings.OLLAMA:
             self.reasoning_llm = OllamaModel(**kwargs)
         elif type == Settings.LMSTUDIO:
