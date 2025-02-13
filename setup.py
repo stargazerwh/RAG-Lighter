@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="raglight",
-    version="1.2.3",
+    version="1.3.0",
     description="A lightweight and modular framework for Retrieval-Augmented Generation (RAG)",
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",

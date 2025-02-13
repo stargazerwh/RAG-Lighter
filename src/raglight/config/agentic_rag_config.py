@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from ..config.settings import Settings
 from ..vectorestore.vectorStore import VectorStore
 
+
 @dataclass(kw_only=True)
 class AgenticRAGConfig:
     vector_store: VectorStore

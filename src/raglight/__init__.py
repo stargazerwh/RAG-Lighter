@@ -11,7 +11,7 @@ from .llm.lmStudioModel import LMStudioModel
 from .rag.rag import RAG
 from .rag.simple_rag_api import RAGPipeline
 from .rag.simple_agentic_rag_api import AgenticRAGPipeline
-from.rag.agentic_rag import AgenticRAG
+from .rag.agentic_rag import AgenticRAG
 from .rag.builder import Builder
 
 from .rat.rat import RAT

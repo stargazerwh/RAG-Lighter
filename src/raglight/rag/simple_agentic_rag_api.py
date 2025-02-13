@@ -10,6 +10,7 @@ from ..config.settings import Settings
 from ..models.data_source_model import DataSource
 from .simple_rag_api import RAGPipeline
 
+
 class AgenticRAGPipeline(RAGPipeline):
     def __init__(
         self,
@@ -26,18 +27,24 @@ class AgenticRAGPipeline(RAGPipeline):
             k (int, optional): The number of top documents to retrieve. Defaults to 5.
             model_name (str, optional): The name of the LLM to use. Defaults to Settings.DEFAULT_LLM.
             provider (str, optional): The name of the LLM provider you want to use : Ollama.
-        """    
+        """
         self.knowledge_base: List[DataSource] = knowledge_base
         model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
         persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
         collection_name: str = Settings.DEFAULT_COLLECTION_NAME
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
 
-        self.vector_store = Builder() \
-            .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
-            .with_vector_store(Settings.CHROMA, persist_directory=persist_directory, collection_name=collection_name) \
+        self.vector_store = (
+            Builder()
+            .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
+            .with_vector_store(
+                Settings.CHROMA,
+                persist_directory=persist_directory,
+                collection_name=collection_name,
+            )
             .build_vector_store()
-        
+        )
+
         config = AgenticRAGConfig(
             vector_store=self.vector_store,
             model=model_name,
@@ -45,13 +52,13 @@ class AgenticRAGPipeline(RAGPipeline):
             k=k,
         )
         self.agenticRag = AgenticRAG(config)
-        
+
         self.github_scrapper: GithubScrapper = GithubScrapper()
 
     @override
     def get_vector_store(self) -> VectorStore:
         return self.vector_store
-    
+
     @override
     def generate(self, question: str) -> str:
         """
@@ -64,7 +71,3 @@ class AgenticRAGPipeline(RAGPipeline):
             str: The generated answer from the pipeline.
         """
         return self.agenticRag.generate(question)
-    
-
-
-        

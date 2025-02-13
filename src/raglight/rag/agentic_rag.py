@@ -7,6 +7,7 @@ from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
 
+
 class PlanningPromptTemplate(TypedDict):
     """
     Prompt templates for the planning step.
@@ -29,6 +30,7 @@ class PlanningPromptTemplate(TypedDict):
     update_plan_pre_messages: str
     update_plan_post_messages: str
 
+
 class ManagedAgentPromptTemplate(TypedDict):
     """
     Prompt templates for the managed agent.
@@ -40,6 +42,7 @@ class ManagedAgentPromptTemplate(TypedDict):
 
     task: str
     report: str
+
 
 class FinalAnswerPromptTemplate(TypedDict):
     """
@@ -53,6 +56,7 @@ class FinalAnswerPromptTemplate(TypedDict):
     pre_messages: str
     post_messages: str
 
+
 class PromptTemplates(TypedDict):
     """
     Prompt templates for the agent.
@@ -65,16 +69,19 @@ class PromptTemplates(TypedDict):
     """
 
     system_prompt: str = Settings.DEFAULT_AGENT_PROMPT
-    planning=PlanningPromptTemplate(
-        initial_facts="",
-        initial_plan="",
-        update_facts_pre_messages="",
-        update_facts_post_messages="",
-        update_plan_pre_messages="",
-        update_plan_post_messages="",
-    ),
-    managed_agent=ManagedAgentPromptTemplate(task="", report=""),
-    final_answer=FinalAnswerPromptTemplate(pre_messages="", post_messages=""),
+    planning = (
+        PlanningPromptTemplate(
+            initial_facts="",
+            initial_plan="",
+            update_facts_pre_messages="",
+            update_facts_post_messages="",
+            update_plan_pre_messages="",
+            update_plan_post_messages="",
+        ),
+    )
+    managed_agent = (ManagedAgentPromptTemplate(task="", report=""),)
+    final_answer = (FinalAnswerPromptTemplate(pre_messages="", post_messages=""),)
+
 
 class RetrieverTool(Tool):
     name = "retriever"
@@ -93,12 +100,14 @@ class RetrieverTool(Tool):
         self.k: int = config.k
 
     def forward(self, query: str) -> str:
-        retrieved_docs = self.vector_store.similarity_search(
-            query, k=self.k
-        )
+        retrieved_docs = self.vector_store.similarity_search(query, k=self.k)
         return "\nRetrieved documents:\n" + "".join(
-            [f"\n\n===== Document {str(i)} =====\n" + doc.page_content for i, doc in enumerate(retrieved_docs)]
+            [
+                f"\n\n===== Document {str(i)} =====\n" + doc.page_content
+                for i, doc in enumerate(retrieved_docs)
+            ]
         )
+
 
 class AgenticRAG:
 
@@ -108,7 +117,7 @@ class AgenticRAG:
         retriever_tool = RetrieverTool(config=config)
         self.agent = CodeAgent(
             tools=[retriever_tool],
-            model = LiteLLMModel(
+            model=LiteLLMModel(
                 model_id=f"{config.provider}/{config.model}",
                 api_base=config.api_base,
                 api_key=config.api_key,
