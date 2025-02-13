@@ -27,10 +27,11 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 ## Features 🔥
 
 - 🌐 **Embeddings Model Integration**: Plug in your preferred embedding models (e.g., HuggingFace **all-MiniLM-L6-v2**) for compact and efficient vector embeddings.
-- 🧙🏽 **LLM Agnostic**: Seamlessly integrates with different LLMs, such as **llama3** or custom providers, for natural language inference.
+- 🧙🏽 **LLM Agnostic**: Seamlessly integrates with different LLMs from different providers (Ollama and LMStudio supported).
 - ⚖️ **RAG Pipeline**: Combines document retrieval and language generation in a unified workflow.
 - ⚖️ **RAT Pipeline**: Combines document retrieval and language generation in a unified workflow. Add reflection loops using a reasoning model like **Deepseek-R1** or **o1**.
-- 🖋️ **Flexible Document Support**: Ingest and index various document types (e.g., PDF, TXT, DOCX).
+- ⚖️ **Agentic RAG Pipeline**: Use Agent to improve your RAG performances.
+- 🖋️ **Flexible Document Support**: Ingest and index various document types (e.g., PDF, TXT, DOCX, Python, Javascript, ...).
 - 🛠️ **Extensible Architecture**: Easily swap vector stores, embedding models, or LLMs to suit your needs.
 
 ---
