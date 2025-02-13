@@ -139,10 +139,10 @@ class ChromaVS(VectorStore):
     @override
     def ingest_code(self, **kwargs: Any) -> None:
         """
-        Ingests code from repositories, splits it based on the language, and indexes it.
+        Ingests code from directory, splits it based on the language, and indexes it.
 
         Args:
-            repo_urls (List[str]): List of GitHub repository URLs to ingest.
+            repo_urls (List[str]): List of directories to ingest.
             branch (str, optional): The branch of each repository to clone. Defaults to "main".
         """
         repos_path = kwargs.get("repos_path", "")
