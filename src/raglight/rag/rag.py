@@ -48,7 +48,7 @@ class RAG:
             vector_store (VectorStore): The vector store for retrieving relevant documents.
             llm (LLM): The language model for generating answers.
         """
-        self.embeddings = config.embedding_model.get_model()
+        self.embeddings: EmbeddingsModel = config.embedding_model.get_model()
         self.vector_store: VectorStore = config.vector_store
         self.llm: LLM = config.llm
         self.k: int = config.k
