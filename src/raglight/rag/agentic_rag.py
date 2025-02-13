@@ -7,6 +7,54 @@ from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
 
+class RetrieverTool(Tool):
+    name = "retriever"
+    description = "Uses semantic search to retrieve the parts of transformers documentation that could be most relevant to answer your query."
+    inputs = {
+        "query": {
+            "type": "string",
+            "description": "The query to perform. This should be semantically close to your target documents. Use the affirmative form rather than a question.",
+        }
+    }
+    output_type = "string"
+
+    def __init__(self, config: AgenticRAGConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.vector_store: VectorStore = config.vector_store
+        self.k: int = config.k
+
+    def forward(self, query: str) -> str:
+        retrieved_docs = self.vector_store.similarity_search(query, k=self.k)
+        return "\nRetrieved documents:\n" + "".join(
+            [
+                f"\n\n===== Document {str(i)} =====\n" + doc.page_content
+                for i, doc in enumerate(retrieved_docs)
+            ]
+        )
+
+
+class AgenticRAG:
+
+    def __init__(self, config: AgenticRAGConfig):
+        self.vector_store: VectorStore = config.vector_store
+        self.k: int = config.k
+        retriever_tool = RetrieverTool(config=config)
+        self.agent = CodeAgent(
+            tools=[retriever_tool],
+            model=LiteLLMModel(
+                model_id=f"{config.provider}/{config.model}",
+                api_base=config.api_base,
+                api_key=config.api_key,
+                num_ctx=config.num_ctx,
+            ),
+            max_steps=config.max_steps,
+            verbosity_level=config.verbosity_level,
+            prompt_templates=PromptTemplates(),
+        )
+
+    def generate(self, query: str) -> str:
+        return self.agent.run(query)
+    
 
 class PlanningPromptTemplate(TypedDict):
     """
@@ -83,50 +131,3 @@ class PromptTemplates(TypedDict):
     final_answer = (FinalAnswerPromptTemplate(pre_messages="", post_messages=""),)
 
 
-class RetrieverTool(Tool):
-    name = "retriever"
-    description = "Uses semantic search to retrieve the parts of transformers documentation that could be most relevant to answer your query."
-    inputs = {
-        "query": {
-            "type": "string",
-            "description": "The query to perform. This should be semantically close to your target documents. Use the affirmative form rather than a question.",
-        }
-    }
-    output_type = "string"
-
-    def __init__(self, config: AgenticRAGConfig, **kwargs):
-        super().__init__(**kwargs)
-        self.vector_store: VectorStore = config.vector_store
-        self.k: int = config.k
-
-    def forward(self, query: str) -> str:
-        retrieved_docs = self.vector_store.similarity_search(query, k=self.k)
-        return "\nRetrieved documents:\n" + "".join(
-            [
-                f"\n\n===== Document {str(i)} =====\n" + doc.page_content
-                for i, doc in enumerate(retrieved_docs)
-            ]
-        )
-
-
-class AgenticRAG:
-
-    def __init__(self, config: AgenticRAGConfig):
-        self.vector_store: VectorStore = config.vector_store
-        self.k: int = config.k
-        retriever_tool = RetrieverTool(config=config)
-        self.agent = CodeAgent(
-            tools=[retriever_tool],
-            model=LiteLLMModel(
-                model_id=f"{config.provider}/{config.model}",
-                api_base=config.api_base,
-                api_key=config.api_key,
-                num_ctx=config.num_ctx,
-            ),
-            max_steps=config.max_steps,
-            verbosity_level=config.verbosity_level,
-            prompt_templates=PromptTemplates(),
-        )
-
-    def generate(self, query: str) -> str:
-        return self.agent.run(query)
