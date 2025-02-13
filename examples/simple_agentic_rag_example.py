@@ -1,11 +1,11 @@
-from src.raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
-from src.raglight.models.data_source_model import FolderSource, GitHubSource
-from src.raglight.config.settings import Settings
+from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
+from raglight.models.data_source_model import FolderSource, GitHubSource
+from raglight.config.settings import Settings
 
 Settings.setup_logging()
 
 pipeline = AgenticRAGPipeline(knowledge_base=[
-    # FolderSource(path="<path to your folder with pdf>/knowledge_base"),
+    FolderSource(path="<path to your folder with pdf>/knowledge_base"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
     ],
     model_name="llama3",

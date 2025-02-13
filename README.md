@@ -93,6 +93,32 @@ response = pipeline.generate("How can I create an easy RAGPipeline using ragligh
 print(response)
 ```
 
+#### Try using Agentic RAG
+
+This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
+an additional Agent. This agent is a basic one that can plan a specific reasonment to answer user question.
+
+```python
+from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
+from raglight.models.data_source_model import FolderSource, GitHubSource
+from raglight.config.settings import Settings
+
+Settings.setup_logging()
+
+pipeline = AgenticRAGPipeline(knowledge_base=[
+    FolderSource(path="<path to your folder with pdf>/knowledge_base"),
+    GitHubSource(url="https://github.com/Bessouat40/RAGLight")
+    ],
+    model_name="llama3",
+    provider=Settings.OLLAMA,
+    k=5)
+
+pipeline.build()
+
+response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
+print(response)
+```
+
 ### Configure Your Own Pipeline
 
 #### **1. Configure Your Pipeline**
