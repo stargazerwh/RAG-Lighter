@@ -5,6 +5,7 @@ from .agentic_rag import AgenticRAG
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
+from ..config.agentic_rag_config import SimpleAgenticRAGConfig
 from .builder import Builder
 from ..config.settings import Settings
 from ..models.data_source_model import DataSource
@@ -15,9 +16,7 @@ class AgenticRAGPipeline(RAGPipeline):
     def __init__(
         self,
         knowledge_base: List[DataSource],
-        model_name: str = Settings.DEFAULT_LLM,
-        provider: str = Settings.OLLAMA,
-        k: int = Settings.DEFAULT_K,
+        config: SimpleAgenticRAGConfig,
     ) -> None:
         """
         Initializes the AgenticRAGPipeline with a knowledge base and model.
@@ -47,9 +46,14 @@ class AgenticRAGPipeline(RAGPipeline):
 
         config = AgenticRAGConfig(
             vector_store=self.vector_store,
-            model=model_name,
-            provider=provider,
-            k=k,
+            api_key= config.api_key,
+            provider = config.provider,
+            model = config.model,
+            num_ctx = config.num_ctx,
+            k = config.k,
+            verbosity_level = config.verbosity_level,
+            max_steps = config.max_steps,
+            system_prompt = config.system_prompt,
         )
         self.agenticRag = AgenticRAG(config)
 
