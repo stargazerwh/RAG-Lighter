@@ -46,14 +46,14 @@ class AgenticRAGPipeline(RAGPipeline):
 
         config = AgenticRAGConfig(
             vector_store=self.vector_store,
-            api_key= config.api_key,
-            provider = config.provider,
-            model = config.model,
-            num_ctx = config.num_ctx,
-            k = config.k,
-            verbosity_level = config.verbosity_level,
-            max_steps = config.max_steps,
-            system_prompt = config.system_prompt,
+            api_key=config.api_key,
+            provider=config.provider,
+            model=config.model,
+            num_ctx=config.num_ctx,
+            k=config.k,
+            verbosity_level=config.verbosity_level,
+            max_steps=config.max_steps,
+            system_prompt=config.system_prompt,
         )
         self.agenticRag = AgenticRAG(config)
 

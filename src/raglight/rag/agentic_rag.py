@@ -7,6 +7,7 @@ from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
 
+
 class RetrieverTool(Tool):
     name = "retriever"
     description = "Uses semantic search to retrieve the parts of transformers documentation that could be most relevant to answer your query."
@@ -54,7 +55,7 @@ class AgenticRAG:
 
     def generate(self, query: str) -> str:
         return self.agent.run(query)
-    
+
 
 class PlanningPromptTemplate(TypedDict):
     """
@@ -129,5 +130,3 @@ class PromptTemplates(TypedDict):
     )
     managed_agent = (ManagedAgentPromptTemplate(task="", report=""),)
     final_answer = (FinalAnswerPromptTemplate(pre_messages="", post_messages=""),)
-
-

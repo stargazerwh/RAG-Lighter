@@ -16,6 +16,7 @@ class AgenticRAGConfig:
     max_steps: int = field(default=4)
     system_prompt: str = field(default=Settings.DEFAULT_AGENT_PROMPT)
 
+
 @dataclass(kw_only=True)
 class SimpleAgenticRAGConfig:
     api_key: str = field(default="")
