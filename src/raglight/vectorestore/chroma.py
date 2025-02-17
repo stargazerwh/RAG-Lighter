@@ -1,8 +1,9 @@
 import logging
-from typing import Any, List
+from typing import Any, List, Dict
 from typing_extensions import override
 from .vectorStore import VectorStore
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 import os
@@ -37,12 +38,19 @@ class ChromaVS(VectorStore):
             embeddings_model (Any): The embeddings model used for vectorization.
         """
         super().__init__(persist_directory, embeddings_model)
-        self.vector_store: Chroma = Chroma(
+        self.vector_store = Chroma(
+        embedding_function=self.embeddings_model,
+        persist_directory=persist_directory,
+        collection_name=collection_name,
+        )
+
+        self.vector_store_classes = Chroma(
             embedding_function=self.embeddings_model,
             persist_directory=persist_directory,
-            collection_name=collection_name,
+            collection_name=f"{collection_name}_classes",
         )
-        self.persist_directory: str = persist_directory
+
+        self.persist_directory = persist_directory
 
     @override
     def ingest(self, **kwargs: Any) -> None:
@@ -61,7 +69,7 @@ class ChromaVS(VectorStore):
         logging.info("🎉 All documents ingested and indexed")
 
     @override
-    def similarity_search(self, question: str, k: int = 5) -> List[Any]:
+    def similarity_search(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Any]:
         """
         Performs a similarity search in the vector store.
 
@@ -72,10 +80,24 @@ class ChromaVS(VectorStore):
         Returns:
             List[Any]: A list of top-k similar documents.
         """
-        return self.vector_store.similarity_search(question, k=k)
+        return self.vector_store.similarity_search(question, k=k, filter=filter)
+    
+    @override
+    def similarity_search_class(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Any]:
+        """
+        Performs a similarity search in the vector store.
+
+        Args:
+            question (str): The input query for similarity search.
+            k (int, optional): The number of top results to retrieve. Defaults to 2.
+
+        Returns:
+            List[Any]: A list of top-k similar documents.
+        """
+        return self.vector_store_classes.similarity_search(question, k=k, filter=filter)
 
     def split_docs(
-        self, docs: List[Any], chunk_size: int = 2000, chunk_overlap: int = 100
+        self, docs: List[Any], chunk_size: int = 2500, chunk_overlap: int = 250
     ) -> List[Any]:
         """
         Splits documents into smaller chunks for indexing.
@@ -110,7 +132,7 @@ class ChromaVS(VectorStore):
             Any: Result of the indexing operation.
         """
         logging.info("⏳ Adding documents to index...")
-        batch_size = 3500
+        batch_size = 2500
         for i in range(0, len(all_splits), batch_size):
             batch = all_splits[i : i + batch_size]
             _ = self.vector_store.add_documents(documents=batch)
@@ -131,6 +153,10 @@ class ChromaVS(VectorStore):
             logging.info("⏳ Loading documents...")
             loader = DirectoryLoader(data_path, glob=file_extension)
             docs = loader.load()
+
+            for doc in docs:
+                doc.metadata = {"source": os.path.basename(doc.metadata["source"])}
+
             logging.info(f"✅ {len(docs)} documents loaded")
         except Exception as e:
             logging.warning(f"Error occured during documents ingestion : {e}")
@@ -147,59 +173,47 @@ class ChromaVS(VectorStore):
         """
         repos_path = kwargs.get("repos_path", "")
         all_splits = []
-        for root, _, files in os.walk(repos_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                file_extension = os.path.splitext(file)[1][1:]
-                language = self.get_language_from_extension(file_extension)
-                if language:
-                    try:
-                        logging.info(f"⏳ Processing {file_path} as {language}")
-                        with open(file_path, "r") as f:
-                            code = f.read()
-                        splitter = RecursiveCharacterTextSplitter.from_language(
-                            language=language, chunk_size=1000, chunk_overlap=100
-                        )
-                        splits = splitter.create_documents([code])
-                        all_splits.extend(splits)
-                    except Exception as e:
-                        logging.warning(f"Error occured during {file} processing : {e}")
+        class_entries = []
 
-                else:
-                    logging.warning(f"⚠️ Unsupported file type: {file_path}")
+        class_map = self.get_classes(repos_path)
 
-        self.add_index(all_splits)
+        for file_path, class_signatures in class_map.items():
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    code = f.read()
+
+                splitter = RecursiveCharacterTextSplitter.from_language(
+                    language=self.get_language_from_extension(file_path.split('.')[-1]), 
+                    chunk_size=2500, chunk_overlap=250
+                )
+                splits = splitter.create_documents([code])
+
+                for split in splits:
+                    split.metadata = {
+                        "source": file_path,
+                        "classes": ', '.join(class_signatures),
+                    }
+
+                all_splits.extend(splits)
+
+                for class_sig in class_signatures:
+                    doc = Document(
+                        page_content = class_sig,
+                        metadata = {"source": file_path}
+                    )
+                    class_entries.append(doc)
+
+            except Exception as e:
+                logging.warning(f"⚠️ Error processing {file_path}: {e}")
+
+        if all_splits:
+            self.add_index(all_splits)
+            logging.info("✅ Documents indexed")
+
+        if class_entries:
+            logging.info("🔎 Indexing class names separately...")
+            self.vector_store_classes.add_documents(documents=class_entries)
+            logging.info("✅ Classes indexed in separate vector store")
+
         logging.info("🎉 All code files ingested and indexed")
-
-    def get_language_from_extension(self, extension: str) -> Language | None:
-        """
-        Maps a file extension to a Language enum.
-
-        Args:
-            extension (str): File extension (e.g., 'py', 'js').
-
-        Returns:
-            Language: Corresponding Language enum, or None if not supported.
-        """
-        extension_to_language = {
-            "py": Language.PYTHON,
-            "js": Language.JS,
-            "ts": Language.TS,
-            "java": Language.JAVA,
-            "cpp": Language.CPP,
-            "go": Language.GO,
-            "php": Language.PHP,
-            "rb": Language.RUBY,
-            "rs": Language.RUST,
-            "scala": Language.SCALA,
-            "swift": Language.SWIFT,
-            "md": Language.MARKDOWN,
-            "html": Language.HTML,
-            "sol": Language.SOL,
-            "cs": Language.CSHARP,
-            "c": Language.C,
-            "lua": Language.LUA,
-            "pl": Language.PERL,
-            "hs": Language.HASKELL,
-        }
-        return extension_to_language.get(extension)
+        

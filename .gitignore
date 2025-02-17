@@ -16,3 +16,4 @@ defaultDb/
 .pytest_cache/
 test.py
 qdrant_storage/
+*.ipynb

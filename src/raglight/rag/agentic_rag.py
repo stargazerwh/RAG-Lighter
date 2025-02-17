@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, Dict
 from smolagents import Tool, tool
 from smolagents import CodeAgent
 from smolagents import LiteLLMModel
@@ -7,14 +7,21 @@ from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
 
+import json
 
 class RetrieverTool(Tool):
     name = "retriever"
-    description = "Uses semantic search to retrieve the parts of transformers documentation that could be most relevant to answer your query."
+    description = "Uses semantic search to retrieve relevant parts of the code documentation."
+
     inputs = {
         "query": {
             "type": "string",
-            "description": "The query to perform. This should be semantically close to your target documents. Use the affirmative form rather than a question.",
+            "description": "The query to perform. Should be semantically close to the target documents.",
+        },
+        "metadata_filter": {
+            "type": "string",
+            "description": "Optional metadata filter in JSON format (e.g., '{\"source\": \"auth.py\"}').",
+            "nullable": True  # 🔥 Ajouté pour éviter l'erreur
         }
     }
     output_type = "string"
@@ -24,8 +31,11 @@ class RetrieverTool(Tool):
         self.vector_store: VectorStore = config.vector_store
         self.k: int = config.k
 
-    def forward(self, query: str) -> str:
-        retrieved_docs = self.vector_store.similarity_search(query, k=self.k)
+    def forward(self, query: str, metadata_filter: str = None) -> str:
+        metadata_filter_dict = json.loads(metadata_filter) if metadata_filter else None
+
+        retrieved_docs = self.vector_store.similarity_search(query, k=self.k, filter=metadata_filter_dict)
+
         return "\nRetrieved documents:\n" + "".join(
             [
                 f"\n\n===== Document {str(i)} =====\n" + doc.page_content
@@ -34,14 +44,55 @@ class RetrieverTool(Tool):
         )
 
 
-class AgenticRAG:
+class ClassRetrieverTool(Tool):
+    """
+    Retrieves class definitions from the codebase.
+    """
 
+    name = "class_retriever"
+    description = "Retrieves class definitions and their locations in the codebase."
+
+    inputs = {
+        "query": {
+            "type": "string",
+            "description": "The name or description of the class to retrieve.",
+        },
+        "metadata_filter": {
+            "type": "string",
+            "description": "Optional metadata filter in JSON format (e.g., '{\"classes\": \"UserManager\"}').",
+            "nullable": True
+        }
+    }
+    output_type = "string"
+
+    def __init__(self, config: AgenticRAGConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.vector_store_classes: VectorStore = config.vector_store.vector_store_classes
+        self.k: int = config.k
+
+    def forward(self, query: str, metadata_filter: str = None) -> str:
+        metadata_filter_dict = json.loads(metadata_filter) if metadata_filter else None
+
+        retrieved_classes = self.vector_store_classes.similarity_search(query, k=self.k, filter=metadata_filter_dict)
+
+        return "\nRetrieved classes:\n" + "".join(
+            [
+                f"\n\n===== Class {str(i)} =====\n" + doc.page_content +
+                f"\nSource File: {doc.metadata['source']}"
+                for i, doc in enumerate(retrieved_classes)
+            ]
+        )
+
+class AgenticRAG:
     def __init__(self, config: AgenticRAGConfig):
         self.vector_store: VectorStore = config.vector_store
         self.k: int = config.k
+
         retriever_tool = RetrieverTool(config=config)
+        class_retriever_tool = ClassRetrieverTool(config=config)
+
         self.agent = CodeAgent(
-            tools=[retriever_tool],
+            tools=[retriever_tool, class_retriever_tool],
             model=LiteLLMModel(
                 model_id=f"{config.provider}/{config.model}",
                 api_base=config.api_base,
@@ -53,24 +104,31 @@ class AgenticRAG:
             prompt_templates=PromptTemplates(),
         )
 
-    def generate(self, query: str) -> str:
-        return self.agent.run(query)
+    def generate(self, query: str, metadata_filter: dict = None, search_type: str = "code", stream: bool = False) -> str:
+        """
+        Generates a response using the appropriate retrieval tool.
 
+        Args:
+            query (str): The search query.
+            metadata_filter (dict, optional): Metadata filter (e.g., {'source': 'file.py'} or {'classes': 'MyClass'}).
+            search_type (str): Either "code" for full document retrieval or "class" for class retrieval.
+
+        Returns:
+            str: The retrieved information.
+        """
+        metadata_filter_str = json.dumps(metadata_filter) if metadata_filter else None
+
+        task_instruction = f"Query: {query}"
+        if metadata_filter:
+            task_instruction += f"\nFilter: {metadata_filter_str}"
+        task_instruction += f"\nTool: {'class_retriever' if search_type == 'class' else 'retriever'}"
+
+        return self.agent.run(task_instruction, stream) 
 
 class PlanningPromptTemplate(TypedDict):
     """
     Prompt templates for the planning step.
-
-    Args:
-        initial_facts_pre_task (`str`): Initial facts pre-task prompt.
-        initial_facts_task (`str`): Initial facts task prompt.
-        initial_plan (`str`): Initial plan prompt.
-        update_facts_pre_messages (`str`): Update facts pre-messages prompt.
-        update_facts_post_messages (`str`): Update facts post-messages prompt.
-        update_plan_pre_messages (`str`): Update plan pre-messages prompt.
-        update_plan_post_messages (`str`): Update plan post-messages prompt.
     """
-
     initial_facts_pre_task: str
     initial_facts_task: str
     initial_plan: str
@@ -83,12 +141,7 @@ class PlanningPromptTemplate(TypedDict):
 class ManagedAgentPromptTemplate(TypedDict):
     """
     Prompt templates for the managed agent.
-
-    Args:
-        task (`str`): Task prompt.
-        report (`str`): Report prompt.
     """
-
     task: str
     report: str
 
@@ -96,12 +149,7 @@ class ManagedAgentPromptTemplate(TypedDict):
 class FinalAnswerPromptTemplate(TypedDict):
     """
     Prompt templates for the final answer.
-
-    Args:
-        pre_messages (`str`): Pre-messages prompt.
-        post_messages (`str`): Post-messages prompt.
     """
-
     pre_messages: str
     post_messages: str
 
@@ -109,14 +157,7 @@ class FinalAnswerPromptTemplate(TypedDict):
 class PromptTemplates(TypedDict):
     """
     Prompt templates for the agent.
-
-    Args:
-        system_prompt (`str`): System prompt.
-        planning ([`~agents.PlanningPromptTemplate`]): Planning prompt templates.
-        managed_agent ([`~agents.ManagedAgentPromptTemplate`]): Managed agent prompt templates.
-        final_answer ([`~agents.FinalAnswerPromptTemplate`]): Final answer prompt templates.
     """
-
     system_prompt: str = Settings.DEFAULT_AGENT_PROMPT
     planning = (
         PlanningPromptTemplate(
