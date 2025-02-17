@@ -191,5 +191,5 @@ docker run --add-host=host.docker.internal:host-gateway docker-raglight
 You can try this project : [LLMChat](https://github.com/Bessouat40/LLMChat) if you want a UI running locally.
 
 <div align="center">
-    <img alt="RAGLight" height="300" src="./media/llmChat.jpg">
+    <img alt="RAGLight" height="300" src="./media/llmchat2.png">
 </div>
