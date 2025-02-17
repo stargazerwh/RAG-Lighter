@@ -86,7 +86,7 @@ class OllamaModel(LLM):
                 },
             ],
         )
-        return response
+        return response.message.content
 
     @override
     def generate_streaming(self, input: Dict[str, Any]) -> Iterable[str]:
