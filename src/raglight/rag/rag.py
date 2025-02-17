@@ -86,9 +86,9 @@ class RAG:
         """
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
         prompt_json = {"question": state["question"], "context": docs_content}
-        if self.stream :
+        if self.stream:
             response = self.llm.generate_streaming(prompt_json)
-        else :
+        else:
             response = self.llm.generate(prompt_json)
             return {"answer": response}
 

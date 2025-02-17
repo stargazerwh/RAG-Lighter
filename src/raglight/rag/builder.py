@@ -163,7 +163,7 @@ class Builder:
             vector_store=self.vector_store,
             llm=self.llm,
             k=k,
-            stream=stream
+            stream=stream,
         )
         self.rag = RAG(config)
         logging.info("✅ RAG pipeline created")

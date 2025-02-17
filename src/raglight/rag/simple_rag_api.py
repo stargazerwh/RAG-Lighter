@@ -23,7 +23,7 @@ class RAGPipeline:
         model_name: str = Settings.DEFAULT_LLM,
         provider: str = Settings.OLLAMA,
         k: int = Settings.DEFAULT_K,
-        stream: bool = False
+        stream: bool = False,
     ) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.

@@ -62,9 +62,7 @@ class OllamaModel(LLM):
         )
 
     @override
-    def generate(
-        self, input: Dict[str, Any]
-    ) -> str | Iterable[str]:
+    def generate(self, input: Dict[str, Any]) -> str | Iterable[str]:
         """
         Generates text using the Ollama model.
 
@@ -89,11 +87,9 @@ class OllamaModel(LLM):
             ],
         )
         return response
-        
+
     @override
-    def generate_streaming(
-        self, input: Dict[str, Any]
-    ) ->  Iterable[str]:
+    def generate_streaming(self, input: Dict[str, Any]) -> Iterable[str]:
         """
         Generates text using the Ollama model.
 
