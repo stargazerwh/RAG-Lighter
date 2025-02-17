@@ -64,7 +64,7 @@ class AgenticRAGPipeline(RAGPipeline):
         return self.vector_store
 
     @override
-    def generate(self, question: str, stream: bool=False) -> str:
+    def generate(self, question: str, stream: bool = False) -> str:
         """
         Asks a question to the pipeline and retrieves the generated answer.
 

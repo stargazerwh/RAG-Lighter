@@ -39,9 +39,9 @@ class ChromaVS(VectorStore):
         """
         super().__init__(persist_directory, embeddings_model)
         self.vector_store = Chroma(
-        embedding_function=self.embeddings_model,
-        persist_directory=persist_directory,
-        collection_name=collection_name,
+            embedding_function=self.embeddings_model,
+            persist_directory=persist_directory,
+            collection_name=collection_name,
         )
 
         self.vector_store_classes = Chroma(
@@ -69,7 +69,9 @@ class ChromaVS(VectorStore):
         logging.info("🎉 All documents ingested and indexed")
 
     @override
-    def similarity_search(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Any]:
+    def similarity_search(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Any]:
         """
         Performs a similarity search in the vector store.
 
@@ -81,9 +83,11 @@ class ChromaVS(VectorStore):
             List[Any]: A list of top-k similar documents.
         """
         return self.vector_store.similarity_search(question, k=k, filter=filter)
-    
+
     @override
-    def similarity_search_class(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Any]:
+    def similarity_search_class(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Any]:
         """
         Performs a similarity search in the vector store.
 
@@ -183,23 +187,23 @@ class ChromaVS(VectorStore):
                     code = f.read()
 
                 splitter = RecursiveCharacterTextSplitter.from_language(
-                    language=self.get_language_from_extension(file_path.split('.')[-1]), 
-                    chunk_size=2500, chunk_overlap=250
+                    language=self.get_language_from_extension(file_path.split(".")[-1]),
+                    chunk_size=2500,
+                    chunk_overlap=250,
                 )
                 splits = splitter.create_documents([code])
 
                 for split in splits:
                     split.metadata = {
                         "source": file_path,
-                        "classes": ', '.join(class_signatures),
+                        "classes": ", ".join(class_signatures),
                     }
 
                 all_splits.extend(splits)
 
                 for class_sig in class_signatures:
                     doc = Document(
-                        page_content = class_sig,
-                        metadata = {"source": file_path}
+                        page_content=class_sig, metadata={"source": file_path}
                     )
                     class_entries.append(doc)
 
@@ -216,4 +220,3 @@ class ChromaVS(VectorStore):
             logging.info("✅ Classes indexed in separate vector store")
 
         logging.info("🎉 All code files ingested and indexed")
-        

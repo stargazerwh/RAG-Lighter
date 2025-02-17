@@ -129,19 +129,33 @@ class VectorStore(ABC):
                         logging.info(f"🔍 Extracting classes from {file_path}")
 
                         if language == Language.PYTHON:
-                            class_signatures = self.extract_python_class_signatures(file_path)
-                        elif language in {Language.JS, Language.TS, Language.JAVA, Language.CPP, Language.CSHARP}:
-                            class_signatures = self.extract_class_signatures_with_regex(file_path, language)
+                            class_signatures = self.extract_python_class_signatures(
+                                file_path
+                            )
+                        elif language in {
+                            Language.JS,
+                            Language.TS,
+                            Language.JAVA,
+                            Language.CPP,
+                            Language.CSHARP,
+                        }:
+                            class_signatures = self.extract_class_signatures_with_regex(
+                                file_path, language
+                            )
 
                         if class_signatures:
                             class_map[file_path] = class_signatures
 
                     except Exception as e:
-                        logging.warning(f"⚠️ Error extracting classes from {file_path}: {e}")
+                        logging.warning(
+                            f"⚠️ Error extracting classes from {file_path}: {e}"
+                        )
 
-        logging.info(f"✅ Extracted {sum(len(v) for v in class_map.values())} class signatures")
+        logging.info(
+            f"✅ Extracted {sum(len(v) for v in class_map.values())} class signatures"
+        )
         return class_map
-    
+
     def extract_python_class_signatures(self, file_path: str) -> List[str]:
         """
         Extracts class signatures (name + inheritance) from a Python file.
@@ -158,14 +172,18 @@ class VectorStore(ABC):
         class_signatures = []
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
-                bases = [base.id if isinstance(base, ast.Name) else "?" for base in node.bases]
+                bases = [
+                    base.id if isinstance(base, ast.Name) else "?"
+                    for base in node.bases
+                ]
                 class_signature = f"class {node.name}({', '.join(bases)})"
                 class_signatures.append(class_signature)
 
         return class_signatures
 
-    
-    def extract_class_signatures_with_regex(self, file_path: str, language: Language) -> List[str]:
+    def extract_class_signatures_with_regex(
+        self, file_path: str, language: Language
+    ) -> List[str]:
         """
         Extracts class signatures using regex for various languages.
 

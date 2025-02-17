@@ -9,9 +9,12 @@ from ..vectorestore.vectorStore import VectorStore
 
 import json
 
+
 class RetrieverTool(Tool):
     name = "retriever"
-    description = "Uses semantic search to retrieve relevant parts of the code documentation."
+    description = (
+        "Uses semantic search to retrieve relevant parts of the code documentation."
+    )
 
     inputs = {
         "query": {
@@ -56,7 +59,9 @@ class ClassRetrieverTool(Tool):
 
     def __init__(self, config: AgenticRAGConfig, **kwargs):
         super().__init__(**kwargs)
-        self.vector_store_classes: VectorStore = config.vector_store.vector_store_classes
+        self.vector_store_classes: VectorStore = (
+            config.vector_store.vector_store_classes
+        )
         self.k: int = config.k
 
     def forward(self, query: str) -> str:
@@ -65,11 +70,13 @@ class ClassRetrieverTool(Tool):
 
         return "\nRetrieved classes:\n" + "".join(
             [
-                f"\n\n===== Class {str(i)} =====\n" + doc.page_content +
-                f"\nSource File: {doc.metadata['source']}"
+                f"\n\n===== Class {str(i)} =====\n"
+                + doc.page_content
+                + f"\nSource File: {doc.metadata['source']}"
                 for i, doc in enumerate(retrieved_classes)
             ]
         )
+
 
 class AgenticRAG:
     def __init__(self, config: AgenticRAGConfig):
@@ -92,7 +99,9 @@ class AgenticRAG:
             prompt_templates=PromptTemplates(),
         )
 
-    def generate(self, query: str, search_type: str = "code", stream: bool = False) -> str:
+    def generate(
+        self, query: str, search_type: str = "code", stream: bool = False
+    ) -> str:
         """
         Generates a response using the appropriate retrieval tool.
 
@@ -105,14 +114,18 @@ class AgenticRAG:
             str: The retrieved information.
         """
         task_instruction = f"Query: {query}"
-        task_instruction += f"\nTool: {'class_retriever' if search_type == 'class' else 'retriever'}"
+        task_instruction += (
+            f"\nTool: {'class_retriever' if search_type == 'class' else 'retriever'}"
+        )
 
-        return self.agent.run(task_instruction, stream) 
+        return self.agent.run(task_instruction, stream)
+
 
 class PlanningPromptTemplate(TypedDict):
     """
     Prompt templates for the planning step.
     """
+
     initial_facts_pre_task: str
     initial_facts_task: str
     initial_plan: str
@@ -126,6 +139,7 @@ class ManagedAgentPromptTemplate(TypedDict):
     """
     Prompt templates for the managed agent.
     """
+
     task: str
     report: str
 
@@ -134,6 +148,7 @@ class FinalAnswerPromptTemplate(TypedDict):
     """
     Prompt templates for the final answer.
     """
+
     pre_messages: str
     post_messages: str
 
@@ -142,6 +157,7 @@ class PromptTemplates(TypedDict):
     """
     Prompt templates for the agent.
     """
+
     system_prompt: str = Settings.DEFAULT_AGENT_PROMPT
     planning = (
         PlanningPromptTemplate(

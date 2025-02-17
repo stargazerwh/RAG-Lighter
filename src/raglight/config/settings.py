@@ -77,7 +77,7 @@ class Settings:
         def example_function():
             print("This is an example based on the provided context.")
         """
-    
+
     DEFAULT_AGENT_PROMPT = """
         You are an AI assistant designed to help users efficiently and accurately.  
         Your primary goal is to provide helpful, precise, and clear responses.

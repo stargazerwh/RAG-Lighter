@@ -62,7 +62,9 @@ class OllamaModel(LLM):
         )
 
     @override
-    def generate(self, input: Dict[str, Any], stream: bool=False) -> str | Iterable[str]:
+    def generate(
+        self, input: Dict[str, Any], stream: bool = False
+    ) -> str | Iterable[str]:
         """
         Generates text using the Ollama model.
 
@@ -72,8 +74,8 @@ class OllamaModel(LLM):
 
         Returns:
             str: The generated output from the model.
-        Yields:                                                                                                                                                                                           
-              str: Chunks of the generated output as they become available.  
+        Yields:
+              str: Chunks of the generated output as they become available.
         """
         input["system prompt"] = self.system_prompt
         new_input = dumps(input)
@@ -85,14 +87,14 @@ class OllamaModel(LLM):
                     "content": new_input,
                 },
             ],
-            stream=stream
+            stream=stream,
         )
-        if stream : 
+        if stream:
             for chunk in response:
-                yield chunk.message.content 
-        else :
+                yield chunk.message.content
+        else:
             return response.message.content
-    
+
     @staticmethod
     def load_system_prompt(filePath: str) -> str:
         """
