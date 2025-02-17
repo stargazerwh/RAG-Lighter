@@ -63,7 +63,7 @@ class OllamaModel(LLM):
 
     @override
     def generate(
-        self, input: Dict[str, Any], stream: bool = False
+        self, input: Dict[str, Any]
     ) -> str | Iterable[str]:
         """
         Generates text using the Ollama model.
@@ -87,13 +87,37 @@ class OllamaModel(LLM):
                     "content": new_input,
                 },
             ],
-            stream=stream,
         )
-        if stream:
-            for chunk in response:
-                yield chunk.message.content
-        else:
-            return response.message.content
+        return response
+        
+    @override
+    def generate_streaming(
+        self, input: Dict[str, Any]
+    ) ->  Iterable[str]:
+        """
+        Generates text using the Ollama model.
+
+        Args:
+            input (Dict[str, Any]): A dictionary containing the input data for text generation. The structure should
+                                    include the necessary keys for the Ollama API.
+
+        Yields:
+              str: Chunks of the generated output as they become available.
+        """
+        input["system prompt"] = self.system_prompt
+        new_input = dumps(input)
+        response = self.model.chat(
+            model=self.model_name,
+            messages=[
+                {
+                    "role": self.role,
+                    "content": new_input,
+                },
+            ],
+            stream=True,
+        )
+        for chunk in response:
+            yield chunk.message.content
 
     @staticmethod
     def load_system_prompt(filePath: str) -> str:

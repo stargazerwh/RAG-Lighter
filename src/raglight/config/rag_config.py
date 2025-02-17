@@ -10,3 +10,4 @@ class RAGConfig:
     vector_store: VectorStore
     llm: LLM
     k: int = field(default=2)
+    stream: int = field(default=False)

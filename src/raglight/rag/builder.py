@@ -138,7 +138,7 @@ class Builder:
         logging.info("✅ Reasoning LLM created")
         return self
 
-    def build_rag(self, k: int = Settings.DEFAULT_K) -> RAG:
+    def build_rag(self, k: int = Settings.DEFAULT_K, stream: bool = False) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
 
@@ -163,6 +163,7 @@ class Builder:
             vector_store=self.vector_store,
             llm=self.llm,
             k=k,
+            stream=stream
         )
         self.rag = RAG(config)
         logging.info("✅ RAG pipeline created")

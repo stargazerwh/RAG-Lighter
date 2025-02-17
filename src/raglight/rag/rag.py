@@ -52,6 +52,7 @@ class RAG:
         self.vector_store: VectorStore = config.vector_store
         self.llm: LLM = config.llm
         self.k: int = config.k
+        self.stream: bool = config.stream
         self.graph: Any = (
             self.createGraph()
         )  # Here type is CompiledGraph but it's not exposed by https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/graph/graph.py
@@ -85,8 +86,11 @@ class RAG:
         """
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
         prompt_json = {"question": state["question"], "context": docs_content}
-        response = self.llm.generate(prompt_json)
-        return {"answer": response}
+        if self.stream :
+            response = self.llm.generate_streaming(prompt_json)
+        else :
+            response = self.llm.generate(prompt_json)
+            return {"answer": response}
 
     def createGraph(self) -> Any:
         """
