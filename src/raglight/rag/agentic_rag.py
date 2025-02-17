@@ -18,11 +18,6 @@ class RetrieverTool(Tool):
             "type": "string",
             "description": "The query to perform. Should be semantically close to the target documents.",
         },
-        "metadata_filter": {
-            "type": "string",
-            "description": "Optional metadata filter in JSON format (e.g., '{\"source\": \"auth.py\"}').",
-            "nullable": True  # 🔥 Ajouté pour éviter l'erreur
-        }
     }
     output_type = "string"
 
@@ -31,10 +26,9 @@ class RetrieverTool(Tool):
         self.vector_store: VectorStore = config.vector_store
         self.k: int = config.k
 
-    def forward(self, query: str, metadata_filter: str = None) -> str:
-        metadata_filter_dict = json.loads(metadata_filter) if metadata_filter else None
+    def forward(self, query: str) -> str:
 
-        retrieved_docs = self.vector_store.similarity_search(query, k=self.k, filter=metadata_filter_dict)
+        retrieved_docs = self.vector_store.similarity_search(query, k=self.k)
 
         return "\nRetrieved documents:\n" + "".join(
             [
@@ -57,11 +51,6 @@ class ClassRetrieverTool(Tool):
             "type": "string",
             "description": "The name or description of the class to retrieve.",
         },
-        "metadata_filter": {
-            "type": "string",
-            "description": "Optional metadata filter in JSON format (e.g., '{\"classes\": \"UserManager\"}').",
-            "nullable": True
-        }
     }
     output_type = "string"
 
@@ -70,10 +59,9 @@ class ClassRetrieverTool(Tool):
         self.vector_store_classes: VectorStore = config.vector_store.vector_store_classes
         self.k: int = config.k
 
-    def forward(self, query: str, metadata_filter: str = None) -> str:
-        metadata_filter_dict = json.loads(metadata_filter) if metadata_filter else None
+    def forward(self, query: str) -> str:
 
-        retrieved_classes = self.vector_store_classes.similarity_search(query, k=self.k, filter=metadata_filter_dict)
+        retrieved_classes = self.vector_store_classes.similarity_search(query, k=self.k)
 
         return "\nRetrieved classes:\n" + "".join(
             [
@@ -104,7 +92,7 @@ class AgenticRAG:
             prompt_templates=PromptTemplates(),
         )
 
-    def generate(self, query: str, metadata_filter: dict = None, search_type: str = "code", stream: bool = False) -> str:
+    def generate(self, query: str, search_type: str = "code", stream: bool = False) -> str:
         """
         Generates a response using the appropriate retrieval tool.
 
@@ -116,11 +104,7 @@ class AgenticRAG:
         Returns:
             str: The retrieved information.
         """
-        metadata_filter_str = json.dumps(metadata_filter) if metadata_filter else None
-
         task_instruction = f"Query: {query}"
-        if metadata_filter:
-            task_instruction += f"\nFilter: {metadata_filter_str}"
         task_instruction += f"\nTool: {'class_retriever' if search_type == 'class' else 'retriever'}"
 
         return self.agent.run(task_instruction, stream) 
