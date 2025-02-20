@@ -15,6 +15,11 @@ class Settings:
 
     CHROMA = "Chroma"
     OLLAMA = "Ollama"
+    MISTRAL = "Mistral"
+    MISTRAL_API = "https://api.mistral.ai/v1"
+    MISTRAL_API_KEY = os.environ.get(
+        "MISTRAL_API_KEY", ""
+    )
     LMSTUDIO = "LmStudio"
     HUGGINGFACE = "HuggingFace"
     DEFAULT_LLM = "llama3"

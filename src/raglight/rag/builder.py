@@ -4,6 +4,7 @@ from typing import Optional
 from ..llm.llm import LLM
 from ..llm.ollamaModel import OllamaModel
 from ..llm.lmStudioModel import LMStudioModel
+from ..llm.mistralModel import MistralModel
 from ..vectorestore.vectorStore import VectorStore
 from ..vectorestore.chroma import ChromaVS
 from ..config.settings import Settings
@@ -107,6 +108,8 @@ class Builder:
             self.llm = OllamaModel(**kwargs)
         elif type == Settings.LMSTUDIO:
             self.llm = LMStudioModel(**kwargs)
+        elif type == Settings.MISTRAL:
+            self.llm = MistralModel(**kwargs)
         else:
             raise ValueError(f"Unknown LLM type: {type}")
         logging.info("✅ LLM created")

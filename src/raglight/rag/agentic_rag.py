@@ -1,7 +1,6 @@
 from typing import TypedDict, Dict
 from smolagents import Tool, tool
-from smolagents import CodeAgent
-from smolagents import LiteLLMModel
+from smolagents import CodeAgent, OpenAIServerModel, LiteLLMModel
 
 from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
@@ -59,14 +58,14 @@ class ClassRetrieverTool(Tool):
 
     def __init__(self, config: AgenticRAGConfig, **kwargs):
         super().__init__(**kwargs)
-        self.vector_store_classes: VectorStore = (
-            config.vector_store.vector_store_classes
+        self.vector_store: VectorStore = (
+            config.vector_store
         )
         self.k: int = config.k
 
     def forward(self, query: str) -> str:
 
-        retrieved_classes = self.vector_store_classes.similarity_search(query, k=self.k)
+        retrieved_classes = self.vector_store.similarity_search_class(query, k=self.k)
 
         return "\nRetrieved classes:\n" + "".join(
             [
@@ -86,14 +85,26 @@ class AgenticRAG:
         retriever_tool = RetrieverTool(config=config)
         class_retriever_tool = ClassRetrieverTool(config=config)
 
-        self.agent = CodeAgent(
-            tools=[retriever_tool, class_retriever_tool],
-            model=LiteLLMModel(
+
+        if config.provider == Settings.MISTRAL.lower():
+            print('key : ', Settings.MISTRAL_API_KEY)
+            model = OpenAIServerModel(
+                model_id=config.model,
+                api_key=Settings.MISTRAL_API_KEY,
+                api_base=Settings.MISTRAL_API,
+            )
+        
+        else :
+            model = LiteLLMModel(
                 model_id=f"{config.provider}/{config.model}",
                 api_base=config.api_base,
                 api_key=config.api_key,
                 num_ctx=config.num_ctx,
-            ),
+            )
+
+        self.agent = CodeAgent(
+            tools=[retriever_tool, class_retriever_tool],
+            model=model,
             max_steps=config.max_steps,
             verbosity_level=config.verbosity_level,
             prompt_templates=PromptTemplates(),
