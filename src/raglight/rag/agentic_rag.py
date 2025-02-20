@@ -58,9 +58,7 @@ class ClassRetrieverTool(Tool):
 
     def __init__(self, config: AgenticRAGConfig, **kwargs):
         super().__init__(**kwargs)
-        self.vector_store: VectorStore = (
-            config.vector_store
-        )
+        self.vector_store: VectorStore = config.vector_store
         self.k: int = config.k
 
     def forward(self, query: str) -> str:
@@ -85,16 +83,15 @@ class AgenticRAG:
         retriever_tool = RetrieverTool(config=config)
         class_retriever_tool = ClassRetrieverTool(config=config)
 
-
         if config.provider == Settings.MISTRAL.lower():
-            print('key : ', Settings.MISTRAL_API_KEY)
+            print("key : ", Settings.MISTRAL_API_KEY)
             model = OpenAIServerModel(
                 model_id=config.model,
                 api_key=Settings.MISTRAL_API_KEY,
                 api_base=Settings.MISTRAL_API,
             )
-        
-        else :
+
+        else:
             model = LiteLLMModel(
                 model_id=f"{config.provider}/{config.model}",
                 api_base=config.api_base,
