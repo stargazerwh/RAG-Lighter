@@ -72,6 +72,20 @@ class VectorStore(ABC):
         """
         pass
 
+    @abstractmethod
+    def similarity_search_class(self, question: str, k: int = 2) -> List[Any]:
+        """
+        Abstract method to perform similarity search in the vector store.
+
+        Args:
+            question (str): The input query for similarity search.
+            k (int, optional): The number of top results to retrieve. Defaults to 2.
+
+        Returns:
+            List[Any]: A list of top-k similar documents.
+        """
+        pass
+
     def get_language_from_extension(self, extension: str) -> Language | None:
         """
         Maps a file extension to a Language enum.
