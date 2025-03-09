@@ -115,7 +115,7 @@ class Settings:
 
         ---
 
-        ## ✨ Response Structure:
+        ## Response Structure:
         1. **Thought**: {Analyze the request and determine if a tool is necessary}
         2. **Action**: {JSON with tool name & arguments, if needed}
         3. **Observation**: {Result of tool action, if any}

@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from ..cross_encoder.crossEncoderModel import CrossEncoderModel
 from ..vectorestore.vectorStore import VectorStore
 from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..llm.llm import LLM
@@ -49,6 +51,7 @@ class RAG:
             llm (LLM): The language model for generating answers.
         """
         self.embeddings: EmbeddingsModel = config.embedding_model.get_model()
+        self.cross_encoder: CrossEncoderModel = config.cross_encoder_model.get_model() if config.cross_encoder_model else None
         self.vector_store: VectorStore = config.vector_store
         self.llm: LLM = config.llm
         self.k: int = config.k
@@ -70,7 +73,7 @@ class RAG:
         retrieved_docs = self.vector_store.similarity_search(
             state["question"], k=self.k
         )
-        return {"context": retrieved_docs}
+        return {"context": retrieved_docs, "question": state["question"]}
 
     def generate(self, state: Dict[str, List[Document]]) -> Dict[str, str]:
         """
@@ -91,6 +94,26 @@ class RAG:
         else:
             response = self.llm.generate(prompt_json)
             return {"answer": response}
+        
+    def rerank(self, state: Dict[str, List[Document]]) -> Dict[str, List[Document]]:
+        """
+        Reranks the retrieved documents based on the cross-encoder model.
+
+        Args:
+            state (Dict[str, List[Document]]): A dictionary containing the list of retrieved documents under the key 'context'.
+
+        Returns:
+            Dict[str, List[Document]]: A dictionary containing the reranked documents under the key 'context'.
+        """
+        try :
+            question = state["question"]
+            docs = state["context"]
+            doc_texts = [doc.page_content for doc in docs]
+            scores = self.cross_encoder.predict([(question, doc_text) for doc_text in doc_texts])
+            ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
+        except :
+            ranked_docs = state["context"]
+        return {"context": ranked_docs}
 
     def createGraph(self) -> Any:
         """
@@ -99,7 +122,12 @@ class RAG:
         Returns:
             StateGraph: The compiled state graph for managing the RAG process flow.
         """
-        graph_builder = StateGraph(State).add_sequence([self.retrieve, self.generate])
+        if self.cross_encoder:
+            graph_builder = StateGraph(State).add_sequence(
+                [self.retrieve, self.rerank, self.generate]
+            )
+        else :
+            graph_builder = StateGraph(State).add_sequence([self.retrieve, self.generate])
         graph_builder.add_edge(START, "retrieve")
         return graph_builder.compile()
 

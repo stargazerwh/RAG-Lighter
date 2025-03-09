@@ -2,9 +2,12 @@ from .vectorestore.vectorStore import VectorStore
 from .vectorestore.chroma import ChromaVS
 
 from .embeddings.embeddingsModel import EmbeddingsModel
+from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
+
+from .cross_encoder.crossEncoderModel import CrossEncoderModel
+from .cross_encoder.huggingfaceCrossEncoder import HuggingfaceCrossEncoderModel
 
 from .llm.llm import LLM
-from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
 from .llm.ollamaModel import OllamaModel
 from .llm.lmStudioModel import LMStudioModel
 from .llm.mistralModel import MistralModel
