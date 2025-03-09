@@ -66,7 +66,7 @@ class Builder:
             raise ValueError(f"Unknown Embeddings Model type: {type}")
         logging.info("✅ Embeddings Model created")
         return self
-    
+
     def with_cross_encoder(self, type: str, **kwargs) -> Builder:
         """
         Configures the cross-encoder

@@ -165,7 +165,7 @@ class ChromaVS(VectorStore):
         except Exception as e:
             logging.warning(f"Error occured during documents ingestion : {e}")
         return docs
-    
+
     @override
     def ingest_code(self, **kwargs: Any) -> None:
         """
