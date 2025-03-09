@@ -9,4 +9,5 @@ langchain_text_splitters==0.3.2
 langchain_core==0.3.24
 ollama==0.4.0
 openai==1.60.2
+mistralai==1.5.0
 smolagents==1.8.1

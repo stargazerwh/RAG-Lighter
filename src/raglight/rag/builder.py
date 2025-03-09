@@ -1,6 +1,9 @@
 from __future__ import annotations
 import logging
 from typing import Optional
+
+from ..cross_encoder.crossEncoderModel import CrossEncoderModel
+from ..cross_encoder.huggingfaceCrossEncoder import HuggingfaceCrossEncoderModel
 from ..llm.llm import LLM
 from ..llm.ollamaModel import OllamaModel
 from ..llm.lmStudioModel import LMStudioModel
@@ -36,6 +39,7 @@ class Builder:
         """
         self.vector_store: Optional[VectorStore] = None
         self.embeddings: Optional[EmbeddingsModel] = None
+        self.cross_encoder: Optional[CrossEncoderModel] = None
         self.llm: Optional[LLM] = None
         self.reasoning_llm: Optional[LLM] = None
         self.rag: Optional[RAG] = None
@@ -61,6 +65,28 @@ class Builder:
         else:
             raise ValueError(f"Unknown Embeddings Model type: {type}")
         logging.info("✅ Embeddings Model created")
+        return self
+    
+    def with_cross_encoder(self, type: str, **kwargs) -> Builder:
+        """
+        Configures the cross-encoder
+
+        Args:
+            type (str): The type of cross encoder model to create (e.g., HUGGINGFACE).
+            **kwargs: Additional parameters required to initialize the cross encoder model.
+
+        Returns:
+            Builder: The current instance of the Builder for method chaining.
+
+        Raises:
+            ValueError: If an unknown cross encoder model type is specified.
+        """
+        logging.info("⏳ Creating a Cross Encoder Model...")
+        if type == Settings.HUGGINGFACE:
+            self.cross_encoder = HuggingfaceCrossEncoderModel(**kwargs)
+        else:
+            raise ValueError(f"Unknown Cross Encoder Model type: {type}")
+        logging.info("✅ Cross Encoder Model created")
         return self
 
     def with_vector_store(self, type: str, **kwargs) -> Builder:
@@ -162,6 +188,7 @@ class Builder:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAG pipeline...")
         config = RAGConfig(
+            cross_encoder_model=self.cross_encoder,
             embedding_model=self.embeddings,
             vector_store=self.vector_store,
             llm=self.llm,
