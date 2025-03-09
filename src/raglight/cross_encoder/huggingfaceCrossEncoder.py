@@ -37,4 +37,3 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
             HuggingfaceCrossEncoderModel: The loaded HuggingFace cross encoder model.
         """
         return CrossEncoder(model_name=self.model_name)
-    

@@ -51,7 +51,11 @@ class RAG:
             llm (LLM): The language model for generating answers.
         """
         self.embeddings: EmbeddingsModel = config.embedding_model.get_model()
-        self.cross_encoder: CrossEncoderModel = config.cross_encoder_model.get_model() if config.cross_encoder_model else None
+        self.cross_encoder: CrossEncoderModel = (
+            config.cross_encoder_model.get_model()
+            if config.cross_encoder_model
+            else None
+        )
         self.vector_store: VectorStore = config.vector_store
         self.llm: LLM = config.llm
         self.k: int = config.k
@@ -94,7 +98,7 @@ class RAG:
         else:
             response = self.llm.generate(prompt_json)
             return {"answer": response}
-        
+
     def rerank(self, state: Dict[str, List[Document]]) -> Dict[str, List[Document]]:
         """
         Reranks the retrieved documents based on the cross-encoder model.
@@ -105,13 +109,15 @@ class RAG:
         Returns:
             Dict[str, List[Document]]: A dictionary containing the reranked documents under the key 'context'.
         """
-        try :
+        try:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            scores = self.cross_encoder.predict([(question, doc_text) for doc_text in doc_texts])
+            scores = self.cross_encoder.predict(
+                [(question, doc_text) for doc_text in doc_texts]
+            )
             ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
-        except :
+        except:
             ranked_docs = state["context"]
         return {"context": ranked_docs}
 
@@ -126,8 +132,10 @@ class RAG:
             graph_builder = StateGraph(State).add_sequence(
                 [self.retrieve, self.rerank, self.generate]
             )
-        else :
-            graph_builder = StateGraph(State).add_sequence([self.retrieve, self.generate])
+        else:
+            graph_builder = StateGraph(State).add_sequence(
+                [self.retrieve, self.generate]
+            )
         graph_builder.add_edge(START, "retrieve")
         return graph_builder.compile()
 
