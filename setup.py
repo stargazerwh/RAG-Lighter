@@ -21,6 +21,8 @@ setup(
         "langchain_chroma",
         "langchain_huggingface",
         "typing",
+        "mistralai",
+        "smolagents",
         "langchain_community",
         "typing_extensions",
         "langchain_text_splitters",
