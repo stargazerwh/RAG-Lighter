@@ -22,6 +22,7 @@ class Settings:
     HUGGINGFACE = "HuggingFace"
     DEFAULT_LLM = "llama3"
     DEFAULT_EMBEDDINGS_MODEL = "all-MiniLM-L6-v2"
+    DEFAULT_CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L6-v2"
     DEFAULT_SYSTEM_PROMPT = (
         contextual_prompt
     ) = """
