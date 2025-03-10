@@ -5,7 +5,7 @@ from raglight.config.settings import Settings
 
 Settings.setup_logging()
 
-config = config = SimpleAgenticRAGConfig(
+config = SimpleAgenticRAGConfig(
     #   provider = Settings.OLLAMA.lower(), # default "ollama"
     #   model = Settings.DEFAULT_LLM, # default "llama3"
     #   k= 5,

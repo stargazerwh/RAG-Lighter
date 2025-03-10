@@ -18,6 +18,6 @@ rag = Builder() \
     .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
     .build_rag(k = 5)
 
-response = rag.question_graph("Can you tell me something about grece mythology ?")
+response = rag.generate("Can you tell me something about grece mythology ?")
 print(response)
 

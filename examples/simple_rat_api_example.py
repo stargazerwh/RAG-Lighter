@@ -1,17 +1,32 @@
 from raglight.rat.simple_rat_api import RATPipeline
 from raglight.models.data_source_model import FolderSource, GitHubSource
 from raglight.config.settings import Settings
+from raglight.config.rat_config import RATConfig
 
 Settings.setup_logging()
 
-pipeline = RATPipeline(knowledge_base=[
-    # FolderSource(path="<path to your folder with pdf>/knowledge_base"),
+knowledge_base=[
+    FolderSource(path="<path to your folder with pdf>/knowledge_base"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ], model_name="llama3",
-    reasoning_model_name="deepseek-r1:1.5b",
-    reflection=1,
-    provider=Settings.OLLAMA,
-    k=5)
+    ],
+
+config = RATConfig(
+        embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+        cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
+        llm = Settings.DEFAULT_LLM,
+        k = Settings.DEFAULT_K,
+        persist_directory = './defaultDb',
+        provider = Settings.OLLAMA,
+        file_extension = Settings.DEFAULT_EXTENSIONS,
+        system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
+        collection_name = Settings.DEFAULT_COLLECTION_NAME,
+        k = Settings.DEFAULT_K,
+        knowledge_base = knowledge_base,
+        reasoning_llm = Settings.DEFAULT_REASONING_LLM,
+        reflection = 3
+    )
+
+pipeline = RATPipeline(config)
 
 pipeline.build()
 

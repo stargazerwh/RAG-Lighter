@@ -1,4 +1,6 @@
 from typing import List
+
+from ..config.rat_config import RATConfig
 from ..rag.builder import Builder
 from ..rag.simple_rag_api import RAGPipeline
 from .rat import RAT
@@ -21,12 +23,7 @@ class RATPipeline(RAGPipeline):
 
     def __init__(
         self,
-        knowledge_base: List[DataSource],
-        model_name: str = Settings.DEFAULT_LLM,
-        reasoning_model_name: str = Settings.DEFAULT_REASONING_LLM,
-        reflection: int = 1,
-        provider: str = Settings.OLLAMA,
-        k: int = Settings.DEFAULT_K,
+        config: RATConfig
     ) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
@@ -39,12 +36,12 @@ class RATPipeline(RAGPipeline):
             reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        self.knowledge_base: List[DataSource] = knowledge_base
-        model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
-        persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
-        collection_name: str = Settings.DEFAULT_COLLECTION_NAME
-        system_prompt: str = Settings.DEFAULT_SYSTEM_PROMPT
-        self.file_extension: str = Settings.DEFAULT_EXTENSIONS
+        self.knowledge_base: List[DataSource] = config.knowledge_base
+        model_embeddings: str = config
+        persist_directory: str = config.persist_directory
+        collection_name: str = config.collection_name
+        system_prompt: str = config.system_prompt
+        self.file_extension: str = config.file_extension
         self.rat: RAT = (
             Builder()
             .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
@@ -53,13 +50,13 @@ class RATPipeline(RAGPipeline):
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
-            .with_llm(provider, model_name=model_name, system_prompt=system_prompt)
+            .with_llm(config.provider, model_name=config.llm, system_prompt=system_prompt)
             .with_reasoning_llm(
-                provider,
-                model_name=reasoning_model_name,
+                config.provider,
+                model_name=config.reasoning_llm,
                 system_prompt=system_prompt,
             )
-            .build_rat(reflection, k)
+            .build_rat(config.reflection, config.k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 
@@ -90,5 +87,5 @@ class RATPipeline(RAGPipeline):
         Returns:
             str: The generated answer from the pipeline, including reasoning.
         """
-        response: str = self.rat.question_graph(question)
+        response: str = self.rat.generate(question)
         return response
