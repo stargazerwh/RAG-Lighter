@@ -108,18 +108,35 @@ You can setup easily your RAG with RAGLight :
 from raglight.rag.simple_rag_api import RAGPipeline
 from raglight.models.data_source_model import FolderSource, GitHubSource
 from raglight.config.settings import Settings
+from raglight.config.rag_config import RAGConfig
 
 Settings.setup_logging()
 
-pipeline = RAGPipeline(knowledge_base=[
-FolderSource(path="<path to your folder with pdf>"),
-GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-], model_name="llama3")
+knowledge_base=[
+    FolderSource(path="<path to your folder with pdf>/knowledge_base"),
+    GitHubSource(url="https://github.com/Bessouat40/RAGLight")
+    ],
 
-pipeline.build()
+config = RAGConfig(
+        embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+        llm = Settings.DEFAULT_LLM,
+        persist_directory = './defaultDb',
+        provider = Settings.OLLAMA,
+        collection_name = Settings.DEFAULT_COLLECTION_NAME,
+        file_extension = Settings.DEFAULT_EXTENSIONS,
+        # k = Settings.DEFAULT_K,
+        # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
+        # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
+        # knowledge_base = knowledge_base
+    )
+
+pipeline = RAGPipeline(config)
+
+pipeline.build() # Will ingest knowladge base, not mandatory if not knowledge_base
 
 response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
 print(response)
+
 ```
 
 You just have to fill the model you want to use.
@@ -147,34 +164,45 @@ You can modify several parameters in your config :
 - `verbosity_level` : You logs verbosity level
 
 ```python
-from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
-from raglight.config.agentic_rag_config import SimpleAgenticRAGConfig
-from raglight.models.data_source_model import FolderSource, GitHubSource
 from raglight.config.settings import Settings
+from raglight.rag.agentic_rag import AgenticRAG
+from raglight.config.agentic_rag_config import AgenticRAGConfig
+from raglight.config.vector_store_config import VectorStoreConfig
+from raglight.config.settings import Settings
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 Settings.setup_logging()
 
-config = config = SimpleAgenticRAGConfig(
-    #   provider = Settings.OLLAMA.lower(), # default "ollama"
-    #   model = Settings.DEFAULT_LLM, # default "llama3"
-    #   k= 5,
-    #   max_steps = 4,
-    #   api_key="YOUR_API_KEY",
-    #   api_base: Settings.DEFAULT_OLLAMA_CLIENT
-    #   num_ctx: 8192
-    #   verbosity_level: 2
-    )
+persist_directory = './defaultDb'
+model_embeddings = Settings.DEFAULT_EMBEDDINGS_MODEL
+collection_name = Settings.DEFAULT_COLLECTION_NAME
 
-pipeline = AgenticRAGPipeline(knowledge_base=[
-    FolderSource(path="<path to your folder with pdf>/knowledge_base"),
-    GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ],
-    config=config)
+vector_store_config = VectorStoreConfig(
+    embedding_model = model_embeddings,
+    persist_directory = persist_directory,
+    provider = Settings.HUGGINGFACE,
+    collection_name = collection_name
+)
 
-pipeline.build()
+config = AgenticRAGConfig(
+            provider = Settings.MISTRAL,
+            model = "mistral-large-2411",
+            k = 10,
+            system_prompt = Settings.DEFAULT_AGENT_PROMPT,
+            max_steps = 4,
+            api_key = Settings.MISTRAL_API_KEY # os.environ.get('MISTRAL_API_KEY')
+            # api_base = ... # If you have a custom client URL
+            # num_ctx = ... # Max context length
+            # verbosity_level = ... # Default = 2
+        )
 
-response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
-print(response)
+agenticRag = AgenticRAG(config, vector_store_config)
+
+response = agenticRag.generate("Please implement for me AgenticRAGPipeline inspired by RAGPipeline and AgenticRAG and RAG")
+
+print('response : ', response)
 ```
 
 </details>
@@ -189,15 +217,33 @@ an additional reasoning step using a specialized reasoning language model (LLM).
 from raglight.rat.simple_rat_api import RATPipeline
 from raglight.models.data_source_model import FolderSource, GitHubSource
 from raglight.config.settings import Settings
+from raglight.config.rat_config import RATConfig
 
 Settings.setup_logging()
 
-pipeline = RATPipeline(knowledge_base=[
-FolderSource(path="<path to your folder with pdf>/knowledge_base"),
-GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-], model_name="llama3", reasoning_model_name="deepseek-r1:1.5b", reflection=2, provider=SETTINGS.OLLAMA, k=5) # default : provider = Settings.Ollama
-# ], model_name="llama3", reasoning_model_name="deepseek-r1:1.5b", reflection=1, provider=SETTINGS.LMSTUDIO)
+knowledge_base=[
+    FolderSource(path="<path to the folder you want to ingest into your knowledge base>"),
+    GitHubSource(url="https://github.com/Bessouat40/RAGLight")
+    ],
 
+config = RATConfig(
+        embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+        cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
+        llm = "llama3.2:3b",
+        k = Settings.DEFAULT_K,
+        persist_directory = './defaultDb',
+        provider = Settings.OLLAMA,
+        file_extension = Settings.DEFAULT_EXTENSIONS,
+        system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
+        collection_name = Settings.DEFAULT_COLLECTION_NAME,
+        reasoning_llm = Settings.DEFAULT_REASONING_LLM,
+        reflection = 3
+        # knowledge_base = knowledge_base,
+    )
+
+pipeline = RATPipeline(config)
+
+# This will ingest data from the knowledge base. Not mandatory if you have already ingested the data.
 pipeline.build()
 
 response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me the the easier python implementation")
