@@ -9,6 +9,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install -y poppler-utils
+RUN apt-get install -y libmagic1
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN apt-get install -y libleptonica-dev tesseract-ocr python3-pil tesseract-ocr-eng tesseract-ocr-script-latn
 COPY ./simple_rag_api_example.py .
 
 CMD ["python", "simple_rag_api_example.py"]
