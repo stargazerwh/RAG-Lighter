@@ -187,7 +187,9 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAG pipeline...")
-        self.rag = RAG(self.embeddings, self.vector_store, self.llm, k, self.cross_encoder)
+        self.rag = RAG(
+            self.embeddings, self.vector_store, self.llm, k, self.cross_encoder
+        )
         logging.info("✅ RAG pipeline created")
         return self.rag
 
@@ -214,7 +216,15 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAT pipeline...")
-        self.rat = RAT(self.embeddings, self.vector_store, self.llm, k, self.reasoning_llm, reflection, self.cross_encoder)
+        self.rat = RAT(
+            self.embeddings,
+            self.vector_store,
+            self.llm,
+            k,
+            self.reasoning_llm,
+            reflection,
+            self.cross_encoder,
+        )
         logging.info("✅ RAT pipeline created")
         return self.rat
 

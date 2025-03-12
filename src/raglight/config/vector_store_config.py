@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 
 from ..config.settings import Settings
 
+
 @dataclass(kw_only=True)
 class VectorStoreConfig:
     embedding_model: str

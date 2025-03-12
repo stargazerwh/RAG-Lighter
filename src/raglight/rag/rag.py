@@ -40,7 +40,15 @@ class RAG:
         graph (StateGraph): The state graph that manages the RAG process flow.
     """
 
-    def __init__(self, embedding_model: EmbeddingsModel, vector_store: VectorStore, llm: LLM, k: int, cross_encoder_model: CrossEncoderModel = None, stream: bool = False) -> None:
+    def __init__(
+        self,
+        embedding_model: EmbeddingsModel,
+        vector_store: VectorStore,
+        llm: LLM,
+        k: int,
+        cross_encoder_model: CrossEncoderModel = None,
+        stream: bool = False,
+    ) -> None:
         """
         Initializes the RAG pipeline.
 
@@ -51,9 +59,7 @@ class RAG:
         """
         self.embeddings: EmbeddingsModel = embedding_model.get_model()
         self.cross_encoder: CrossEncoderModel = (
-            cross_encoder_model.get_model()
-            if cross_encoder_model
-            else None
+            cross_encoder_model.get_model() if cross_encoder_model else None
         )
         self.vector_store: VectorStore = vector_store
         self.llm: LLM = llm

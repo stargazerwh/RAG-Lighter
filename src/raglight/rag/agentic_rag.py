@@ -78,16 +78,28 @@ class ClassRetrieverTool(Tool):
 
 
 class AgenticRAG:
-    def __init__(self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig):
-        self.vector_store = Builder() \
-            .with_embeddings(Settings.HUGGINGFACE, model_name=vector_store_config.embedding_model) \
-            .with_vector_store(Settings.CHROMA, persist_directory=vector_store_config.persist_directory, collection_name=vector_store_config.collection_name) \
+    def __init__(
+        self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig
+    ):
+        self.vector_store = (
+            Builder()
+            .with_embeddings(
+                Settings.HUGGINGFACE, model_name=vector_store_config.embedding_model
+            )
+            .with_vector_store(
+                Settings.CHROMA,
+                persist_directory=vector_store_config.persist_directory,
+                collection_name=vector_store_config.collection_name,
+            )
             .build_vector_store()
+        )
 
         self.k: int = config.k
 
-        retriever_tool = RetrieverTool(k = config.k, vector_store=self.vector_store)
-        class_retriever_tool = ClassRetrieverTool(k = config.k, vector_store=self.vector_store)
+        retriever_tool = RetrieverTool(k=config.k, vector_store=self.vector_store)
+        class_retriever_tool = ClassRetrieverTool(
+            k=config.k, vector_store=self.vector_store
+        )
 
         if config.provider.lower() == Settings.MISTRAL.lower():
             model = OpenAIServerModel(
@@ -169,12 +181,16 @@ class PromptTemplates(TypedDict):
     """
     Prompt templates for the agent.
     """
+
     system_prompt: str
     planning: PlanningPromptTemplate
     managed_agent: ManagedAgentPromptTemplate
     final_answer: FinalAnswerPromptTemplate
 
-def create_prompt_templates(system_prompt: str = Settings.DEFAULT_AGENT_PROMPT) -> PromptTemplates:
+
+def create_prompt_templates(
+    system_prompt: str = Settings.DEFAULT_AGENT_PROMPT,
+) -> PromptTemplates:
     return PromptTemplates(
         system_prompt=system_prompt,
         planning=PlanningPromptTemplate(

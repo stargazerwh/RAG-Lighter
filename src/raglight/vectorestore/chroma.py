@@ -65,11 +65,11 @@ class ChromaVS(VectorStore):
         data_path = kwargs.get("data_path", "")
         if not data_path:
             raise ValueError("data_path is required for document ingestion")
-            
+
         docs = self.load_docs(data_path)
         if not docs:
             raise ValueError(f"No documents were loaded from {data_path}")
-            
+
         all_splits = self.split_docs(docs)
         self.add_index(all_splits)
         logging.info("🎉 All documents ingested and indexed")
@@ -152,18 +152,18 @@ class ChromaVS(VectorStore):
         """
         Loads all documents from a directory, using PyPDFLoader for PDFs
         and DirectoryLoader for other file types.
-        
+
         Args:
             data_path (str): Path to the directory containing the documents.
-            
+
         Returns:
             List[Document]: A list of loaded documents.
         """
         all_docs = []
-        
+
         try:
             logging.info(f"⏳ Loading documents from {data_path}...")
-            
+
             pdf_files = glob.glob(os.path.join(data_path, "*.pdf"))
             for pdf_file in pdf_files:
                 try:
@@ -172,28 +172,41 @@ class ChromaVS(VectorStore):
                     for doc in pdf_docs:
                         doc.metadata = {"source": os.path.basename(pdf_file)}
                     all_docs.extend(pdf_docs)
-                    logging.info(f"✅ Successfully loaded PDF: {os.path.basename(pdf_file)}")
+                    logging.info(
+                        f"✅ Successfully loaded PDF: {os.path.basename(pdf_file)}"
+                    )
                 except Exception as e:
                     logging.warning(f"⚠️ Failed to load PDF {pdf_file}: {e}")
-            
-            non_pdf_extensions = ["*.txt", "*.docx", "*.html", "*.md", "*.csv", "*.json"]
+
+            non_pdf_extensions = [
+                "*.txt",
+                "*.docx",
+                "*.html",
+                "*.md",
+                "*.csv",
+                "*.json",
+            ]
             for ext in non_pdf_extensions:
                 try:
                     if glob.glob(os.path.join(data_path, ext)):
                         loader = DirectoryLoader(path=data_path, glob=ext)
                         other_docs = loader.load()
                         for doc in other_docs:
-                            doc.metadata = {"source": os.path.basename(doc.metadata["source"])}
+                            doc.metadata = {
+                                "source": os.path.basename(doc.metadata["source"])
+                            }
                         all_docs.extend(other_docs)
                         logging.info(f"✅ Successfully loaded {ext} files")
                 except Exception as e:
                     logging.warning(f"⚠️ Failed to load {ext} files: {e}")
-            
-            logging.info(f"✅ Total: {len(all_docs)} documents/pages loaded successfully")
-            
+
+            logging.info(
+                f"✅ Total: {len(all_docs)} documents/pages loaded successfully"
+            )
+
         except Exception as e:
             logging.error(f"❌ Critical error during document loading: {e}")
-        
+
         return all_docs
 
     @override

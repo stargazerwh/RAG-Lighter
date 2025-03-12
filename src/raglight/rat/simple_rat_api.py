@@ -21,10 +21,7 @@ class RATPipeline(RAGPipeline):
     to provide both answers and reflections on user queries.
     """
 
-    def __init__(
-        self,
-        config: RATConfig
-    ) -> None:
+    def __init__(self, config: RATConfig) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
 
@@ -50,7 +47,9 @@ class RATPipeline(RAGPipeline):
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
-            .with_llm(config.provider, model_name=config.llm, system_prompt=system_prompt)
+            .with_llm(
+                config.provider, model_name=config.llm, system_prompt=system_prompt
+            )
             .with_reasoning_llm(
                 config.provider,
                 model_name=config.reasoning_llm,

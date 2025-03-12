@@ -19,10 +19,7 @@ class RAGPipeline:
     embeddings, and a language model to provide context-aware answers to questions.
     """
 
-    def __init__(
-        self,
-        config: RAGConfig
-    ) -> None:
+    def __init__(self, config: RAGConfig) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.
 
@@ -66,7 +63,7 @@ class RAGPipeline:
         and creates the embeddings for the vector store.
         """
         repositories: List[str] = []
-        if not self.knowledge_base :
+        if not self.knowledge_base:
             return
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):

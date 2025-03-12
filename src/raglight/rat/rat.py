@@ -28,7 +28,17 @@ class RAT(RAG):
         reflection (int): The number of reasoning iterations to perform for the input query.
     """
 
-    def __init__(self, embedding_model: EmbeddingsModel, vector_store: VectorStore, llm: LLM, k: int, reasoning_llm: LLM, reflection: int, cross_encoder_model: CrossEncoderModel = None, stream: bool = False) -> None:
+    def __init__(
+        self,
+        embedding_model: EmbeddingsModel,
+        vector_store: VectorStore,
+        llm: LLM,
+        k: int,
+        reasoning_llm: LLM,
+        reflection: int,
+        cross_encoder_model: CrossEncoderModel = None,
+        stream: bool = False,
+    ) -> None:
         """
         Initializes the RAT pipeline with the required components.
 
@@ -40,7 +50,9 @@ class RAT(RAG):
             k (int, optional): The number of top documents to retrieve. Defaults to 2.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        super().__init__(embedding_model, vector_store, llm, k, cross_encoder_model, stream)
+        super().__init__(
+            embedding_model, vector_store, llm, k, cross_encoder_model, stream
+        )
         self.reasoning_llm: LLM = reasoning_llm
         self.reflection: int = reflection
 
