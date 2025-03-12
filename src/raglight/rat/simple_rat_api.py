@@ -37,7 +37,7 @@ class RATPipeline(RAGPipeline):
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
         self.knowledge_base: List[DataSource] = config.knowledge_base
-        model_embeddings: str = config
+        model_embeddings: str = config.embedding_model
         persist_directory: str = config.persist_directory
         collection_name: str = config.collection_name
         system_prompt: str = config.system_prompt

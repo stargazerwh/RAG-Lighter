@@ -12,16 +12,15 @@ knowledge_base=[
 
 config = RAGConfig(
         embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
-        cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
         llm = Settings.DEFAULT_LLM,
-        k = Settings.DEFAULT_K,
         persist_directory = './defaultDb',
         provider = Settings.OLLAMA,
-        file_extension = Settings.DEFAULT_EXTENSIONS,
-        system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
         collection_name = Settings.DEFAULT_COLLECTION_NAME,
-        k = Settings.DEFAULT_K,
-        knowledge_base = knowledge_base
+        file_extension = Settings.DEFAULT_EXTENSIONS,
+        # k = Settings.DEFAULT_K,
+        # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
+        # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
+        # knowledge_base = knowledge_base
     )
 
 pipeline = RAGPipeline(config)

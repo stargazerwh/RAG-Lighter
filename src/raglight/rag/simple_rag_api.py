@@ -51,7 +51,7 @@ class RAGPipeline:
                 collection_name=collection_name,
             )
             .with_llm(provider, model_name=model_name, system_prompt=system_prompt)
-            .build_rag(k=k, stream=stream)
+            .build_rag(k=k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 

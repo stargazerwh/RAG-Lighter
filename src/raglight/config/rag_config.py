@@ -11,7 +11,6 @@ from ..models.data_source_model import DataSource
 class RAGConfig:
     embedding_model: str
     cross_encoder_model: Optional[CrossEncoderModel] = None
-    vector_store: VectorStore
     llm: str
     persist_directory: str
     provider: str = field(default=Settings.OLLAMA)

@@ -5,7 +5,6 @@ from ..vectorestore.vectorStore import VectorStore
 
 @dataclass(kw_only=True)
 class AgenticRAGConfig:
-    vector_store: VectorStore
     api_key: str = field(default="")
     api_base: str = field(default=Settings.DEFAULT_OLLAMA_CLIENT)
     provider: str = field(default=Settings.OLLAMA.lower())

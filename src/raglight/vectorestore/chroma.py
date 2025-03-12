@@ -1,11 +1,12 @@
+import glob
 import logging
 from typing import Any, List, Dict
 from typing_extensions import override
 from .vectorStore import VectorStore
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_community.document_loaders import DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 import os
 from ..embeddings.embeddingsModel import EmbeddingsModel
 
@@ -61,9 +62,14 @@ class ChromaVS(VectorStore):
             file_extension (str): File extension pattern (e.g., '*.txt') for document loading.
             data_path (str): Path to the directory containing the documents.
         """
-        file_extension = kwargs.get("file_extension", "")
         data_path = kwargs.get("data_path", "")
-        docs = self.load_docs(file_extension, data_path)
+        if not data_path:
+            raise ValueError("data_path is required for document ingestion")
+            
+        docs = self.load_docs(data_path)
+        if not docs:
+            raise ValueError(f"No documents were loaded from {data_path}")
+            
         all_splits = self.split_docs(docs)
         self.add_index(all_splits)
         logging.info("🎉 All documents ingested and indexed")
@@ -142,29 +148,53 @@ class ChromaVS(VectorStore):
             _ = self.vector_store.add_documents(documents=batch)
         logging.info("✅ Documents added to index")
 
-    def load_docs(self, file_extension: str, data_path: str) -> List[Any]:
+    def load_docs(self, data_path: str) -> List[Document]:
         """
-        Loads documents from a directory based on the specified file extension.
-
+        Loads all documents from a directory, using PyPDFLoader for PDFs
+        and DirectoryLoader for other file types.
+        
         Args:
-            file_extension (str): File extension pattern (e.g., '*.txt') for loading documents.
             data_path (str): Path to the directory containing the documents.
-
+            
         Returns:
-            List[Any]: A list of loaded documents.
+            List[Document]: A list of loaded documents.
         """
+        all_docs = []
+        
         try:
-            logging.info("⏳ Loading documents...")
-            loader = DirectoryLoader(data_path, glob=file_extension)
-            docs = loader.load()
-
-            for doc in docs:
-                doc.metadata = {"source": os.path.basename(doc.metadata["source"])}
-
-            logging.info(f"✅ {len(docs)} documents loaded")
+            logging.info(f"⏳ Loading documents from {data_path}...")
+            
+            pdf_files = glob.glob(os.path.join(data_path, "*.pdf"))
+            for pdf_file in pdf_files:
+                try:
+                    loader = PyPDFLoader(pdf_file)
+                    pdf_docs = loader.load()
+                    for doc in pdf_docs:
+                        doc.metadata = {"source": os.path.basename(pdf_file)}
+                    all_docs.extend(pdf_docs)
+                    logging.info(f"✅ Successfully loaded PDF: {os.path.basename(pdf_file)}")
+                except Exception as e:
+                    logging.warning(f"⚠️ Failed to load PDF {pdf_file}: {e}")
+            
+            non_pdf_extensions = ["*.txt", "*.docx", "*.html", "*.md", "*.csv", "*.json"]
+            for ext in non_pdf_extensions:
+                try:
+                    if glob.glob(os.path.join(data_path, ext)):
+                        loader = DirectoryLoader(path=data_path, glob=ext)
+                        other_docs = loader.load()
+                        for doc in other_docs:
+                            doc.metadata = {"source": os.path.basename(doc.metadata["source"])}
+                        all_docs.extend(other_docs)
+                        logging.info(f"✅ Successfully loaded {ext} files")
+                except Exception as e:
+                    logging.warning(f"⚠️ Failed to load {ext} files: {e}")
+            
+            logging.info(f"✅ Total: {len(all_docs)} documents/pages loaded successfully")
+            
         except Exception as e:
-            logging.warning(f"Error occured during documents ingestion : {e}")
-        return docs
+            logging.error(f"❌ Critical error during document loading: {e}")
+        
+        return all_docs
 
     @override
     def ingest_code(self, **kwargs: Any) -> None:
