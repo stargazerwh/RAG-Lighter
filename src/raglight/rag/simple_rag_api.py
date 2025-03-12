@@ -1,6 +1,8 @@
 from typing import List
 import shutil
 import logging
+
+from ..config.rag_config import RAGConfig
 from ..rag.builder import Builder
 from ..rag.rag import RAG
 from ..vectorestore.vectorStore import VectorStore
@@ -19,11 +21,7 @@ class RAGPipeline:
 
     def __init__(
         self,
-        knowledge_base: List[DataSource],
-        model_name: str = Settings.DEFAULT_LLM,
-        provider: str = Settings.OLLAMA,
-        k: int = Settings.DEFAULT_K,
-        stream: bool = False,
+        config: RAGConfig
     ) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.
@@ -34,12 +32,16 @@ class RAGPipeline:
             model_name (str, optional): The name of the LLM to use. Defaults to Settings.DEFAULT_LLM.
             provider (str, optional): The name of the LLM provider you want to use : Ollama/LMStudio.
         """
-        self.knowledge_base: List[DataSource] = knowledge_base
-        model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
-        persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
-        collection_name: str = Settings.DEFAULT_COLLECTION_NAME
-        system_prompt: str = Settings.DEFAULT_SYSTEM_PROMPT
-        self.file_extension: str = Settings.DEFAULT_EXTENSIONS
+        self.knowledge_base = config.knowledge_base
+        model_embeddings: str = config.embedding_model
+        persist_directory: str = config.persist_directory
+        collection_name: str = config.collection_name
+        system_prompt: str = config.system_prompt
+        self.file_extension: str = config.file_extension
+        model_name: str = config.llm
+        provider: str = config.provider
+        stream: bool = config.stream
+        k: int = config.k
         self.rag: RAG = (
             Builder()
             .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
@@ -49,7 +51,7 @@ class RAGPipeline:
                 collection_name=collection_name,
             )
             .with_llm(provider, model_name=model_name, system_prompt=system_prompt)
-            .build_rag(k=k, stream=stream)
+            .build_rag(k=k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
 
@@ -64,6 +66,8 @@ class RAGPipeline:
         and creates the embeddings for the vector store.
         """
         repositories: List[str] = []
+        if not self.knowledge_base :
+            return
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.get_vector_store().ingest(
@@ -97,5 +101,5 @@ class RAGPipeline:
         Returns:
             str: The generated answer from the pipeline.
         """
-        response: str = self.rag.question_graph(question)
+        response: str = self.rag.generate(question)
         return response

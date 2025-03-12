@@ -2,9 +2,11 @@ from typing import TypedDict, Dict
 from smolagents import Tool, tool
 from smolagents import CodeAgent, OpenAIServerModel, LiteLLMModel
 
+from ..config.vector_store_config import VectorStoreConfig
 from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
+from ..rag.builder import Builder
 
 import json
 
@@ -23,10 +25,10 @@ class RetrieverTool(Tool):
     }
     output_type = "string"
 
-    def __init__(self, config: AgenticRAGConfig, **kwargs):
+    def __init__(self, k: int, vector_store: VectorStore, **kwargs):
         super().__init__(**kwargs)
-        self.vector_store: VectorStore = config.vector_store
-        self.k: int = config.k
+        self.vector_store: VectorStore = vector_store
+        self.k: int = k
 
     def forward(self, query: str) -> str:
 
@@ -56,10 +58,10 @@ class ClassRetrieverTool(Tool):
     }
     output_type = "string"
 
-    def __init__(self, config: AgenticRAGConfig, **kwargs):
+    def __init__(self, k: int, vector_store: VectorStore, **kwargs):
         super().__init__(**kwargs)
-        self.vector_store: VectorStore = config.vector_store
-        self.k: int = config.k
+        self.vector_store: VectorStore = vector_store
+        self.k: int = k
 
     def forward(self, query: str) -> str:
 
@@ -76,15 +78,18 @@ class ClassRetrieverTool(Tool):
 
 
 class AgenticRAG:
-    def __init__(self, config: AgenticRAGConfig):
-        self.vector_store: VectorStore = config.vector_store
+    def __init__(self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig):
+        self.vector_store = Builder() \
+            .with_embeddings(Settings.HUGGINGFACE, model_name=vector_store_config.embedding_model) \
+            .with_vector_store(Settings.CHROMA, persist_directory=vector_store_config.persist_directory, collection_name=vector_store_config.collection_name) \
+            .build_vector_store()
+
         self.k: int = config.k
 
-        retriever_tool = RetrieverTool(config=config)
-        class_retriever_tool = ClassRetrieverTool(config=config)
+        retriever_tool = RetrieverTool(k = config.k, vector_store=self.vector_store)
+        class_retriever_tool = ClassRetrieverTool(k = config.k, vector_store=self.vector_store)
 
-        if config.provider == Settings.MISTRAL.lower():
-            print("key : ", Settings.MISTRAL_API_KEY)
+        if config.provider.lower() == Settings.MISTRAL.lower():
             model = OpenAIServerModel(
                 model_id=config.model,
                 api_key=Settings.MISTRAL_API_KEY,
@@ -93,18 +98,17 @@ class AgenticRAG:
 
         else:
             model = LiteLLMModel(
-                model_id=f"{config.provider}/{config.model}",
+                model_id=f"{config.provider.lower()}/{config.model}",
                 api_base=config.api_base,
                 api_key=config.api_key,
                 num_ctx=config.num_ctx,
             )
-
         self.agent = CodeAgent(
             tools=[retriever_tool, class_retriever_tool],
             model=model,
             max_steps=config.max_steps,
             verbosity_level=config.verbosity_level,
-            prompt_templates=PromptTemplates(),
+            prompt_templates=create_prompt_templates(config.system_prompt),
         )
 
     def generate(
@@ -165,10 +169,15 @@ class PromptTemplates(TypedDict):
     """
     Prompt templates for the agent.
     """
+    system_prompt: str
+    planning: PlanningPromptTemplate
+    managed_agent: ManagedAgentPromptTemplate
+    final_answer: FinalAnswerPromptTemplate
 
-    system_prompt: str = Settings.DEFAULT_AGENT_PROMPT
-    planning = (
-        PlanningPromptTemplate(
+def create_prompt_templates(system_prompt: str = Settings.DEFAULT_AGENT_PROMPT) -> PromptTemplates:
+    return PromptTemplates(
+        system_prompt=system_prompt,
+        planning=PlanningPromptTemplate(
             initial_facts="",
             initial_plan="",
             update_facts_pre_messages="",
@@ -176,6 +185,6 @@ class PromptTemplates(TypedDict):
             update_plan_pre_messages="",
             update_plan_post_messages="",
         ),
+        managed_agent=ManagedAgentPromptTemplate(task="", report=""),
+        final_answer=FinalAnswerPromptTemplate(pre_messages="", post_messages=""),
     )
-    managed_agent = (ManagedAgentPromptTemplate(task="", report=""),)
-    final_answer = (FinalAnswerPromptTemplate(pre_messages="", post_messages=""),)

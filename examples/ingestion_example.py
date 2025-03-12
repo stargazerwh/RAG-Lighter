@@ -6,12 +6,12 @@ import os
 load_dotenv()
 Settings.setup_logging()
 
-persist_directory = os.environ.get('PERSIST_DIRECTORY_INGESTION')
-model_embeddings = os.environ.get('MODEL_EMBEDDINGS')
-collection_name = os.environ.get('COLLECTION_NAME_INGESTION')
+persist_directory = './defaultDb'
+model_embeddings = Settings.DEFAULT_EMBEDDINGS_MODEL
+collection_name = Settings.DEFAULT_COLLECTION_NAME
 data_path = os.environ.get('DATA_PATH')
 
-file_extension ='**/*.pdf'
+file_extension = Settings.DEFAULT_EXTENSIONS # All visible files
 
 vector_store = Builder() \
 .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \

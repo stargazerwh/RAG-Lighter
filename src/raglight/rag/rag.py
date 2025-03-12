@@ -8,7 +8,6 @@ from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict, Dict
 from langchain_core.documents import Document
 from typing import Any
-from ..config.rag_config import RAGConfig
 
 
 class State(TypedDict):
@@ -41,7 +40,7 @@ class RAG:
         graph (StateGraph): The state graph that manages the RAG process flow.
     """
 
-    def __init__(self, config: RAGConfig) -> None:
+    def __init__(self, embedding_model: EmbeddingsModel, vector_store: VectorStore, llm: LLM, k: int, cross_encoder_model: CrossEncoderModel = None, stream: bool = False) -> None:
         """
         Initializes the RAG pipeline.
 
@@ -50,16 +49,16 @@ class RAG:
             vector_store (VectorStore): The vector store for retrieving relevant documents.
             llm (LLM): The language model for generating answers.
         """
-        self.embeddings: EmbeddingsModel = config.embedding_model.get_model()
+        self.embeddings: EmbeddingsModel = embedding_model.get_model()
         self.cross_encoder: CrossEncoderModel = (
-            config.cross_encoder_model.get_model()
-            if config.cross_encoder_model
+            cross_encoder_model.get_model()
+            if cross_encoder_model
             else None
         )
-        self.vector_store: VectorStore = config.vector_store
-        self.llm: LLM = config.llm
-        self.k: int = config.k
-        self.stream: bool = config.stream
+        self.vector_store: VectorStore = vector_store
+        self.llm: LLM = llm
+        self.k: int = k
+        self.stream: bool = stream
         self.graph: Any = (
             self.createGraph()
         )  # Here type is CompiledGraph but it's not exposed by https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/graph/graph.py
@@ -79,7 +78,7 @@ class RAG:
         )
         return {"context": retrieved_docs, "question": state["question"]}
 
-    def generate(self, state: Dict[str, List[Document]]) -> Dict[str, str]:
+    def generate_graph(self, state: Dict[str, List[Document]]) -> Dict[str, str]:
         """
         Generates an answer based on the input question and retrieved context.
 
@@ -130,16 +129,16 @@ class RAG:
         """
         if self.cross_encoder:
             graph_builder = StateGraph(State).add_sequence(
-                [self.retrieve, self.rerank, self.generate]
+                [self.retrieve, self.rerank, self.generate_graph]
             )
         else:
             graph_builder = StateGraph(State).add_sequence(
-                [self.retrieve, self.generate]
+                [self.retrieve, self.generate_graph]
             )
         graph_builder.add_edge(START, "retrieve")
         return graph_builder.compile()
 
-    def question_graph(self, question: str) -> str:
+    def generate(self, question: str) -> str:
         """
         Executes the RAG pipeline for a given question.
 

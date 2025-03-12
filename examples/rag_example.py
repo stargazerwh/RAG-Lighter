@@ -6,18 +6,18 @@ import os
 load_dotenv()
 Settings.setup_logging()
 
-persist_directory = os.environ.get('PERSIST_DIRECTORY')
-model_embeddings = os.environ.get('MODEL_EMBEDDINGS')
-model_name = os.environ.get('MODEL_NAME')
-system_prompt_directory = os.environ.get('SYSTEM_PROMPT_DIRECTORY')
-collection_name = os.environ.get('COLLECTION_NAME')
+persist_directory = './defaultDb'
+model_embeddings = Settings.DEFAULT_EMBEDDINGS_MODEL
+model_name = 'llama3.2:3b'
+system_prompt_directory = Settings.DEFAULT_SYSTEM_PROMPT
+collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 rag = Builder() \
     .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
     .with_vector_store(Settings.CHROMA, persist_directory=persist_directory, collection_name=collection_name) \
-    .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt_file=system_prompt_directory) \
+    .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt=system_prompt_directory) \
     .build_rag(k = 5)
 
-response = rag.question_graph("Can you tell me something about grece mythology ?")
+response = rag.generate("Can you tell me something about grece mythology ?")
 print(response)
 

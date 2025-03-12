@@ -22,6 +22,7 @@ class Settings:
     HUGGINGFACE = "HuggingFace"
     DEFAULT_LLM = "llama3"
     DEFAULT_EMBEDDINGS_MODEL = "all-MiniLM-L6-v2"
+    DEFAULT_CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L6-v2"
     DEFAULT_SYSTEM_PROMPT = (
         contextual_prompt
     ) = """
@@ -92,14 +93,12 @@ class Settings:
         - **Description**: Uses semantic search to retrieve relevant parts of the code documentation.
         - **Arguments**: 
             - query (string): The query to perform.
-            - metadata_filter (string, optional): JSON metadata filter (e.g., '{"source": "auth.py"}').
         - **Outputs**: string
 
         2. **ClassRetriever**
         - **Description**: Retrieves class definitions and their locations in the codebase.
         - **Arguments**:
             - query (string): Name or description of the class.
-            - metadata_filter (string, optional): JSON metadata filter (e.g., '{"classes": "UserManager"}').
         - **Outputs**: string
 
         ---
@@ -131,7 +130,10 @@ class Settings:
         ### **Correct Response:**
         ```plaintext
         Thought: I need to check which file contains the `UserManager` class.
-        Action: {"tool": "class_retriever", "query": "UserManager"}
+        Action: 
+        ```python
+        retriever(query="UserManager")
+        ```
         Observation: The `UserManager` class is found in `user_service.py`.
         Final Answer: The `UserManager` class is located in `user_service.py`.
         ````
@@ -142,7 +144,10 @@ class Settings:
         ### Correct Response (Using Retriever Tool):
         ```plaintext
         Thought: I need to retrieve relevant documentation about authentication.
-        Action: {"tool": "retriever", "query": "authentication"}
+        Action: 
+        ```python
+        retriever(query="Authentication")
+        ```
         Observation: The retrieved document describes the `AuthManager` class, which handles user authentication using JWT tokens.
         Final Answer: The `AuthManager` class manages authentication via JWT tokens. You can find it in `auth.py`.
         ```

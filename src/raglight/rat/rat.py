@@ -6,10 +6,13 @@ from typing import Any, Union
 from langgraph.graph import START, StateGraph
 from typing_extensions import Dict
 
+from ..cross_encoder.crossEncoderModel import CrossEncoderModel
+from ..embeddings.embeddingsModel import EmbeddingsModel
+from ..vectorestore.vectorStore import VectorStore
+
 from ..rag.rag import RAG, State
 from ..llm.llm import LLM
 from ..config.settings import Settings
-from ..config.rat_config import RATConfig
 
 
 class RAT(RAG):
@@ -25,7 +28,7 @@ class RAT(RAG):
         reflection (int): The number of reasoning iterations to perform for the input query.
     """
 
-    def __init__(self, config: RATConfig) -> None:
+    def __init__(self, embedding_model: EmbeddingsModel, vector_store: VectorStore, llm: LLM, k: int, reasoning_llm: LLM, reflection: int, cross_encoder_model: CrossEncoderModel = None, stream: bool = False) -> None:
         """
         Initializes the RAT pipeline with the required components.
 
@@ -37,10 +40,9 @@ class RAT(RAG):
             k (int, optional): The number of top documents to retrieve. Defaults to 2.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        rag_config = config.get_rag_config()
-        super().__init__(rag_config)
-        self.reasoning_llm: LLM = config.reasoning_llm
-        self.reflection: int = config.reflection
+        super().__init__(embedding_model, vector_store, llm, k, cross_encoder_model, stream)
+        self.reasoning_llm: LLM = reasoning_llm
+        self.reflection: int = reflection
 
     def set_reflection(self, reflection: int) -> None:
         """
@@ -95,13 +97,13 @@ class RAT(RAG):
             StateGraph: The compiled state graph for managing the RAG process flow.
         """
         graph_builder = StateGraph(State).add_sequence(
-            [self.think, self.retrieve, self.generate]
+            [self.think, self.retrieve, self.generate_graph]
         )
         graph_builder.add_edge(START, "think")
         return graph_builder.compile()
 
     @override
-    def question_graph(self, question: str) -> str:
+    def generate(self, question: str) -> str:
         """
         Executes the RAT pipeline for a given question by first generating a reflection and
         then invoking the state graph to generate a final answer.

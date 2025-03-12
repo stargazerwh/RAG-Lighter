@@ -167,7 +167,7 @@ class Builder:
         logging.info("✅ Reasoning LLM created")
         return self
 
-    def build_rag(self, k: int = Settings.DEFAULT_K, stream: bool = False) -> RAG:
+    def build_rag(self, k: int = 10) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
 
@@ -187,15 +187,7 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAG pipeline...")
-        config = RAGConfig(
-            cross_encoder_model=self.cross_encoder,
-            embedding_model=self.embeddings,
-            vector_store=self.vector_store,
-            llm=self.llm,
-            k=k,
-            stream=stream,
-        )
-        self.rag = RAG(config)
+        self.rag = RAG(self.embeddings, self.vector_store, self.llm, k, self.cross_encoder)
         logging.info("✅ RAG pipeline created")
         return self.rag
 
@@ -222,15 +214,7 @@ class Builder:
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
         logging.info("⏳ Building the RAT pipeline...")
-        config = RATConfig(
-            embedding_model=self.embeddings,
-            vector_store=self.vector_store,
-            llm=self.llm,
-            k=k,
-            reasoning_llm=self.reasoning_llm,
-            reflection=reflection,
-        )
-        self.rat = RAT(config)
+        self.rat = RAT(self.embeddings, self.vector_store, self.llm, k, self.reasoning_llm, reflection, self.cross_encoder)
         logging.info("✅ RAT pipeline created")
         return self.rat
 
