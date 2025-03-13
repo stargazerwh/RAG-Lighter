@@ -4,7 +4,6 @@ from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.config.settings import Settings
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 Settings.setup_logging()
