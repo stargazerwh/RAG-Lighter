@@ -22,7 +22,9 @@ class RATPipeline(RAGPipeline):
     to provide both answers and reflections on user queries.
     """
 
-    def __init__(self, config: RATConfig, vector_store_config: VectorStoreConfig) -> None:
+    def __init__(
+        self, config: RATConfig, vector_store_config: VectorStoreConfig
+    ) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
 
