@@ -147,7 +147,7 @@ class AgenticRAG:
                 config.provider, model_name=config.embedding_model
             ) \
             .with_vector_store(
-                config.database,
+                type=config.database,
                 persist_directory=config.persist_directory,
                 collection_name=config.collection_name,
             ) \

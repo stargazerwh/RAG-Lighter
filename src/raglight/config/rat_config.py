@@ -12,7 +12,6 @@ class RATConfig(RAGConfig):
         return RAGConfig(
             embedding_model=self.embedding_model,
             cross_encoder_model=self.cross_encoder_model,
-            vector_store=self.vector_store,
             llm=self.llm,
             persist_directory=self.persist_directory,
             provider=self.provider,
