@@ -56,6 +56,29 @@ You can set several environment vaiables to change **RAGLight** settings :
 - `OLLAMA_CLIENT_URL` if you have a custom Ollama URL
 - `LMSTUDIO_CLIENT` if you have a custom LMStudio URL
 
+## Providers and databases
+
+### LLM
+
+For your LLM inference, you can use these providers :
+
+- LMStudio (`Settings.LMSTUDIO`)
+- Ollama (`Settings.OLLAMA`)
+- Mistral API (`Settings.MISTRAL`)
+
+### Embeddings
+
+For embeddings models, you can use these providers :
+
+- Huggingface (`Settings.HUGGINGFACE`)
+- Ollama (`Settings.OLLAMA`)
+
+### Vector Store
+
+For your vector store, you can use :
+
+- Chroma (`Settings.CHROMA`)
+
 ## Quick Start 🚀
 
 <details>
