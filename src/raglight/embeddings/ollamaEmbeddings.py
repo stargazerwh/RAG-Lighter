@@ -34,6 +34,6 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         and initializes the Ollama embeddings model with the specified `model_name`.
 
         Returns:
-            HuggingFaceEmbeddings: The loaded Ollama embeddings model.
+            OllamaEmbeddings: The loaded Ollama embeddings model.
         """
         return OllamaEmbeddings(model=self.model_name)

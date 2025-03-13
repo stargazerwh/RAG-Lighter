@@ -15,6 +15,7 @@ collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 vector_store_config = VectorStoreConfig(
     embedding_model = model_embeddings,
+    database=Settings.CHROMA,
     persist_directory = persist_directory,
     provider = Settings.HUGGINGFACE,
     collection_name = collection_name

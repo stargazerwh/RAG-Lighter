@@ -81,18 +81,7 @@ class AgenticRAG:
     def __init__(
         self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig
     ):
-        self.vector_store = (
-            Builder()
-            .with_embeddings(
-                Settings.HUGGINGFACE, model_name=vector_store_config.embedding_model
-            )
-            .with_vector_store(
-                Settings.CHROMA,
-                persist_directory=vector_store_config.persist_directory,
-                collection_name=vector_store_config.collection_name,
-            )
-            .build_vector_store()
-        )
+        self.vector_store = self.create_vector_store(vector_store_config)
 
         self.k: int = config.k
 
@@ -143,6 +132,26 @@ class AgenticRAG:
         )
 
         return self.agent.run(task_instruction, stream)
+    
+    def create_vector_store(self, config: VectorStoreConfig)-> VectorStore :
+        """Creates a vector store using the provided configuration.
+
+        Args:
+            config (VectorStoreConfig): The configuration for the vector store.
+
+        Returns:
+            VectorStore: An instance of the vector store.
+        """
+        return Builder() \
+            .with_embeddings(
+                config.provider, model_name=config.embedding_model
+            ) \
+            .with_vector_store(
+                config.database,
+                persist_directory=config.persist_directory,
+                collection_name=config.collection_name,
+            ) \
+            .build_vector_store()
 
 
 class PlanningPromptTemplate(TypedDict):
