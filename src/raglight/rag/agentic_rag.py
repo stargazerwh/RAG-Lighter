@@ -132,8 +132,8 @@ class AgenticRAG:
         )
 
         return self.agent.run(task_instruction, stream)
-    
-    def create_vector_store(self, config: VectorStoreConfig)-> VectorStore :
+
+    def create_vector_store(self, config: VectorStoreConfig) -> VectorStore:
         """Creates a vector store using the provided configuration.
 
         Args:
@@ -142,16 +142,16 @@ class AgenticRAG:
         Returns:
             VectorStore: An instance of the vector store.
         """
-        return Builder() \
-            .with_embeddings(
-                config.provider, model_name=config.embedding_model
-            ) \
+        return (
+            Builder()
+            .with_embeddings(config.provider, model_name=config.embedding_model)
             .with_vector_store(
                 type=config.database,
                 persist_directory=config.persist_directory,
                 collection_name=config.collection_name,
-            ) \
+            )
             .build_vector_store()
+        )
 
 
 class PlanningPromptTemplate(TypedDict):

@@ -16,7 +16,7 @@ class AgenticRAGPipeline(RAGPipeline):
         self,
         knowledge_base: List[DataSource],
         config: AgenticRAGConfig,
-        vector_store_config: VectorStoreConfig
+        vector_store_config: VectorStoreConfig,
     ) -> None:
         """
         Initializes the AgenticRAGPipeline with a knowledge base and model.

@@ -20,7 +20,9 @@ class RAGPipeline:
     embeddings, and a language model to provide context-aware answers to questions.
     """
 
-    def __init__(self, config: RAGConfig, vector_store_config: VectorStoreConfig) -> None:
+    def __init__(
+        self, config: RAGConfig, vector_store_config: VectorStoreConfig
+    ) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.
 
