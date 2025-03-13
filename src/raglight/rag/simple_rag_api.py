@@ -2,6 +2,7 @@ from typing import List
 import shutil
 import logging
 
+from ..config.vector_store_config import VectorStoreConfig
 from ..config.rag_config import RAGConfig
 from ..rag.builder import Builder
 from ..rag.rag import RAG
@@ -19,7 +20,7 @@ class RAGPipeline:
     embeddings, and a language model to provide context-aware answers to questions.
     """
 
-    def __init__(self, config: RAGConfig) -> None:
+    def __init__(self, config: RAGConfig, vector_store_config: VectorStoreConfig) -> None:
         """
         Initializes the RAGPipeline with a knowledge base and model.
 
@@ -30,20 +31,22 @@ class RAGPipeline:
             provider (str, optional): The name of the LLM provider you want to use : Ollama/LMStudio.
         """
         self.knowledge_base = config.knowledge_base
-        model_embeddings: str = config.embedding_model
-        persist_directory: str = config.persist_directory
-        collection_name: str = config.collection_name
+        model_embeddings: str = vector_store_config.embedding_model
+        persist_directory: str = vector_store_config.persist_directory
+        collection_name: str = vector_store_config.collection_name
         system_prompt: str = config.system_prompt
-        self.file_extension: str = config.file_extension
+        database: str = vector_store_config.database
+        self.file_extension: str = vector_store_config.file_extension
         model_name: str = config.llm
         provider: str = config.provider
+        embeddings_provider: str = vector_store_config.provider
         stream: bool = config.stream
         k: int = config.k
         self.rag: RAG = (
             Builder()
-            .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
+            .with_embeddings(embeddings_provider, model_name=model_embeddings)
             .with_vector_store(
-                Settings.CHROMA,
+                database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )

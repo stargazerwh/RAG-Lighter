@@ -1,12 +1,11 @@
 from typing import List
 from typing_extensions import override
 
+from ..config.vector_store_config import VectorStoreConfig
 from .agentic_rag import AgenticRAG
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorestore.vectorStore import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
-from ..config.agentic_rag_config import SimpleAgenticRAGConfig
-from .builder import Builder
 from ..config.settings import Settings
 from ..models.data_source_model import DataSource
 from .simple_rag_api import RAGPipeline
@@ -16,7 +15,8 @@ class AgenticRAGPipeline(RAGPipeline):
     def __init__(
         self,
         knowledge_base: List[DataSource],
-        config: SimpleAgenticRAGConfig,
+        config: AgenticRAGConfig,
+        vector_store_config: VectorStoreConfig
     ) -> None:
         """
         Initializes the AgenticRAGPipeline with a knowledge base and model.
@@ -28,34 +28,9 @@ class AgenticRAGPipeline(RAGPipeline):
             provider (str, optional): The name of the LLM provider you want to use : Ollama.
         """
         self.knowledge_base: List[DataSource] = knowledge_base
-        model_embeddings: str = Settings.DEFAULT_EMBEDDINGS_MODEL
-        persist_directory: str = Settings.DEFAULT_PERSIST_DIRECTORY
-        collection_name: str = Settings.DEFAULT_COLLECTION_NAME
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
 
-        self.vector_store = (
-            Builder()
-            .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
-            .with_vector_store(
-                Settings.CHROMA,
-                persist_directory=persist_directory,
-                collection_name=collection_name,
-            )
-            .build_vector_store()
-        )
-
-        config = AgenticRAGConfig(
-            vector_store=self.vector_store,
-            api_key=config.api_key,
-            provider=config.provider,
-            model=config.model,
-            num_ctx=config.num_ctx,
-            k=config.k,
-            verbosity_level=config.verbosity_level,
-            max_steps=config.max_steps,
-            system_prompt=config.system_prompt,
-        )
-        self.agenticRag = AgenticRAG(config)
+        self.agenticRag = AgenticRAG(config, vector_store_config)
 
         self.github_scrapper: GithubScrapper = GithubScrapper()
 

@@ -4,7 +4,6 @@ from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.config.settings import Settings
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 Settings.setup_logging()
@@ -15,6 +14,7 @@ collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 vector_store_config = VectorStoreConfig(
     embedding_model = model_embeddings,
+    database=Settings.CHROMA,
     persist_directory = persist_directory,
     provider = Settings.HUGGINGFACE,
     collection_name = collection_name

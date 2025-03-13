@@ -1,7 +1,6 @@
 from raglight.rag.builder import Builder
 from raglight.config.settings import Settings
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 Settings.setup_logging()

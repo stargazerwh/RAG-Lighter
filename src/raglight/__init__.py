@@ -2,6 +2,7 @@ from .vectorestore.vectorStore import VectorStore
 from .vectorestore.chroma import ChromaVS
 
 from .embeddings.embeddingsModel import EmbeddingsModel
+from .embeddings.ollamaEmbeddings import OllamaEmbeddingsModel
 from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
 
 from .cross_encoder.crossEncoderModel import CrossEncoderModel

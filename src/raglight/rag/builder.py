@@ -2,6 +2,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
+from ..embeddings.ollamaEmbeddings import OllamaEmbeddingsModel
 from ..cross_encoder.crossEncoderModel import CrossEncoderModel
 from ..cross_encoder.huggingfaceCrossEncoder import HuggingfaceCrossEncoderModel
 from ..llm.llm import LLM
@@ -15,8 +16,6 @@ from .rag import RAG
 from ..rat.rat import RAT
 from ..embeddings.embeddingsModel import EmbeddingsModel
 from ..embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
-from ..config.rag_config import RAGConfig
-from ..config.rat_config import RATConfig
 
 
 class Builder:
@@ -62,6 +61,8 @@ class Builder:
         logging.info("⏳ Creating an Embeddings Model...")
         if type == Settings.HUGGINGFACE:
             self.embeddings = HuggingfaceEmbeddingsModel(**kwargs)
+        elif type == Settings.OLLAMA:
+            self.embeddings = OllamaEmbeddingsModel(**kwargs)
         else:
             raise ValueError(f"Unknown Embeddings Model type: {type}")
         logging.info("✅ Embeddings Model created")
