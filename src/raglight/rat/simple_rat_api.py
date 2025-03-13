@@ -1,5 +1,6 @@
 from typing import List
 
+from ..config.vector_store_config import VectorStoreConfig
 from ..config.rat_config import RATConfig
 from ..rag.builder import Builder
 from ..rag.simple_rag_api import RAGPipeline
@@ -21,7 +22,7 @@ class RATPipeline(RAGPipeline):
     to provide both answers and reflections on user queries.
     """
 
-    def __init__(self, config: RATConfig) -> None:
+    def __init__(self, config: RATConfig, vector_store_config: VectorStoreConfig) -> None:
         """
         Initializes the RATPipeline with a knowledge base and models for answering and reasoning.
 
@@ -34,16 +35,18 @@ class RATPipeline(RAGPipeline):
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
         self.knowledge_base: List[DataSource] = config.knowledge_base
-        model_embeddings: str = config.embedding_model
-        persist_directory: str = config.persist_directory
-        collection_name: str = config.collection_name
+        model_embeddings: str = vector_store_config.embedding_model
+        persist_directory: str = vector_store_config.persist_directory
+        collection_name: str = vector_store_config.collection_name
+        database: str = vector_store_config.database
+        embeddings_privider: str = vector_store_config.provider
         system_prompt: str = config.system_prompt
-        self.file_extension: str = config.file_extension
+        self.file_extension: str = vector_store_config.file_extension
         self.rat: RAT = (
             Builder()
-            .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings)
+            .with_embeddings(embeddings_privider, model_name=model_embeddings)
             .with_vector_store(
-                Settings.CHROMA,
+                database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )

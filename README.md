@@ -132,6 +132,7 @@ from raglight.rag.simple_rag_api import RAGPipeline
 from raglight.models.data_source_model import FolderSource, GitHubSource
 from raglight.config.settings import Settings
 from raglight.config.rag_config import RAGConfig
+from raglight.config.vector_store_config import VectorStoreConfig
 
 Settings.setup_logging()
 
@@ -140,26 +141,29 @@ knowledge_base=[
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
     ],
 
+vector_store_config = VectorStoreConfig(
+    embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+    provider=Settings.HUGGINGFACE,
+    database=Settings.CHROMA,
+    persist_directory = './defaultDb',
+    collection_name = Settings.DEFAULT_COLLECTION_NAME
+)
+
 config = RAGConfig(
-        embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
         llm = Settings.DEFAULT_LLM,
-        persist_directory = './defaultDb',
         provider = Settings.OLLAMA,
-        collection_name = Settings.DEFAULT_COLLECTION_NAME,
-        file_extension = Settings.DEFAULT_EXTENSIONS,
         # k = Settings.DEFAULT_K,
         # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
         # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
         # knowledge_base = knowledge_base
     )
 
-pipeline = RAGPipeline(config)
+pipeline = RAGPipeline(config, vector_store_config)
 
-pipeline.build() # Will ingest knowladge base, not mandatory if not knowledge_base
+pipeline.build()
 
 response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
 print(response)
-
 ```
 
 You just have to fill the model you want to use.
@@ -193,7 +197,6 @@ from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.config.settings import Settings
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 Settings.setup_logging()
@@ -204,6 +207,7 @@ collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 vector_store_config = VectorStoreConfig(
     embedding_model = model_embeddings,
+    database=Settings.CHROMA,
     persist_directory = persist_directory,
     provider = Settings.HUGGINGFACE,
     collection_name = collection_name
@@ -241,6 +245,7 @@ from raglight.rat.simple_rat_api import RATPipeline
 from raglight.models.data_source_model import FolderSource, GitHubSource
 from raglight.config.settings import Settings
 from raglight.config.rat_config import RATConfig
+from raglight.config.vector_store_config import VectorStoreConfig
 
 Settings.setup_logging()
 
@@ -249,16 +254,20 @@ knowledge_base=[
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
     ],
 
+vector_store_config = VectorStoreConfig(
+    embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+    provider=Settings.HUGGINGFACE,
+    database=Settings.CHROMA,
+    persist_directory = './defaultDb',
+    collection_name = Settings.DEFAULT_COLLECTION_NAME
+)
+
 config = RATConfig(
-        embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
         cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
         llm = "llama3.2:3b",
         k = Settings.DEFAULT_K,
-        persist_directory = './defaultDb',
         provider = Settings.OLLAMA,
-        file_extension = Settings.DEFAULT_EXTENSIONS,
         system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
-        collection_name = Settings.DEFAULT_COLLECTION_NAME,
         reasoning_llm = Settings.DEFAULT_REASONING_LLM,
         reflection = 3
         # knowledge_base = knowledge_base,

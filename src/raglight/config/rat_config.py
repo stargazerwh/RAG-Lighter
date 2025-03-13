@@ -10,14 +10,10 @@ class RATConfig(RAGConfig):
 
     def get_rag_config(self):
         return RAGConfig(
-            embedding_model=self.embedding_model,
             cross_encoder_model=self.cross_encoder_model,
             llm=self.llm,
-            persist_directory=self.persist_directory,
             provider=self.provider,
-            file_extension=self.file_extension,
             system_prompt=self.system_prompt,
-            collection_name=self.collection_name,
             k=self.k,
             stream=self.stream,
             knowledge_base=self.knowledge_base,
