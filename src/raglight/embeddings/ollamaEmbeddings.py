@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Any
 from typing_extensions import override
+
+from ..config.settings import Settings
 from .embeddingsModel import EmbeddingsModel
 from langchain_ollama import OllamaEmbeddings
 
@@ -36,4 +38,6 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         Returns:
             OllamaEmbeddings: The loaded Ollama embeddings model.
         """
-        return OllamaEmbeddings(model=self.model_name)
+        return OllamaEmbeddings(
+            model=self.model_name, base_url=Settings.DEFAULT_OLLAMA_CLIENT
+        )
