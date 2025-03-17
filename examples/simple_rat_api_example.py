@@ -30,7 +30,7 @@ config = RATConfig(
         # knowledge_base = knowledge_base,
     )
 
-pipeline = RATPipeline(config)
+pipeline = RATPipeline(config, vector_store_config)
 
 # This will ingest data from the knowledge base. Not mandatory if you have already ingested the data.
 pipeline.build()
