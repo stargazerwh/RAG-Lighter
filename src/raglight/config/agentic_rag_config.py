@@ -3,6 +3,7 @@ from ..config.settings import Settings
 from typing import List
 from ..models.data_source_model import DataSource
 
+
 @dataclass(kw_only=True)
 class AgenticRAGConfig:
     api_key: str = field(default="")
