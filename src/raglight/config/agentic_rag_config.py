@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from ..config.settings import Settings
-from ..vectorestore.vectorStore import VectorStore
-
+from typing import List
+from ..models.data_source_model import DataSource
 
 @dataclass(kw_only=True)
 class AgenticRAGConfig:
@@ -14,6 +14,7 @@ class AgenticRAGConfig:
     verbosity_level: int = field(default=2)
     max_steps: int = field(default=4)
     system_prompt: str = field(default=Settings.DEFAULT_AGENT_PROMPT)
+    knowledge_base: List[DataSource] = field(default=None)
 
 
 @dataclass(kw_only=True)
