@@ -1,7 +1,11 @@
 [project]
 name = "raglight"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.5.5"
+description = "RAGLight is a lightweight and modular Python library for implementing Retrieval-Augmented Generation (RAG). It enhances the capabilities of Large Language Models (LLMs) by combining document retrieval with natural language inference."
+authors = [
+    {name = "Bessouat40",email = "roman.bessouat@orange.fr"}
+]
+license = {text = "Designed for simplicity and flexibility, RAGLight provides modular components to easily integrate various LLMs, embeddings, and vector stores, making it an ideal tool for building context-aware AI solutions. ✨MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

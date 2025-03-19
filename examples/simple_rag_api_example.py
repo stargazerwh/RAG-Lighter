@@ -9,7 +9,7 @@ Settings.setup_logging()
 knowledge_base=[
     FolderSource(path="<path to your folder with pdf>/knowledge_base"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ],
+    ]
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,

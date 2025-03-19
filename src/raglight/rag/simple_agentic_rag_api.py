@@ -14,7 +14,6 @@ from .simple_rag_api import RAGPipeline
 class AgenticRAGPipeline(RAGPipeline):
     def __init__(
         self,
-        knowledge_base: List[DataSource],
         config: AgenticRAGConfig,
         vector_store_config: VectorStoreConfig,
     ) -> None:
@@ -27,7 +26,7 @@ class AgenticRAGPipeline(RAGPipeline):
             model_name (str, optional): The name of the LLM to use. Defaults to Settings.DEFAULT_LLM.
             provider (str, optional): The name of the LLM provider you want to use : Ollama.
         """
-        self.knowledge_base: List[DataSource] = knowledge_base
+        self.knowledge_base: List[DataSource] = config.knowledge_base
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
 
         self.agenticRag = AgenticRAG(config, vector_store_config)
@@ -36,7 +35,7 @@ class AgenticRAGPipeline(RAGPipeline):
 
     @override
     def get_vector_store(self) -> VectorStore:
-        return self.vector_store
+        return self.agenticRag.vector_store
 
     @override
     def generate(self, question: str, stream: bool = False) -> str:

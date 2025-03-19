@@ -9,7 +9,7 @@ Settings.setup_logging()
 knowledge_base=[
     FolderSource(path="<path to the folder you want to ingest into your knowledge base>"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ],
+    ]
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
@@ -30,7 +30,7 @@ config = RATConfig(
         # knowledge_base = knowledge_base,
     )
 
-pipeline = RATPipeline(config)
+pipeline = RATPipeline(config, vector_store_config)
 
 # This will ingest data from the knowledge base. Not mandatory if you have already ingested the data.
 pipeline.build()
