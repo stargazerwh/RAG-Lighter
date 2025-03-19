@@ -8,6 +8,7 @@ ENV LMSTUDIO_CLIENT=http://host.docker.internal:1234/v1
 
 # Install dependencies
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Git
@@ -20,8 +21,8 @@ RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 RUN apt-get install -y libleptonica-dev tesseract-ocr python3-pil tesseract-ocr-eng tesseract-ocr-script-latn
 
 # Copy test code
-COPY ./simple_rag_api_example.py .
+COPY ./simple_agentic_rag_example.py .
 
-CMD ["python", "simple_rag_api_example.py"]
+CMD ["python", "simple_agentic_rag_example.py"]
 
 # Run using this command : docker run --add-host=host.docker.internal:host-gateway your_image
