@@ -139,7 +139,7 @@ Settings.setup_logging()
 knowledge_base=[
     FolderSource(path="<path to your folder with pdf>/knowledge_base"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ],
+    ]
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
@@ -223,6 +223,7 @@ config = AgenticRAGConfig(
             # api_base = ... # If you have a custom client URL
             # num_ctx = ... # Max context length
             # verbosity_level = ... # Default = 2
+            # knowledge_base = knowledge_base
         )
 
 agenticRag = AgenticRAG(config, vector_store_config)
@@ -252,7 +253,7 @@ Settings.setup_logging()
 knowledge_base=[
     FolderSource(path="<path to the folder you want to ingest into your knowledge base>"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ],
+    ]
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
