@@ -19,4 +19,5 @@ dependencies = [
     "langgraph==0.2.59",
     "langchain-chroma==0.1.4",
     "langchain-community==0.3.11",
+    "litellm==1.52.16",
 ]
