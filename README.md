@@ -19,12 +19,11 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 >
 > - Ollama
 > - LMStudio
+> - vLLM
+> - OpenAI API
 > - Mistral API
 >
-> You need to have Ollama or LMStudio running on your computer. Or you
-> need to have a Mistral API key.
->
-> If you use LMStudio, ou need to have the model you want to use loaded in LMStudio.
+> If you use LMStudio, you need to have the model you want to use loaded in LMStudio.
 
 ## Features
 
