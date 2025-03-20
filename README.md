@@ -55,6 +55,8 @@ You can set several environment vaiables to change **RAGLight** settings :
 - `MISTRAL_API_KEY` if you want to use Mistral API
 - `OLLAMA_CLIENT_URL` if you have a custom Ollama URL
 - `LMSTUDIO_CLIENT` if you have a custom LMStudio URL
+- `OPENAI_CLIENT_URL` if you have a custom OpenAI URL or vLLM URL
+- `OPENAI_API_KEY` if you need an OpenAI key
 
 ## Providers and databases
 
@@ -65,6 +67,8 @@ For your LLM inference, you can use these providers :
 - LMStudio (`Settings.LMSTUDIO`)
 - Ollama (`Settings.OLLAMA`)
 - Mistral API (`Settings.MISTRAL`)
+- vLLM (`Settings.VLLM`)
+- OpenAI (`Settings.OPENAI`)
 
 ### Embeddings
 
