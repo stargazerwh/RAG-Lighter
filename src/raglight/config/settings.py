@@ -18,7 +18,7 @@ class Settings:
     MISTRAL = "Mistral"
     VLLM = "vLLM"
     OPENAI = "OpenAI"
-    OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
     MISTRAL_API = "https://api.mistral.ai/v1"
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
     LMSTUDIO = "LmStudio"

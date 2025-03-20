@@ -56,7 +56,7 @@ class OpenAIModel(LLM):
         Returns:
             OpenAI: The client object to interact with OpenAI.
         """
-        return OpenAI(base_url=Settings.DEFAULT_OPENAI_CLIENT, api_key=Settings.OPENAI_KEY)
+        return OpenAI(base_url=Settings.DEFAULT_OPENAI_CLIENT, api_key=Settings.OPENAI_API_KEY)
 
     @override
     def generate(self, input: Dict[str, Any]) -> str:
