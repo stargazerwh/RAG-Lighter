@@ -16,11 +16,15 @@ class Settings:
     CHROMA = "Chroma"
     OLLAMA = "Ollama"
     MISTRAL = "Mistral"
+    VLLM = "vLLM"
+    OPENAI = "OpenAI"
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
     MISTRAL_API = "https://api.mistral.ai/v1"
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
     LMSTUDIO = "LmStudio"
     HUGGINGFACE = "HuggingFace"
     DEFAULT_LLM = "llama3"
+    DEFAULT_OPENAI_CLIENT = os.environ.get("OPENAI_CLIENT_URL", None)
     DEFAULT_EMBEDDINGS_MODEL = "all-MiniLM-L6-v2"
     DEFAULT_CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L6-v2"
     DEFAULT_SYSTEM_PROMPT = (

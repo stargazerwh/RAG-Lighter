@@ -9,6 +9,7 @@ from ..llm.llm import LLM
 from ..llm.ollamaModel import OllamaModel
 from ..llm.lmStudioModel import LMStudioModel
 from ..llm.mistralModel import MistralModel
+from ..llm.openaiModel import OpenAIModel
 from ..vectorestore.vectorStore import VectorStore
 from ..vectorestore.chroma import ChromaVS
 from ..config.settings import Settings
@@ -137,6 +138,8 @@ class Builder:
             self.llm = LMStudioModel(**kwargs)
         elif type == Settings.MISTRAL:
             self.llm = MistralModel(**kwargs)
+        elif type in (Settings.VLLM, Settings.OPENAI):
+            self.llm = OpenAIModel(**kwargs)
         else:
             raise ValueError(f"Unknown LLM type: {type}")
         logging.info("✅ LLM created")

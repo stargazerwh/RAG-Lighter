@@ -19,12 +19,11 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 >
 > - Ollama
 > - LMStudio
+> - vLLM
+> - OpenAI API
 > - Mistral API
 >
-> You need to have Ollama or LMStudio running on your computer. Or you
-> need to have a Mistral API key.
->
-> If you use LMStudio, ou need to have the model you want to use loaded in LMStudio.
+> If you use LMStudio, you need to have the model you want to use loaded in LMStudio.
 
 ## Features
 
@@ -55,6 +54,8 @@ You can set several environment vaiables to change **RAGLight** settings :
 - `MISTRAL_API_KEY` if you want to use Mistral API
 - `OLLAMA_CLIENT_URL` if you have a custom Ollama URL
 - `LMSTUDIO_CLIENT` if you have a custom LMStudio URL
+- `OPENAI_CLIENT_URL` if you have a custom OpenAI URL or vLLM URL
+- `OPENAI_API_KEY` if you need an OpenAI key
 
 ## Providers and databases
 
@@ -65,6 +66,8 @@ For your LLM inference, you can use these providers :
 - LMStudio (`Settings.LMSTUDIO`)
 - Ollama (`Settings.OLLAMA`)
 - Mistral API (`Settings.MISTRAL`)
+- vLLM (`Settings.VLLM`)
+- OpenAI (`Settings.OPENAI`)
 
 ### Embeddings
 
