@@ -7,6 +7,7 @@ from ..cross_encoder.crossEncoderModel import CrossEncoderModel
 from ..cross_encoder.huggingfaceCrossEncoder import HuggingfaceCrossEncoderModel
 from ..llm.llm import LLM
 from ..llm.ollamaModel import OllamaModel
+from ..embeddings.openaiEmbeddings import OpenAIEmbeddingsModel
 from ..llm.lmStudioModel import LMStudioModel
 from ..llm.mistralModel import MistralModel
 from ..llm.openaiModel import OpenAIModel
@@ -64,6 +65,8 @@ class Builder:
             self.embeddings = HuggingfaceEmbeddingsModel(**kwargs)
         elif type == Settings.OLLAMA:
             self.embeddings = OllamaEmbeddingsModel(**kwargs)
+        elif type in (Settings.VLLM, Settings.OPENAI):
+            self.embeddings = OpenAIEmbeddingsModel(**kwargs)
         else:
             raise ValueError(f"Unknown Embeddings Model type: {type}")
         logging.info("✅ Embeddings Model created")
