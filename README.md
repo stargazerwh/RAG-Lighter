@@ -75,6 +75,8 @@ For embeddings models, you can use these providers :
 
 - Huggingface (`Settings.HUGGINGFACE`)
 - Ollama (`Settings.OLLAMA`)
+- vLLM (`Settings.VLLM`)
+- OpenAI (`Settings.OPENAI`)
 
 ### Vector Store
 
