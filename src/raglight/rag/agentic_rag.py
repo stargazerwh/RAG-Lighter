@@ -97,6 +97,13 @@ class AgenticRAG:
                 api_base=Settings.MISTRAL_API,
             )
 
+        elif config.provider == Settings.OPENAI:
+            model = OpenAIServerModel(
+                model_id=config.model,
+                api_key=Settings.OPENAI_API_KEY,
+                api_base=Settings.DEFAULT_OPENAI_CLIENT,
+            )
+
         else:
             model = LiteLLMModel(
                 model_id=f"{config.provider.lower()}/{config.model}",

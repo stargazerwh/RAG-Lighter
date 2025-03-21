@@ -7,8 +7,6 @@ from raglight.models.data_source_model import FolderSource
 from raglight.models.data_source_model import GitHubSource
 from dotenv import load_dotenv
 
-
-
 load_dotenv()
 Settings.setup_logging()
 
@@ -46,6 +44,6 @@ agenticRag = AgenticRAGPipeline(config, vector_store_config)
 
 agenticRag.build()
 
-response = agenticRag.generate("Please implement for me AgenticRAGPipeline inspired by RAGPipeline and AgenticRAG and RAG")
+response = agenticRag.generate("Please implement Agentic RAG for me.")
 
 print('response : ', response)
