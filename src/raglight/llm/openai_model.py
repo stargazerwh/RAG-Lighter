@@ -38,16 +38,9 @@ class OpenAIModel(LLM):
             system_prompt_file (Optional[str]): The path to the file to load the system prompt from. If provided, it takes precedence over system_prompt.
             role (str): The role of the user in the conversation, defaults to "user".
         """
-        super().__init__(model_name)
+        super().__init__(model_name, system_prompt, system_prompt_file)
         logging.info(f"Using OpenAI with {model_name} model 🤖")
         self.role: str = role
-        self.system_prompt: str = ""
-        if system_prompt_file is not None:
-            self.system_prompt = self.load_system_prompt(system_prompt_file)
-        elif system_prompt is not None:
-            self.system_prompt = system_prompt
-        else:
-            self.system_prompt = Settings.DEFAULT_SYSTEM_PROMPT
 
     @override
     def load(self) -> OpenAI:
@@ -82,18 +75,3 @@ class OpenAIModel(LLM):
             temperature=0.7,
         )
         return response.choices[0].message.content
-
-    @staticmethod
-    def load_system_prompt(filePath: str) -> str:
-        """
-        Loads the system prompt from a file.
-
-        Args:
-            filePath (str): The path to the file containing the system prompt.
-
-        Returns:
-            str: The content of the file as the system prompt.
-        """
-        with open(filePath, "r", encoding="utf-8") as file:
-            prompt = file.read()
-        return prompt

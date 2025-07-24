@@ -5,7 +5,7 @@ import re
 import ast
 import logging
 from langchain_text_splitters import Language
-from ..embeddings.embeddingsModel import EmbeddingsModel
+from ..embeddings.embeddings_model import EmbeddingsModel
 
 
 class VectorStore(ABC):

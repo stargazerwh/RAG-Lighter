@@ -5,7 +5,7 @@ from smolagents import CodeAgent, OpenAIServerModel, LiteLLMModel
 from ..config.vector_store_config import VectorStoreConfig
 from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
-from ..vectorestore.vectorStore import VectorStore
+from ..vectorstore.vector_store import VectorStore
 from ..rag.builder import Builder
 
 import json

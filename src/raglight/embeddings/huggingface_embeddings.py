@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 from typing_extensions import override
-from .embeddingsModel import EmbeddingsModel
+from .embeddings_model import EmbeddingsModel
 from langchain_huggingface import HuggingFaceEmbeddings
 
 

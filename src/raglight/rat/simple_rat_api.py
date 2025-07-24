@@ -6,7 +6,7 @@ from ..rag.builder import Builder
 from ..rag.simple_rag_api import RAGPipeline
 from .rat import RAT
 from ..config.settings import Settings
-from ..vectorestore.vectorStore import VectorStore
+from ..vectorstore.vector_store import VectorStore
 from ..models.data_source_model import DataSource
 from ..scrapper.github_scrapper import GithubScrapper
 from typing_extensions import override

@@ -1,6 +1,6 @@
 import unittest
-from ...src.raglight.vectorestore.chroma import ChromaVS
-from ...src.raglight.embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
+from ...src.raglight.vectorstore.chroma import ChromaVS
+from ...src.raglight.embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 from ..test_config import TestsConfig
 
 

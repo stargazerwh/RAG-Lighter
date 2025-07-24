@@ -3,7 +3,7 @@ from typing import Any
 from typing_extensions import override
 
 from ..config.settings import Settings
-from .embeddingsModel import EmbeddingsModel
+from .embeddings_model import EmbeddingsModel
 from langchain_ollama import OllamaEmbeddings
 
 

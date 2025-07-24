@@ -1,17 +1,17 @@
-from .vectorestore.vectorStore import VectorStore
-from .vectorestore.chroma import ChromaVS
+from .vectorstore.vector_store import VectorStore
+from .vectorstore.chroma import ChromaVS
 
-from .embeddings.embeddingsModel import EmbeddingsModel
-from .embeddings.ollamaEmbeddings import OllamaEmbeddingsModel
-from .embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
+from .embeddings.embeddings_model import EmbeddingsModel
+from .embeddings.ollama_embeddings import OllamaEmbeddingsModel
+from .embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 
-from .cross_encoder.crossEncoderModel import CrossEncoderModel
-from .cross_encoder.huggingfaceCrossEncoder import HuggingfaceCrossEncoderModel
+from .cross_encoder.cross_encoder_model import CrossEncoderModel
+from .cross_encoder.huggingface_cross_encoder import HuggingfaceCrossEncoderModel
 
 from .llm.llm import LLM
-from .llm.ollamaModel import OllamaModel
-from .llm.lmStudioModel import LMStudioModel
-from .llm.mistralModel import MistralModel
+from .llm.ollama_model import OllamaModel
+from .llm.lmstudio_model import LMStudioModel
+from .llm.mistral_model import MistralModel
 
 from .rag.rag import RAG
 from .rag.simple_rag_api import RAGPipeline

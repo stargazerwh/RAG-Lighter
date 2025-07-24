@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from ..config.settings import Settings
-from ..cross_encoder.crossEncoderModel import CrossEncoderModel
+from ..cross_encoder.cross_encoder_model import CrossEncoderModel
 from ..models.data_source_model import DataSource
 
 

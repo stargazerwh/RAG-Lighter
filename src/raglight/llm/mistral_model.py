@@ -38,16 +38,9 @@ class MistralModel(LLM):
             role (str): The role of the user in the chat (e.g., 'user', 'assistant'). Defaults to 'user'.
         """
         self.api_key = Settings.MISTRAL_API_KEY
-        super().__init__(model_name)
+        super().__init__(model_name, system_prompt, system_prompt_file)
         logging.info(f"Using Mistral with {model_name} model 🤖")
         self.role: str = role
-        self.system_prompt: str = ""
-        if system_prompt_file is not None:
-            self.system_prompt = self.load_system_prompt(system_prompt_file)
-        elif system_prompt is not None:
-            self.system_prompt = system_prompt
-        else:
-            self.system_prompt = Settings.DEFAULT_SYSTEM_PROMPT
 
     @override
     def load(self) -> Mistral:
@@ -83,18 +76,3 @@ class MistralModel(LLM):
             ],
         )
         return response.choices[0].message.content
-
-    @staticmethod
-    def load_system_prompt(filePath: str) -> str:
-        """
-        Loads a custom system prompt from a file.
-
-        Args:
-            filePath (str): Path to the file containing the system prompt.
-
-        Returns:
-            str: The content of the system prompt file.
-        """
-        with open(filePath, "r", encoding="utf-8") as file:
-            prompt = file.read()
-        return prompt

@@ -2,22 +2,22 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from ..embeddings.ollamaEmbeddings import OllamaEmbeddingsModel
-from ..cross_encoder.crossEncoderModel import CrossEncoderModel
-from ..cross_encoder.huggingfaceCrossEncoder import HuggingfaceCrossEncoderModel
+from ..embeddings.ollama_embeddings import OllamaEmbeddingsModel
+from ..cross_encoder.cross_encoder_model import CrossEncoderModel
+from ..cross_encoder.huggingface_cross_encoder import HuggingfaceCrossEncoderModel
 from ..llm.llm import LLM
-from ..llm.ollamaModel import OllamaModel
-from ..embeddings.openaiEmbeddings import OpenAIEmbeddingsModel
-from ..llm.lmStudioModel import LMStudioModel
-from ..llm.mistralModel import MistralModel
-from ..llm.openaiModel import OpenAIModel
-from ..vectorestore.vectorStore import VectorStore
-from ..vectorestore.chroma import ChromaVS
+from ..llm.ollama_model import OllamaModel
+from ..embeddings.openai_embeddings import OpenAIEmbeddingsModel
+from ..llm.lmstudio_model import LMStudioModel
+from ..llm.mistral_model import MistralModel
+from ..llm.openai_model import OpenAIModel
+from ..vectorstore.vector_store import VectorStore
+from ..vectorstore.chroma import ChromaVS
 from ..config.settings import Settings
 from .rag import RAG
 from ..rat.rat import RAT
-from ..embeddings.embeddingsModel import EmbeddingsModel
-from ..embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
+from ..embeddings.embeddings_model import EmbeddingsModel
+from ..embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 
 
 class Builder:
