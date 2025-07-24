@@ -1,5 +1,5 @@
 import unittest
-from ...src.raglight.embeddings.huggingfaceEmbeddings import HuggingfaceEmbeddingsModel
+from ...src.raglight.embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 from ..test_config import TestsConfig
 
 

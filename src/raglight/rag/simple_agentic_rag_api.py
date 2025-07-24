@@ -4,7 +4,7 @@ from typing_extensions import override
 from ..config.vector_store_config import VectorStoreConfig
 from .agentic_rag import AgenticRAG
 from ..config.agentic_rag_config import AgenticRAGConfig
-from ..vectorestore.vectorStore import VectorStore
+from ..vectorstore.vector_store import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
 from ..config.settings import Settings
 from ..models.data_source_model import DataSource

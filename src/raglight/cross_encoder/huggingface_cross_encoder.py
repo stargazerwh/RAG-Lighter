@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 from typing_extensions import override
-from .crossEncoderModel import CrossEncoderModel
+from .cross_encoder_model import CrossEncoderModel
 from sentence_transformers import CrossEncoder
 
 

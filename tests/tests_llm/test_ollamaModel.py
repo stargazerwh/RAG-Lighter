@@ -1,5 +1,5 @@
 import unittest
-from ...src.raglight.llm.ollamaModel import OllamaModel
+from ...src.raglight.llm.ollama_model import OllamaModel
 from ..test_config import TestsConfig
 
 

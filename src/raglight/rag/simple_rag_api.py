@@ -6,8 +6,7 @@ from ..config.vector_store_config import VectorStoreConfig
 from ..config.rag_config import RAGConfig
 from ..rag.builder import Builder
 from ..rag.rag import RAG
-from ..vectorestore.vectorStore import VectorStore
-from ..config.settings import Settings
+from ..vectorstore.vector_store import VectorStore
 from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 from ..scrapper.github_scrapper import GithubScrapper
 

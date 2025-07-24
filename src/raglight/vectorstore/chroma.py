@@ -2,13 +2,13 @@ import glob
 import logging
 from typing import Any, List, Dict
 from typing_extensions import override
-from .vectorStore import VectorStore
+from .vector_store import VectorStore
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 import os
-from ..embeddings.embeddingsModel import EmbeddingsModel
+from ..embeddings.embeddings_model import EmbeddingsModel
 
 
 class ChromaVS(VectorStore):

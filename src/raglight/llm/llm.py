@@ -1,6 +1,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+from src.raglight.config.settings import Settings
 
 
 class LLM(ABC):
@@ -15,7 +17,7 @@ class LLM(ABC):
         model (Any): The loaded model instance.
     """
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, system_prompt: Optional[str] = None, system_prompt_file: Optional[str] = None) -> None:
         """
         Initializes an LLM instance.
 
@@ -24,7 +26,17 @@ class LLM(ABC):
         """
         self.model_name: str = model_name
         self.model: Any = self.load()
-        self.system_prompt: str = ""
+        if system_prompt_file:
+            self.system_prompt: str = self._load_system_prompt_from_file(system_prompt_file)
+        elif system_prompt:
+            self.system_prompt: str = system_prompt
+        else:
+            self.system_prompt: str = Settings.DEFAULT_SYSTEM_PROMPT
+
+    @staticmethod
+    def _load_system_prompt_from_file(filePath: str) -> str:
+        with open(filePath, "r", encoding="utf-8") as file:
+            return file.read()
 
     @abstractmethod
     def load(self) -> Any:
