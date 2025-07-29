@@ -47,6 +47,31 @@ pip install raglight
 
 ---
 
+## Chat with Your Documents Instantly (CLI Wizard) 💬
+
+For the quickest and easiest way to get started, RAGLight provides an interactive command-line wizard. It will guide you through every step, from selecting your documents to chatting with them, without writing a single line of Python.
+Prerequisite: Ensure you have a local LLM service like Ollama running.
+Just run this one command in your terminal:
+
+```bash
+raglight chat
+```
+
+The wizard will guide you through the setup process. Here is what it looks like:
+
+<div align="center">
+    <img alt="RAGLight" src="./media/raglight_cli.jpeg">
+</div>
+
+The wizard will ask you for:
+
+- 📂 Data Source: The path to your local folder containing the documents.
+- 💾 Vector Database: Where to store the indexed data and what to name it.
+- 🧠 Embeddings Model: Which model to use for understanding your documents.
+- 🤖 Language Model (LLM): Which LLM to use for generating answers.
+
+After configuration, it will automatically index your documents and start a chat session.
+
 ## Environment Variables
 
 You can set several environment vaiables to change **RAGLight** settings :
