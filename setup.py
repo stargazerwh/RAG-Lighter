@@ -28,7 +28,13 @@ setup(
         "langchain_text_splitters",
         "langchain_core",
         "ollama",
+        "typer[all]",
     ],
+    entry_points={
+        "console_scripts": [
+            "raglight=raglight.cli.main:app",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
