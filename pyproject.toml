@@ -5,7 +5,7 @@ description = "RAGLight is a lightweight and modular Python library for implemen
 authors = [
     {name = "Bessouat40",email = "roman.bessouat@orange.fr"}
 ]
-license = {text = "Designed for simplicity and flexibility, RAGLight provides modular components to easily integrate various LLMs, embeddings, and vector stores, making it an ideal tool for building context-aware AI solutions. ✨MIT"}
+license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
