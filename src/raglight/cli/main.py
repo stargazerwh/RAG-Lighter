@@ -38,7 +38,6 @@ def callback():
     RAGLight CLI application.
     """
     Settings.setup_logging()
-    # Désactive les logs parasites
     for name in [
         "telemetry", "langchain", "langchain_core", "langchain_core.tracing",
         "httpx", "urllib3", "requests", "chromadb"
@@ -120,6 +119,7 @@ def interactive_chat_command():
         if should_index:
             vector_store = builder.build_vector_store()
             vector_store.ingest(data_path=str(data_path))
+            vector_store.ingest_code(repos_path=str(data_path))
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print("[bold yellow]Skipping indexing, using existing database.[/bold yellow]")
@@ -180,6 +180,7 @@ def index_command(
             .build_vector_store()
         )
         vector_store.ingest(data_path=str(data_path))
+        vector_store.ingest_code(repos_path=str(data_path))
         console.print(f"[bold green]✅ Successfully indexed all documents from {data_path}[/bold green]")
     except Exception as e:
         console.print(f"[bold red]❌ An error occurred during indexing: {e}[/bold red]")
