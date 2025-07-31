@@ -1,5 +1,4 @@
-# src/raglight/cli/main.py
-
+import nltk
 import typer
 from pathlib import Path
 import logging
@@ -16,6 +15,18 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from quo.prompt import Prompt
+
+def download_nltk_resources_if_needed():
+    """Download necessary NLTK resources if they are not already available."""
+    required_resources = ["punkt", "stopwords"]
+    for resource in required_resources:
+        try:
+            nltk.data.find(f"tokenizers/{resource}" if resource == "punkt" else f"corpora/{resource}")
+        except LookupError:
+            console.print(f"[bold yellow]NLTK resource '{resource}' not found. Downloading...[/bold yellow]")
+            nltk.download(resource, quiet=True)
+            console.print(f"[bold green]✅ Resource '{resource}' downloaded.[/bold green]")
+
 
 console = Console()
 
@@ -38,7 +49,6 @@ def callback():
     RAGLight CLI application.
     """
     Settings.setup_logging()
-    # Désactive les logs parasites
     for name in [
         "telemetry", "langchain", "langchain_core", "langchain_core.tracing",
         "httpx", "urllib3", "requests", "chromadb"
@@ -120,6 +130,7 @@ def interactive_chat_command():
         if should_index:
             vector_store = builder.build_vector_store()
             vector_store.ingest(data_path=str(data_path))
+            vector_store.ingest_code(repos_path=str(data_path))
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print("[bold yellow]Skipping indexing, using existing database.[/bold yellow]")
@@ -180,6 +191,7 @@ def index_command(
             .build_vector_store()
         )
         vector_store.ingest(data_path=str(data_path))
+        vector_store.ingest_code(repos_path=str(data_path))
         console.print(f"[bold green]✅ Successfully indexed all documents from {data_path}[/bold green]")
     except Exception as e:
         console.print(f"[bold red]❌ An error occurred during indexing: {e}[/bold red]")
