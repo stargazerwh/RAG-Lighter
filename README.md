@@ -15,7 +15,7 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 > ## ⚠️ Requirements
 >
-> Actually RAGLight supports :
+> Currently RAGLight supports :
 >
 > - Ollama
 > - LMStudio
