@@ -8,17 +8,21 @@ from raglight.rag.builder import Builder
 from raglight.config.settings import Settings
 from raglight.rag.rag import RAG
 from typing_extensions import Annotated
+from typing import Literal
 
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
+import questionary
 from quo.prompt import Prompt
 from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
 
+
+console = Console()
 
 def download_nltk_resources_if_needed():
     """Download necessary NLTK resources if they are not already available."""
@@ -39,16 +43,11 @@ def download_nltk_resources_if_needed():
                 f"[bold green]✅ Resource '{resource}' downloaded.[/bold green]"
             )
 
-
-console = Console()
-
-
 def prompt_input():
     session = Prompt()
     return session.prompt(
         ">>> ", placeholder="<gray> enter your input here, type bye to quit</gray>"
     )
-
 
 def print_llm_response(response: str):
     """Affiche la réponse LLM dans un panneau markdown cyan avec 🤖"""
@@ -58,11 +57,10 @@ def print_llm_response(response: str):
         )
     )
 
-
+# Configuration de Typer et logging (inchangés)
 app = typer.Typer(
     help="RAGLight CLI: An interactive wizard to index and chat with your documents."
 )
-
 
 @app.callback()
 def callback():
@@ -84,267 +82,179 @@ def callback():
         logger.setLevel(logging.CRITICAL + 1)
 
 
+def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
+    """
+    Runs the entire interactive flow for setting up and starting a chat session.
+    This function contains the shared logic for both standard and agentic RAG.
+
+    Args:
+        chat_type: Determines the type of pipeline to create ('standard' or 'agentic').
+    """
+    console.print(
+        "[bold magenta]👋 Welcome to the RAGLight Interactive Setup Wizard![/bold magenta]"
+    )
+    console.print(
+        "[magenta]I will guide you through setting up your RAG pipeline.[/magenta]"
+    )
+
+    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
+    data_path_str = typer.prompt("Enter the path to the directory with your documents")
+    data_path = Path(data_path_str)
+    if not data_path.is_dir():
+        console.print(
+            f"[bold red]❌ Error: The path '{data_path_str}' is not a valid directory.[/bold red]"
+        )
+        raise typer.Exit(code=1)
+
+    console.print("[bold cyan]\n--- 💾 Step 2: Vector Database ---[/bold cyan]")
+    db_path = typer.prompt(
+        "Where should the vector database be stored?",
+        default=Settings.DEFAULT_PERSIST_DIRECTORY,
+    )
+    collection = typer.prompt(
+        "What is the name for the database collection?",
+        default=Settings.DEFAULT_COLLECTION_NAME,
+    )
+
+    console.print("[bold cyan]\n--- 🧠 Step 3: Embeddings Model ---[/bold cyan]")
+    emb_provider = questionary.select(
+        "Which embeddings provider do you want to use?",
+        choices=[Settings.HUGGINGFACE, Settings.OLLAMA],
+        default=Settings.HUGGINGFACE,
+    ).ask()
+    emb_model = typer.prompt(
+        "Which embedding model do you want to use?",
+        default=Settings.DEFAULT_EMBEDDINGS_MODEL,
+    )
+
+    console.print("[bold cyan]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold cyan]")
+    llm_provider = questionary.select(
+        "Which LLM provider do you want to use?",
+        choices=[Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
+        default=Settings.OLLAMA,
+    ).ask()
+    
+    llm_host = None
+    llm_host = questionary.select(
+        "Which LLM host do you want to use?",
+        choices=[Settings.DEFAULT_OLLAMA_CLIENT, Settings.DEFAULT_LMSTUDIO_CLIENT],
+        default=Settings.DEFAULT_OLLAMA_CLIENT,
+    ).ask()
+
+    llm_model = typer.prompt(
+        "Which LLM do you want to use? (e.g., llama3, gpt-4o)",
+        default=Settings.DEFAULT_LLM,
+    )
+    k = typer.prompt(
+        "How many documents should be retrieved for context (k)?", type=int, default=5
+    )
+
+    console.print("[bold green]\n✅ Configuration complete![/bold green]")
+
+    try:
+        console.print("[bold cyan]\n--- ⏳ Step 5: Indexing Documents ---[/bold cyan]")
+        
+        pipeline = None
+        vector_store_for_indexing = None
+
+        if chat_type == "standard":
+            builder = Builder()
+            builder.with_embeddings(emb_provider, model_name=emb_model)
+            builder.with_vector_store(
+                Settings.CHROMA,
+                persist_directory=db_path,
+                collection_name=collection,
+            )
+            vector_store_for_indexing = builder.build_vector_store()
+            pipeline = builder.with_llm(
+                llm_provider,
+                model_name=llm_model,
+                system_prompt=Settings.DEFAULT_SYSTEM_PROMPT,
+            ).build_rag(k=k)
+        
+        elif chat_type == "agentic":
+            vector_store_config = VectorStoreConfig(
+                embedding_model=emb_model,
+                database=Settings.CHROMA,
+                persist_directory=db_path,
+                provider=emb_provider,
+                collection_name=collection,
+            )
+            agent_config = AgenticRAGConfig(
+                provider=llm_provider,
+                model=llm_model,
+                k=k,
+                system_prompt=Settings.DEFAULT_AGENT_PROMPT,
+                max_steps=4,
+                api_key=Settings.MISTRAL_API_KEY,
+                api_base=llm_host,
+            )
+            pipeline = AgenticRAGPipeline(agent_config, vector_store_config)
+            vector_store_for_indexing = pipeline.get_vector_store()
+
+        should_index = True
+        if os.path.exists(db_path) and len(os.listdir(db_path)) > 0:
+            console.print(f"[yellow]A database seems to exist at '{db_path}'.[/yellow]")
+            if not typer.confirm(
+                "Do you want to re-index the data? (This will add documents to the existing collection)\nIf you don't want, existing database will be used.",
+                default=False,
+            ):
+                should_index = False
+        
+        if should_index:
+            vector_store_for_indexing.ingest(data_path=str(data_path))
+            vector_store_for_indexing.ingest_code(repos_path=str(data_path))
+            console.print("[bold green]✅ Indexing complete.[/bold green]")
+        else:
+            console.print("[bold yellow]Skipping indexing, using existing database.[/bold yellow]")
+
+        console.print(
+            "[bold cyan]\n--- 💬 Step 6: Starting Chat Session ---[/bold cyan]"
+        )
+        console.print(
+            "[bold green]✅ RAG pipeline is ready. You can start chatting now![/bold green]"
+        )
+        console.print("[yellow]Type 'quit' or 'exit' to end the session.\n[/yellow]")
+
+        while True:
+            query = prompt_input()
+            if query.lower() in ["bye", "exit", "quit"]:
+                console.print("🤖 : See you soon 👋")
+                break
+
+            with Progress(
+                SpinnerColumn(style="cyan"),
+                TextColumn("[bold cyan]Waiting for response...[/bold cyan]\n"),
+                transient=True,
+                console=console,
+            ) as progress:
+                task = progress.add_task("", total=None)
+                response = pipeline.generate(query)
+                progress.update(task, completed=1)
+
+            print_llm_response(response)
+
+    except Exception as e:
+        console.print(f"[bold red]❌ An unexpected error occurred: {e}[/bold red]")
+        import traceback
+        traceback.print_exc()
+        raise typer.Exit(code=1)
+
+
 @app.command(name="chat")
 def interactive_chat_command():
     """
-    Starts a guided, interactive session to configure, index, and chat with your data.
+    Starts a guided, interactive session to configure and use a standard RAG pipeline.
     """
-    console.print(
-        "[bold magenta]👋 Welcome to the RAGLight Interactive Setup Wizard![/bold magenta]"
-    )
-    console.print(
-        "[magenta]I will guide you through setting up your RAG pipeline.[/magenta]"
-    )
+    _run_interactive_chat_flow(chat_type="standard")
 
-    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
-    data_path_str = typer.prompt("Enter the path to the directory with your documents")
-    data_path = Path(data_path_str)
-    if not data_path.is_dir():
-        console.print(
-            f"[bold red]❌ Error: The path '{data_path_str}' is not a valid directory.[/bold red]"
-        )
-        raise typer.Exit(code=1)
 
-    console.print("[bold cyan]\n--- 💾 Step 2: Vector Database ---[/bold cyan]")
-    db_path = typer.prompt(
-        "Where should the vector database be stored?",
-        default=Settings.DEFAULT_PERSIST_DIRECTORY,
-    )
-    collection = typer.prompt(
-        "What is the name for the database collection?",
-        default=Settings.DEFAULT_COLLECTION_NAME,
-    )
-
-    console.print("[bold cyan]\n--- 🧠 Step 3: Embeddings Model ---[/bold cyan]")
-    emb_provider = typer.prompt(
-        f"Which embeddings provider do you want to use? ({Settings.HUGGINGFACE}, {Settings.OLLAMA}, ...)",
-        default=Settings.HUGGINGFACE,
-    )
-    emb_model = typer.prompt(
-        "Which embedding model do you want to use?",
-        default=Settings.DEFAULT_EMBEDDINGS_MODEL,
-    )
-
-    console.print("[bold cyan]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold cyan]")
-    llm_provider = typer.prompt(
-        f"Which LLM provider do you want to use? ({Settings.OLLAMA}, {Settings.MISTRAL}, ...)",
-        default=Settings.OLLAMA,
-    )
-    llm_model = typer.prompt(
-        "Which LLM do you want to use? (e.g., llama3, gpt-4o)",
-        default=Settings.DEFAULT_LLM,
-    )
-    k = typer.prompt(
-        "How many documents should be retrieved for context (k)?", type=int, default=5
-    )
-
-    console.print("[bold green]\n✅ Configuration complete![/bold green]")
-
-    try:
-        console.print("[bold cyan]\n--- ⏳ Step 5: Indexing Documents ---[/bold cyan]")
-
-        should_index = True
-        if os.path.exists(db_path) and len(os.listdir(db_path)) > 0:
-            console.print(f"[yellow]A database seems to exist at '{db_path}'.[/yellow]")
-            if not typer.confirm(
-                "Do you want to re-index the data? (This will add documents to the existing collection)\nIf you don't want, existing database will be used.",
-                default=False,
-            ):
-                should_index = False
-
-        builder = Builder()
-        builder.with_embeddings(emb_provider, model_name=emb_model)
-        builder.with_vector_store(
-            Settings.CHROMA,
-            persist_directory=db_path,
-            collection_name=collection,
-        )
-
-        if should_index:
-            vector_store = builder.build_vector_store()
-            vector_store.ingest(data_path=str(data_path))
-            vector_store.ingest_code(repos_path=str(data_path))
-            console.print("[bold green]✅ Indexing complete.[/bold green]")
-        else:
-            console.print(
-                "[bold yellow]Skipping indexing, using existing database.[/bold yellow]"
-            )
-
-        console.print(
-            "[bold cyan]\n--- 💬 Step 6: Starting Chat Session ---[/bold cyan]"
-        )
-
-        rag_pipeline: RAG = builder.with_llm(
-            llm_provider,
-            model_name=llm_model,
-            system_prompt=Settings.DEFAULT_SYSTEM_PROMPT,
-        ).build_rag(k=k)
-
-        console.print(
-            "[bold green]✅ RAG pipeline is ready. You can start chatting now![/bold green]"
-        )
-        console.print("[yellow]Type 'quit' or 'exit' to end the session.\n[/yellow]")
-
-        while True:
-            query = prompt_input()
-            if query.lower() in ["bye", "exit", "quit"]:
-                console.print("🤖 : See you soon 👋")
-                break
-
-            with Progress(
-                SpinnerColumn(style="cyan"),
-                TextColumn("[bold cyan]Waiting for response...[/bold cyan]"),
-                transient=True,
-                console=console,
-            ) as progress:
-                task = progress.add_task("", total=None)
-                response = rag_pipeline.generate(query)
-                progress.update(task, completed=1)
-
-            print_llm_response(response)
-
-    except Exception as e:
-        console.print(f"[bold red]❌ An unexpected error occurred: {e}[/bold red]")
-        import traceback
-
-        traceback.print_exc()
-        raise typer.Exit(code=1)
-    
 @app.command(name="agentic-chat")
-def interactive_chat_command():
+def interactive_agentic_chat_command():
     """
-    Starts a guided, interactive session to configure, index, and chat with your data.
+    Starts a guided, interactive session to configure and use an agentic RAG pipeline.
     """
-    console.print(
-        "[bold magenta]👋 Welcome to the RAGLight Interactive Setup Wizard![/bold magenta]"
-    )
-    console.print(
-        "[magenta]I will guide you through setting up your RAG pipeline.[/magenta]"
-    )
-
-    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
-    data_path_str = typer.prompt("Enter the path to the directory with your documents")
-    data_path = Path(data_path_str)
-    if not data_path.is_dir():
-        console.print(
-            f"[bold red]❌ Error: The path '{data_path_str}' is not a valid directory.[/bold red]"
-        )
-        raise typer.Exit(code=1)
-
-    console.print("[bold cyan]\n--- 💾 Step 2: Vector Database ---[/bold cyan]")
-    db_path = typer.prompt(
-        "Where should the vector database be stored?",
-        default=Settings.DEFAULT_PERSIST_DIRECTORY,
-    )
-    collection = typer.prompt(
-        "What is the name for the database collection?",
-        default=Settings.DEFAULT_COLLECTION_NAME,
-    )
-
-    console.print("[bold cyan]\n--- 🧠 Step 3: Embeddings Model ---[/bold cyan]")
-    emb_provider = typer.prompt(
-        f"Which embeddings provider do you want to use? ({Settings.HUGGINGFACE}, {Settings.OLLAMA}, ...)",
-        default=Settings.HUGGINGFACE,
-    )
-    emb_model = typer.prompt(
-        "Which embedding model do you want to use?",
-        default=Settings.DEFAULT_EMBEDDINGS_MODEL,
-    )
-
-    console.print("[bold cyan]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold cyan]")
-    llm_provider = typer.prompt(
-        f"Which LLM provider do you want to use? ({Settings.OLLAMA}, {Settings.MISTRAL}, ...)",
-        default=Settings.OLLAMA,
-    )
-    llm_host = typer.prompt(
-        f"Which LLM host do you want to use? ({Settings.DEFAULT_OLLAMA_CLIENT}, {Settings.DEFAULT_LMSTUDIO_CLIENT}, ...)",
-        default=Settings.DEFAULT_OLLAMA_CLIENT,
-    )
-    llm_model = typer.prompt(
-        "Which LLM do you want to use? (e.g., llama3, gpt-4o)",
-        default=Settings.DEFAULT_LLM,
-    )
-    k = typer.prompt(
-        "How many documents should be retrieved for context (k)?", type=int, default=5
-    )
-
-    console.print("[bold green]\n✅ Configuration complete![/bold green]")
-
-    try:
-        console.print("[bold cyan]\n--- ⏳ Step 5: Indexing Documents ---[/bold cyan]")
-
-        should_index = True
-        if os.path.exists(db_path) and len(os.listdir(db_path)) > 0:
-            console.print(f"[yellow]A database seems to exist at '{db_path}'.[/yellow]")
-            if not typer.confirm(
-                "Do you want to re-index the data? (This will add documents to the existing collection)\nIf you don't want, existing database will be used.",
-                default=False,
-            ):
-                should_index = False
-
-        vector_store_config = VectorStoreConfig(
-            embedding_model = emb_model,
-            database=Settings.CHROMA,
-            persist_directory = db_path,
-            provider = emb_provider,
-            collection_name = collection
-        )
-
-        config = AgenticRAGConfig(
-                    provider = llm_provider,
-                    model = llm_model,
-                    k = k,
-                    system_prompt = Settings.DEFAULT_AGENT_PROMPT,
-                    max_steps = 4,
-                    api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
-                    api_base = llm_host # If you have a custom client URL
-                )
-
-        agenticRag = AgenticRAGPipeline(config, vector_store_config)
-
-
-        if should_index:
-            agenticRag.get_vector_store().ingest(data_path=str(data_path))
-            agenticRag.get_vector_store().ingest_code(repos_path=str(data_path))
-            console.print("[bold green]✅ Indexing complete.[/bold green]")
-        else:
-            console.print(
-                "[bold yellow]Skipping indexing, using existing database.[/bold yellow]"
-            )
-
-        console.print(
-            "[bold cyan]\n--- 💬 Step 6: Starting Chat Session ---[/bold cyan]"
-        )
-
-        console.print(
-            "[bold green]✅ RAG pipeline is ready. You can start chatting now![/bold green]"
-        )
-        console.print("[yellow]Type 'quit' or 'exit' to end the session.\n[/yellow]")
-
-        while True:
-            query = prompt_input()
-            if query.lower() in ["bye", "exit", "quit"]:
-                console.print("🤖 : See you soon 👋")
-                break
-
-            with Progress(
-                SpinnerColumn(style="cyan"),
-                TextColumn("[bold cyan]Waiting for response...[/bold cyan]"),
-                transient=True,
-                console=console,
-            ) as progress:
-                task = progress.add_task("", total=None)
-                response = agenticRag.generate(query)
-                progress.update(task, completed=1)
-
-            print_llm_response(response)
-
-    except Exception as e:
-        console.print(f"[bold red]❌ An unexpected error occurred: {e}[/bold red]")
-        import traceback
-
-        traceback.print_exc()
-        raise typer.Exit(code=1)
+    _run_interactive_chat_flow(chat_type="agentic")
 
 
 @app.command(name="index", hidden=True)

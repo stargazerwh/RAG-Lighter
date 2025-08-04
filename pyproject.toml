@@ -28,6 +28,7 @@ dependencies = [
     "typer==0.16.0",
     "rich==14.0.0",
     "quo==2023.5.1",
+    "questionary==2.0.1",
 ]
 [project.scripts]
 raglight = "raglight.cli.main:app"
