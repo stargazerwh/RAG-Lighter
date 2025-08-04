@@ -169,6 +169,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
             pipeline = builder.with_llm(
                 llm_provider,
                 model_name=llm_model,
+                api_base=llm_host,
                 system_prompt=Settings.DEFAULT_SYSTEM_PROMPT,
             ).build_rag(k=k)
         
