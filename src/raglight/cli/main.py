@@ -1,4 +1,3 @@
-import nltk
 import typer
 from pathlib import Path
 import logging
@@ -21,27 +20,9 @@ from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
 
+from .nltk_management import download_nltk_resources_if_needed
 
 console = Console()
-
-def download_nltk_resources_if_needed():
-    """Download necessary NLTK resources if they are not already available."""
-    required_resources = ["punkt", "stopwords"]
-    for resource in required_resources:
-        try:
-            nltk.data.find(
-                f"tokenizers/{resource}"
-                if resource == "punkt"
-                else f"corpora/{resource}"
-            )
-        except LookupError:
-            console.print(
-                f"[bold yellow]NLTK resource '{resource}' not found. Downloading...[/bold yellow]"
-            )
-            nltk.download(resource, quiet=True)
-            console.print(
-                f"[bold green]✅ Resource '{resource}' downloaded.[/bold green]"
-            )
 
 def prompt_input():
     session = Prompt()
@@ -57,7 +38,6 @@ def print_llm_response(response: str):
         )
     )
 
-# Configuration de Typer et logging (inchangés)
 app = typer.Typer(
     help="RAGLight CLI: An interactive wizard to index and chat with your documents."
 )
@@ -90,6 +70,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
     Args:
         chat_type: Determines the type of pipeline to create ('standard' or 'agentic').
     """
+    # download_nltk_resources_if_needed(console)
     console.print(
         "[bold magenta]👋 Welcome to the RAGLight Interactive Setup Wizard![/bold magenta]"
     )
@@ -119,8 +100,20 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
     console.print("[bold cyan]\n--- 🧠 Step 3: Embeddings Model ---[/bold cyan]")
     emb_provider = questionary.select(
         "Which embeddings provider do you want to use?",
-        choices=[Settings.HUGGINGFACE, Settings.OLLAMA],
+        choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
         default=Settings.HUGGINGFACE,
+    ).ask()
+
+    emb_provider = None
+    if emb_provider == Settings.OLLAMA:
+        default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
+    elif emb_provider == Settings.OPENAI:
+        default_api_base = Settings.DEFAULT_OPENAI_CLIENT
+
+    embeddings_base_url = questionary.select(
+        "What is your base URL for the embeddings provider? (Not needed for HuggingFace)",
+        choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
+        default=default_api_base,
     ).ask()
     emb_model = typer.prompt(
         "Which embedding model do you want to use?",
@@ -135,10 +128,17 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
     ).ask()
     
     llm_host = None
+    if llm_provider == Settings.OLLAMA:
+        llm_host = Settings.DEFAULT_OLLAMA_CLIENT
+    elif llm_provider == Settings.OPENAI:
+        llm_host = Settings.DEFAULT_OPENAI_CLIENT
+    elif llm_provider == Settings.LMSTUDIO:
+        llm_host = Settings.DEFAULT_LMSTUDIO_CLIENT
+
     llm_host = questionary.select(
-        "Which LLM host do you want to use?",
+        "What is your base URL for the LLM provider? (Not needed for Mistral)",
         choices=[Settings.DEFAULT_OLLAMA_CLIENT, Settings.DEFAULT_LMSTUDIO_CLIENT],
-        default=Settings.DEFAULT_OLLAMA_CLIENT,
+        default=llm_host,
     ).ask()
 
     llm_model = typer.prompt(
