@@ -5,7 +5,6 @@ import os
 
 from raglight.rag.builder import Builder
 from raglight.config.settings import Settings
-from raglight.rag.rag import RAG
 from typing_extensions import Annotated
 from typing import Literal
 
@@ -13,6 +12,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.prompt import Prompt as RichPrompt
 
 import questionary
 from quo.prompt import Prompt
@@ -23,6 +23,10 @@ from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
 from .nltk_management import download_nltk_resources_if_needed
 
 console = Console()
+
+custom_style = questionary.Style([
+    ("answer", "bold ansicyan"), 
+])
 
 def prompt_input():
     session = Prompt()
@@ -78,8 +82,8 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
         "[magenta]I will guide you through setting up your RAG pipeline.[/magenta]"
     )
 
-    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
-    data_path_str = typer.prompt("Enter the path to the directory with your documents")
+    console.print("[bold blue]\n--- 📂 Step 1: Data Source ---[/bold blue]")
+    data_path_str = RichPrompt.ask("[bold]Enter the path to the directory with your documents[/bold]")
     data_path = Path(data_path_str)
     if not data_path.is_dir():
         console.print(
@@ -87,79 +91,83 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
         )
         raise typer.Exit(code=1)
 
-    console.print("[bold cyan]\n--- 💾 Step 2: Vector Database ---[/bold cyan]")
-    db_path = typer.prompt(
-        "Where should the vector database be stored?",
+    console.print("[bold blue]\n--- 💾 Step 2: Vector Database ---[/bold blue]")
+    db_path = RichPrompt.ask(
+        "[bold]Where should the vector database be stored?[/bold]",
         default=Settings.DEFAULT_PERSIST_DIRECTORY,
     )
-    collection = typer.prompt(
-        "What is the name for the database collection?",
+    collection = RichPrompt.ask(
+        "[bold]What is the name for the database collection?[/bold]",
         default=Settings.DEFAULT_COLLECTION_NAME,
     )
 
-    console.print("[bold cyan]\n--- 🧠 Step 3: Embeddings Model ---[/bold cyan]")
+    console.print("[bold blue]\n--- 🧠 Step 3: Embeddings Model ---[/bold blue]")
     emb_provider = questionary.select(
         "Which embeddings provider do you want to use?",
         choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
         default=Settings.HUGGINGFACE,
+        style=custom_style
     ).ask()
 
-    emb_provider = None
+    default_api_base = None
     if emb_provider == Settings.OLLAMA:
         default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
     elif emb_provider == Settings.OPENAI:
         default_api_base = Settings.DEFAULT_OPENAI_CLIENT
 
-    embeddings_base_url = questionary.select(
-        "What is your base URL for the embeddings provider? (Not needed for HuggingFace)",
-        choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
+    embeddings_base_url = RichPrompt.ask(
+        "[bold]What is your base URL for the embeddings provider? (Not needed for HuggingFace)[/bold]",
         default=default_api_base,
-    ).ask()
-    emb_model = typer.prompt(
-        "Which embedding model do you want to use?",
+    )
+    emb_model = RichPrompt.ask(
+        "[bold]Which embedding model do you want to use?[/bold]",
         default=Settings.DEFAULT_EMBEDDINGS_MODEL,
     )
 
-    console.print("[bold cyan]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold cyan]")
+    console.print("[bold blue]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold blue]")
     llm_provider = questionary.select(
         "Which LLM provider do you want to use?",
         choices=[Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
         default=Settings.OLLAMA,
+        style=custom_style
     ).ask()
     
-    llm_host = None
+    llm_default_api_base = None
     if llm_provider == Settings.OLLAMA:
-        llm_host = Settings.DEFAULT_OLLAMA_CLIENT
+        llm_default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
     elif llm_provider == Settings.OPENAI:
-        llm_host = Settings.DEFAULT_OPENAI_CLIENT
+        llm_default_api_base = Settings.DEFAULT_OPENAI_CLIENT
     elif llm_provider == Settings.LMSTUDIO:
-        llm_host = Settings.DEFAULT_LMSTUDIO_CLIENT
+        llm_default_api_base = Settings.DEFAULT_LMSTUDIO_CLIENT
 
-    llm_host = questionary.select(
-        "What is your base URL for the LLM provider? (Not needed for Mistral)",
-        choices=[Settings.DEFAULT_OLLAMA_CLIENT, Settings.DEFAULT_LMSTUDIO_CLIENT],
-        default=llm_host,
-    ).ask()
+    llm_base_url = RichPrompt.ask(
+        "[bold]What is your base URL for the LLM provider? (Not needed for Mistral)[/bold]",
+        default=llm_default_api_base,
+    )
 
-    llm_model = typer.prompt(
-        "Which LLM do you want to use? (e.g., llama3, gpt-4o)",
+    llm_model = RichPrompt.ask(
+        "[bold]Which LLM do you want to use?[/bold]",
         default=Settings.DEFAULT_LLM,
     )
-    k = typer.prompt(
-        "How many documents should be retrieved for context (k)?", type=int, default=5
-    )
+    k = questionary.select(
+        "How many documents should be retrieved for context (k)?",
+        choices=['5', '10', '15'],
+        default=str(Settings.DEFAULT_K),
+        style=custom_style
+    ).ask()
+    k = int(k)
 
     console.print("[bold green]\n✅ Configuration complete![/bold green]")
 
     try:
-        console.print("[bold cyan]\n--- ⏳ Step 5: Indexing Documents ---[/bold cyan]")
+        console.print("[bold blue]\n--- ⏳ Step 5: Indexing Documents ---[/bold blue]")
         
         pipeline = None
         vector_store_for_indexing = None
 
         if chat_type == "standard":
             builder = Builder()
-            builder.with_embeddings(emb_provider, model_name=emb_model)
+            builder.with_embeddings(emb_provider, model_name=emb_model, api_base=embeddings_base_url)
             builder.with_vector_store(
                 Settings.CHROMA,
                 persist_directory=db_path,
@@ -169,7 +177,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
             pipeline = builder.with_llm(
                 llm_provider,
                 model_name=llm_model,
-                api_base=llm_host,
+                api_base=llm_base_url,
                 system_prompt=Settings.DEFAULT_SYSTEM_PROMPT,
             ).build_rag(k=k)
         
@@ -188,7 +196,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
                 system_prompt=Settings.DEFAULT_AGENT_PROMPT,
                 max_steps=4,
                 api_key=Settings.MISTRAL_API_KEY,
-                api_base=llm_host,
+                api_base=llm_base_url,
             )
             pipeline = AgenticRAGPipeline(agent_config, vector_store_config)
             vector_store_for_indexing = pipeline.get_vector_store()
@@ -210,7 +218,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
             console.print("[bold yellow]Skipping indexing, using existing database.[/bold yellow]")
 
         console.print(
-            "[bold cyan]\n--- 💬 Step 6: Starting Chat Session ---[/bold cyan]"
+            "[bold blue]\n--- 💬 Step 6: Starting Chat Session ---[/bold blue]"
         )
         console.print(
             "[bold green]✅ RAG pipeline is ready. You can start chatting now![/bold green]"
