@@ -66,7 +66,7 @@ raglight agentic-chat
 The wizard will guide you through the setup process. Here is what it looks like:
 
 <div align="center">
-    <img alt="RAGLight" src="./media/cli.jpeg">
+    <img alt="RAGLight" src="./media/cli.png">
 </div>
 
 The wizard will ask you for:
