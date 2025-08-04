@@ -57,7 +57,7 @@ Just run this one command in your terminal:
 raglight chat
 ```
 
-Or you can use agentic rag using this command :
+Or you can use Agentic RAG using this command :
 
 ```bash
 raglight agentic-chat
