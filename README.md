@@ -51,6 +51,7 @@ pip install raglight
 
 For the quickest and easiest way to get started, RAGLight provides an interactive command-line wizard. It will guide you through every step, from selecting your documents to chatting with them, without writing a single line of Python.
 Prerequisite: Ensure you have a local LLM service like Ollama running.
+
 Just run this one command in your terminal:
 
 ```bash
