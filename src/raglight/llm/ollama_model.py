@@ -27,6 +27,7 @@ class OllamaModel(LLM):
         model_name: str,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
+        api_base: Optional[str] = None,
         role: str = "user",
     ) -> None:
         """
@@ -38,7 +39,8 @@ class OllamaModel(LLM):
             system_prompt_file (Optional[str]): Path to a file containing a custom system prompt. Defaults to None.
             role (str): The role of the user in the chat (e.g., 'user', 'assistant'). Defaults to 'user'.
         """
-        super().__init__(model_name, system_prompt, system_prompt_file)
+        self.api_base = api_base or Settings.DEFAULT_OLLAMA_CLIENT
+        super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using Ollama with {model_name} model 🤖")
         self.role: str = role
 
@@ -51,7 +53,7 @@ class OllamaModel(LLM):
             Client: An instance of the Ollama model client, configured with the necessary host and headers.
         """
         return Client(
-            host=Settings.DEFAULT_OLLAMA_CLIENT, headers={"x-some-header": "some-value"}
+            host=self.api_base, headers={"x-some-header": "some-value"}
         )
 
     @override

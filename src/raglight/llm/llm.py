@@ -22,6 +22,7 @@ class LLM(ABC):
         model_name: str,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
+        api_base: Optional[str] = None,
     ) -> None:
         """
         Initializes an LLM instance.
