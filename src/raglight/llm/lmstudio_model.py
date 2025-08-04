@@ -15,15 +15,17 @@ class LMStudioModel(LLM):
         model_name: str,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
+        api_base: Optional[str] = None,
         role: str = "user",
     ) -> None:
-        super().__init__(model_name, system_prompt, system_prompt_file)
+        self.api_base = api_base or Settings.DEFAULT_LMSTUDIO_CLIENT
+        super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using LMStudio with {model_name} model 🤖")
         self.role: str = role
 
     @override
     def load(self) -> OpenAI:
-        return OpenAI(base_url=Settings.DEFAULT_LMSTUDIO_CLIENT, api_key="lm-studio")
+        return OpenAI(base_url=self.api_base, api_key="lm-studio")
 
     @override
     def generate(self, input: Dict[str, Any]) -> str:

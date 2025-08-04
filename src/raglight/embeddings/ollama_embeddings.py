@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Optional
 from typing_extensions import override
 
 from ..config.settings import Settings
@@ -18,13 +18,14 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         model_name (str): The name of the Ollama model to be loaded.
     """
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, api_base: Optional[str] = None) -> None:
         """
         Initializes a OllamaEmbeddingsModel instance.
 
         Args:
             model_name (str): The name of the Ollama model to load.
         """
+        self.api_base = api_base or Settings.DEFAULT_OLLAMA_CLIENT
         super().__init__(model_name)
 
     @override
@@ -39,5 +40,5 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
             OllamaEmbeddings: The loaded Ollama embeddings model.
         """
         return OllamaEmbeddings(
-            model=self.model_name, base_url=Settings.DEFAULT_OLLAMA_CLIENT
+            model=self.model_name, base_url=self.api_base
         )
