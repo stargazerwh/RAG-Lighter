@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Optional
 from typing_extensions import override
 
 from ..config.settings import Settings
@@ -18,13 +18,14 @@ class OpenAIEmbeddingsModel(EmbeddingsModel):
         model_name (str): The name of the OpenAI model to be loaded.
     """
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, api_base: Optional[str] = None) -> None:
         """
         Initializes an OpenAIEmbeddingsModel instance.
 
         Args:
             model_name (str): The name of the OpenAI model to load.
         """
+        self.api_base = api_base or Settings.DEFAULT_OPENAI_CLIENT
         super().__init__(model_name)
 
     @override
@@ -41,6 +42,6 @@ class OpenAIEmbeddingsModel(EmbeddingsModel):
         print(Settings.OPENAI_API_KEY)
         return OpenAIEmbeddings(
             model=self.model_name,
-            openai_api_base=Settings.DEFAULT_OPENAI_CLIENT,
+            openai_api_base=self.api_base,
             openai_api_key=Settings.OPENAI_API_KEY,
         )

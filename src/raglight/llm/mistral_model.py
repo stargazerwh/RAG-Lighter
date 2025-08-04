@@ -26,6 +26,7 @@ class MistralModel(LLM):
         model_name: str,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
+        # no api_base
         role: str = "user",
     ) -> None:
         """

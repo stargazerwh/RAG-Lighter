@@ -36,6 +36,7 @@ class RAGPipeline:
         persist_directory: str = vector_store_config.persist_directory
         collection_name: str = vector_store_config.collection_name
         system_prompt: str = config.system_prompt
+        api_base: str = config.api_base
         database: str = vector_store_config.database
         self.file_extension: str = vector_store_config.file_extension
         model_name: str = config.llm
@@ -51,7 +52,7 @@ class RAGPipeline:
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
-            .with_llm(provider, model_name=model_name, system_prompt=system_prompt)
+            .with_llm(provider, model_name=model_name, system_prompt=system_prompt, api_base=api_base)
             .build_rag(k=k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()

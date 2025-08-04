@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 
 class EmbeddingsModel(ABC):
@@ -15,7 +15,7 @@ class EmbeddingsModel(ABC):
         model (Any): The loaded model instance.
     """
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, api_base: Optional[str] = None) -> None:
         """
         Initializes an EmbeddingsModel instance.
 

@@ -27,6 +27,7 @@ class OpenAIModel(LLM):
         model_name: str,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
+        api_base: Optional[str] = None,
         role: str = "user",
     ) -> None:
         """
@@ -38,7 +39,8 @@ class OpenAIModel(LLM):
             system_prompt_file (Optional[str]): The path to the file to load the system prompt from. If provided, it takes precedence over system_prompt.
             role (str): The role of the user in the conversation, defaults to "user".
         """
-        super().__init__(model_name, system_prompt, system_prompt_file)
+        self.api_base = api_base or Settings.DEFAULT_OPENAI_CLIENT
+        super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using OpenAI with {model_name} model 🤖")
         self.role: str = role
 
