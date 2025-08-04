@@ -57,10 +57,16 @@ Just run this one command in your terminal:
 raglight chat
 ```
 
+Or you can use agentic rag using this command :
+
+```bash
+raglight agentic-chat
+```
+
 The wizard will guide you through the setup process. Here is what it looks like:
 
 <div align="center">
-    <img alt="RAGLight" src="./media/raglight_cli.jpeg">
+    <img alt="RAGLight" src="./media/cli.jpeg">
 </div>
 
 The wizard will ask you for:
