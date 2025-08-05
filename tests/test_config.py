@@ -1,6 +1,8 @@
 class TestsConfig:
     HUGGINGFACE_EMBEDDINGS = "all-MiniLM-L6-v2"
     OLLAMA_MODEL = "llama3"
+    GEMINI_LLM_MODEL = "gemini-2.5-flash"
+    GEMINI_EMBEDDING_MODEL = "models/gemini-embedding-001"
     CHROMA_PERSIST_DIRECTORY = "/Users/labess40/dev/RAGLight/chromaDb"
     CHROMA_PERSIST_DIRECTORY_INGESTION = "/Users/labess40/dev/RAGLight/chromaDb2"
     SYSTEM_PROMPT = "/Users/labess40/dev/RAGLight/systemPrompt.txt"

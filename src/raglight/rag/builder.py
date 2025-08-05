@@ -18,7 +18,8 @@ from .rag import RAG
 from ..rat.rat import RAT
 from ..embeddings.embeddings_model import EmbeddingsModel
 from ..embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
-
+from ..embeddings.gemini_embeddings import GeminiEmbeddingsModel
+from ..llm.gemini_model import GeminiModel
 
 class Builder:
     """
@@ -67,6 +68,8 @@ class Builder:
             self.embeddings = OllamaEmbeddingsModel(**kwargs)
         elif type in (Settings.VLLM, Settings.OPENAI):
             self.embeddings = OpenAIEmbeddingsModel(**kwargs)
+        elif type == Settings.GOOGLE_GEMINI:
+            self.embeddings = GeminiEmbeddingsModel(**kwargs)
         else:
             raise ValueError(f"Unknown Embeddings Model type: {type}")
         logging.info("✅ Embeddings Model created")
@@ -143,6 +146,8 @@ class Builder:
             self.llm = MistralModel(**kwargs)
         elif type in (Settings.VLLM, Settings.OPENAI):
             self.llm = OpenAIModel(**kwargs)
+        elif type == Settings.GOOGLE_GEMINI:
+            self.llm = GeminiModel(**kwargs)
         else:
             raise ValueError(f"Unknown LLM type: {type}")
         logging.info("✅ LLM created")

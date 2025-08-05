@@ -41,6 +41,6 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
         """
         return GoogleGenerativeAIEmbeddings(
             model=Settings.GEMINI_EMBEDDING_MODEL,
-            google_api_base=self.client_base,
             google_api_key=Settings.GEMINI_API_KEY,
         )
+

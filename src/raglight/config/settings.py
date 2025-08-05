@@ -1,6 +1,7 @@
 import logging
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 
 class Settings:
     """
@@ -21,6 +22,7 @@ class Settings:
     GOOGLE_GEMINI = "GoogleGemini"
     GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
     GEMINI_EMBEDDING_MODEL = "models/gemini-embedding-001"
+    GEMINI_LLM_MODEL = "gemini-2.5-pro"
     DEFAULT_GOOGLE_CLIENT = os.environ.get("GOOGLE_CLIENT_URL", None)
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
     MISTRAL_API = "https://api.mistral.ai/v1"
@@ -71,7 +73,7 @@ class Settings:
         1. Thought: {your_thoughts about the request}
         2. Action: {JSON specifying the tool name & arguments, if needed} 
         3. Observation: {result of the tool action, if any}
-        4. (Repeat steps 1–3 as needed)
+        4. (Repeat steps 1-3 as needed)
         5. Final Answer: {your user-facing answer}
 
         ---
