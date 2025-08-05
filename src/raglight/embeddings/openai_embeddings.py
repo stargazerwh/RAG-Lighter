@@ -39,7 +39,7 @@ class OpenAIEmbeddingsModel(EmbeddingsModel):
         Returns:
             OpenAIEmbeddings: The loaded OpenAI embeddings model.
         """
-        print(Settings.OPENAI_API_KEY)
+        # print(Settings.OPENAI_API_KEY) # TODO: remove this
         return OpenAIEmbeddings(
             model=self.model_name,
             openai_api_base=self.api_base,

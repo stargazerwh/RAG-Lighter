@@ -18,6 +18,10 @@ class Settings:
     MISTRAL = "Mistral"
     VLLM = "vLLM"
     OPENAI = "OpenAI"
+    GOOGLE_GEMINI = "GoogleGemini"
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+    GEMINI_EMBEDDING_MODEL = "models/gemini-embedding-001"
+    DEFAULT_GOOGLE_CLIENT = os.environ.get("GOOGLE_CLIENT_URL", None)
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
     MISTRAL_API = "https://api.mistral.ai/v1"
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
