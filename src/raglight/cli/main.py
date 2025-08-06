@@ -24,15 +24,19 @@ from .nltk_management import download_nltk_resources_if_needed
 
 console = Console()
 
-custom_style = questionary.Style([
-    ("answer", "bold ansicyan"), 
-])
+custom_style = questionary.Style(
+    [
+        ("answer", "bold ansicyan"),
+    ]
+)
+
 
 def prompt_input():
     session = Prompt()
     return session.prompt(
         ">>> ", placeholder="<gray> enter your input here, type bye to quit</gray>"
     )
+
 
 def print_llm_response(response: str):
     """Affiche la réponse LLM dans un panneau markdown cyan avec 🤖"""
@@ -42,9 +46,11 @@ def print_llm_response(response: str):
         )
     )
 
+
 app = typer.Typer(
     help="RAGLight CLI: An interactive wizard to index and chat with your documents."
 )
+
 
 @app.callback()
 def callback():
@@ -83,7 +89,9 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
     )
 
     console.print("[bold blue]\n--- 📂 Step 1: Data Source ---[/bold blue]")
-    data_path_str = RichPrompt.ask("[bold]Enter the path to the directory with your documents[/bold]")
+    data_path_str = RichPrompt.ask(
+        "[bold]Enter the path to the directory with your documents[/bold]"
+    )
     data_path = Path(data_path_str)
     if not data_path.is_dir():
         console.print(
@@ -106,7 +114,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
         "Which embeddings provider do you want to use?",
         choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
         default=Settings.HUGGINGFACE,
-        style=custom_style
+        style=custom_style,
     ).ask()
 
     default_api_base = None
@@ -129,9 +137,9 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
         "Which LLM provider do you want to use?",
         choices=[Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
         default=Settings.OLLAMA,
-        style=custom_style
+        style=custom_style,
     ).ask()
-    
+
     llm_default_api_base = None
     if llm_provider == Settings.OLLAMA:
         llm_default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
@@ -151,9 +159,9 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
     )
     k = questionary.select(
         "How many documents should be retrieved for context (k)?",
-        choices=['5', '10', '15'],
+        choices=["5", "10", "15"],
         default=str(Settings.DEFAULT_K),
-        style=custom_style
+        style=custom_style,
     ).ask()
     k = int(k)
 
@@ -161,13 +169,15 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
 
     try:
         console.print("[bold blue]\n--- ⏳ Step 5: Indexing Documents ---[/bold blue]")
-        
+
         pipeline = None
         vector_store_for_indexing = None
 
         if chat_type == "standard":
             builder = Builder()
-            builder.with_embeddings(emb_provider, model_name=emb_model, api_base=embeddings_base_url)
+            builder.with_embeddings(
+                emb_provider, model_name=emb_model, api_base=embeddings_base_url
+            )
             builder.with_vector_store(
                 Settings.CHROMA,
                 persist_directory=db_path,
@@ -180,7 +190,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
                 api_base=llm_base_url,
                 system_prompt=Settings.DEFAULT_SYSTEM_PROMPT,
             ).build_rag(k=k)
-        
+
         elif chat_type == "agentic":
             vector_store_config = VectorStoreConfig(
                 embedding_model=emb_model,
@@ -209,13 +219,15 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
                 default=False,
             ):
                 should_index = False
-        
+
         if should_index:
             vector_store_for_indexing.ingest(data_path=str(data_path))
             vector_store_for_indexing.ingest_code(repos_path=str(data_path))
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
-            console.print("[bold yellow]Skipping indexing, using existing database.[/bold yellow]")
+            console.print(
+                "[bold yellow]Skipping indexing, using existing database.[/bold yellow]"
+            )
 
         console.print(
             "[bold blue]\n--- 💬 Step 6: Starting Chat Session ---[/bold blue]"
@@ -246,6 +258,7 @@ def _run_interactive_chat_flow(chat_type: Literal["standard", "agentic"]):
     except Exception as e:
         console.print(f"[bold red]❌ An unexpected error occurred: {e}[/bold red]")
         import traceback
+
         traceback.print_exc()
         raise typer.Exit(code=1)
 

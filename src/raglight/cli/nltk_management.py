@@ -1,6 +1,7 @@
 from rich.console import Console
 import nltk
 
+
 def download_nltk_resources_if_needed(console: Console):
     """Download necessary NLTK resources if they are not already available."""
     required_resources = ["punkt", "stopwords"]

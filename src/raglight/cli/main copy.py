@@ -132,7 +132,12 @@ def interactive_chat_command():
             "type": "select",
             "name": "llm_provider",
             "message": "Which LLM provider do you want to use?",
-            "choices": [Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
+            "choices": [
+                Settings.OLLAMA,
+                Settings.MISTRAL,
+                Settings.OPENAI,
+                Settings.LMSTUDIO,
+            ],
             "default": Settings.OLLAMA,
         },
         {
@@ -240,6 +245,7 @@ def interactive_chat_command():
         traceback.print_exc()
         raise typer.Exit(code=1)
 
+
 @app.command(name="agentic-chat")
 def agentic_chat_command():
     """
@@ -287,14 +293,22 @@ def agentic_chat_command():
             "type": "select",
             "name": "llm_provider",
             "message": "Which LLM provider do you want to use?",
-            "choices": [Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
+            "choices": [
+                Settings.OLLAMA,
+                Settings.MISTRAL,
+                Settings.OPENAI,
+                Settings.LMSTUDIO,
+            ],
             "default": Settings.OLLAMA,
         },
         {
             "type": "select",
             "name": "llm_host",
             "message": "Which LLM host do you want to use?",
-            "choices": [Settings.DEFAULT_OLLAMA_CLIENT, Settings.DEFAULT_LMSTUDIO_CLIENT],
+            "choices": [
+                Settings.DEFAULT_OLLAMA_CLIENT,
+                Settings.DEFAULT_LMSTUDIO_CLIENT,
+            ],
             "default": Settings.DEFAULT_OLLAMA_CLIENT,
         },
         {
