@@ -43,7 +43,7 @@ class GeminiModel(LLM):
             system_prompt_file (Optional[str]): The path to the file to load the system prompt from. If provided, it takes precedence over system_prompt.
             role (str): The role of the user in the conversation, defaults to "user".
         """
-        self.api_base = api_base or Settings.DEFAULT_GOOGLE_CLIENT
+        self.api_base = Settings.DEFAULT_GOOGLE_CLIENT or api_base
         super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using Gemini with {model_name} model 🤖")
         self.role: str = role
@@ -59,7 +59,7 @@ class GeminiModel(LLM):
 
         return Client(
             api_key=Settings.GEMINI_API_KEY,
-            base_url=self.api_base,
+            http_options=types.HttpOptions(base_url=self.api_base),
         )
 
     @override
