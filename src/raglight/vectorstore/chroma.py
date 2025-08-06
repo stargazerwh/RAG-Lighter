@@ -68,7 +68,7 @@ class ChromaVS(VectorStore):
 
         docs = self.load_docs(data_path)
         if not docs:
-            raise ValueError(f"No documents were loaded from {data_path}")
+            logging.warning(f"No documents were loaded from {data_path}")
 
         all_splits = self.split_docs(docs)
         self.add_index(all_splits)
