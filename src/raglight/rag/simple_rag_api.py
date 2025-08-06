@@ -52,7 +52,12 @@ class RAGPipeline:
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
-            .with_llm(provider, model_name=model_name, system_prompt=system_prompt, api_base=api_base)
+            .with_llm(
+                provider,
+                model_name=model_name,
+                system_prompt=system_prompt,
+                api_base=api_base,
+            )
             .build_rag(k=k)
         )
         self.github_scrapper: GithubScrapper = GithubScrapper()
