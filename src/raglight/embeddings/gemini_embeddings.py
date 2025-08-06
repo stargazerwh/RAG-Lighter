@@ -25,7 +25,7 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
         Args:
             model_name (str): The name of the Gemini model to load.
         """
-        self.api_base = Settings.DEFAULT_GOOGLE_CLIENT or api_base
+        self.api_base = api_base or Settings.DEFAULT_GOOGLE_CLIENT
         super().__init__(model_name)
 
     @override
