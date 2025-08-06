@@ -20,8 +20,10 @@ vector_store_config = VectorStoreConfig(
 )
 
 config = RAGConfig(
+        api_base = Settings.DEFAULT_GOOGLE_CLIENT,
         llm = Settings.GEMINI_LLM_MODEL,
         provider = Settings.GOOGLE_GEMINI,
+        # stream = True,
         # k = Settings.DEFAULT_K,
         # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
         # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,

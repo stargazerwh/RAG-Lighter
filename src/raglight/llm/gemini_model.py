@@ -56,7 +56,6 @@ class GeminiModel(LLM):
         Returns:
             Client: The client object to interact with Gemini API.
         """
-        print(f"API Base: {self.api_base}")
         return Client(
             api_key=Settings.GEMINI_API_KEY,
             http_options=types.HttpOptions(base_url=self.api_base),
