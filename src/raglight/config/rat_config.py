@@ -17,4 +17,5 @@ class RATConfig(RAGConfig):
             k=self.k,
             stream=self.stream,
             knowledge_base=self.knowledge_base,
+            ignore_folders=self.ignore_folders,
         )

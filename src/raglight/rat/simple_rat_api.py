@@ -1,4 +1,6 @@
 from typing import List
+import shutil
+import logging
 
 from ..config.vector_store_config import VectorStoreConfig
 from ..config.rat_config import RATConfig
@@ -7,7 +9,7 @@ from ..rag.simple_rag_api import RAGPipeline
 from .rat import RAT
 from ..config.settings import Settings
 from ..vectorstore.vector_store import VectorStore
-from ..models.data_source_model import DataSource
+from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 from ..scrapper.github_scrapper import GithubScrapper
 from typing_extensions import override
 
@@ -36,7 +38,10 @@ class RATPipeline(RAGPipeline):
             reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        self.knowledge_base: List[DataSource] = config.knowledge_base
+        # Call parent constructor to set up the base RAG pipeline
+        super().__init__(config, vector_store_config)
+        
+        # Override the RAG instance with RAT
         model_embeddings: str = vector_store_config.embedding_model
         persist_directory: str = vector_store_config.persist_directory
         collection_name: str = vector_store_config.collection_name

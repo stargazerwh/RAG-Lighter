@@ -32,6 +32,7 @@ class RAGPipeline:
             provider (str, optional): The name of the LLM provider you want to use : Ollama/LMStudio.
         """
         self.knowledge_base = config.knowledge_base
+        self.ignore_folders = config.ignore_folders
         model_embeddings: str = vector_store_config.embedding_model
         persist_directory: str = vector_store_config.persist_directory
         collection_name: str = vector_store_config.collection_name
@@ -78,7 +79,9 @@ class RAGPipeline:
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.get_vector_store().ingest(
-                    file_extension=self.file_extension, data_path=source.path
+                    file_extension=self.file_extension, 
+                    data_path=source.path,
+                    ignore_folders=self.ignore_folders
                 )
             if isinstance(source, GitHubSource):
                 repositories.append(source.url)
@@ -94,7 +97,7 @@ class RAGPipeline:
         """
         self.github_scrapper.set_repositories(repositories)
         repos_path: str = self.github_scrapper.clone_all()
-        self.get_vector_store().ingest_code(repos_path=repos_path)
+        self.get_vector_store().ingest_code(repos_path=repos_path, ignore_folders=self.ignore_folders)
         shutil.rmtree(repos_path)
         logging.info("✅ GitHub repositories cleaned successfully!")
 
