@@ -59,6 +59,7 @@ class GeminiModel(LLM):
 
         return Client(
             api_key=Settings.GEMINI_API_KEY,
+            base_url=self.api_base,
         )
 
     @override
@@ -83,10 +84,10 @@ class GeminiModel(LLM):
         ]
 
         try:
-            # as per the LLM calss the model is already loaded
+            # as per the LLM class the model is already loaded
             # but the text generation is done by the models.generate_content # ref https://ai.google.dev/gemini-api/docs/text-generation
             response = self.model.models.generate_content(
-                model=Settings.GEMINI_LLM_MODEL,
+                model=self.model_name,
                 contents=contents,
             )
             if not response.candidates:
