@@ -18,14 +18,14 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
         model_name (str): The name of the Gemini model to be loaded.
     """
 
-    def __init__(self, model_name: str, client_base: Optional[str] = None) -> None:
+    def __init__(self, model_name: str, api_base: Optional[str] = None) -> None:
         """
         Initializes a GeminiEmbeddingsModel instance.
 
         Args:
             model_name (str): The name of the Gemini model to load.
         """
-        self.client_base = client_base or Settings.DEFAULT_GOOGLE_CLIENT
+        self.api_base = api_base or Settings.DEFAULT_GOOGLE_CLIENT
         super().__init__(model_name)
 
     @override
@@ -40,7 +40,7 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
             GoogleGenerativeAIEmbeddings: The loaded Gemini embeddings model.
         """
         return GoogleGenerativeAIEmbeddings(
-            model=Settings.GEMINI_EMBEDDING_MODEL,
+            model=self.model_name,
             google_api_key=Settings.GEMINI_API_KEY,
         )
 
