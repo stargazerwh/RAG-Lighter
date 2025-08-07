@@ -73,11 +73,59 @@ The wizard will guide you through the setup process. Here is what it looks like:
 The wizard will ask you for:
 
 - 📂 Data Source: The path to your local folder containing the documents.
+- 🚫 Ignore Folders: Configure which folders to exclude during indexing (e.g., `.venv`, `node_modules`, `__pycache__`).
 - 💾 Vector Database: Where to store the indexed data and what to name it.
 - 🧠 Embeddings Model: Which model to use for understanding your documents.
 - 🤖 Language Model (LLM): Which LLM to use for generating answers.
 
 After configuration, it will automatically index your documents and start a chat session.
+
+### Ignore Folders Feature 🚫
+
+RAGLight automatically excludes common directories that shouldn't be indexed, such as:
+- Virtual environments (`.venv`, `venv`, `env`)
+- Node.js dependencies (`node_modules`)
+- Python cache files (`__pycache__`)
+- Build artifacts (`build`, `dist`, `target`)
+- IDE files (`.vscode`, `.idea`)
+- And many more...
+
+You can customize this list during the CLI setup or use the default configuration. This ensures that only relevant code and documentation are indexed, improving performance and reducing noise in your search results.
+
+### Ignore Folders in Configuration Classes 🚫
+
+The ignore folders feature is also available in all configuration classes, allowing you to specify which directories to exclude during indexing:
+
+- **RAGConfig**: Use `ignore_folders` parameter to exclude folders during RAG pipeline indexing
+- **AgenticRAGConfig**: Use `ignore_folders` parameter to exclude folders during AgenticRAG pipeline indexing  
+- **RATConfig**: Use `ignore_folders` parameter to exclude folders during RAT pipeline indexing
+- **VectorStoreConfig**: Use `ignore_folders` parameter to exclude folders during vector store operations
+
+All configuration classes use `Settings.DEFAULT_IGNORE_FOLDERS` as the default value, but you can override this with your custom list:
+
+```python
+# Example: Custom ignore folders for any configuration
+custom_ignore_folders = [
+    ".venv",
+    "venv",
+    "node_modules", 
+    "__pycache__",
+    ".git",
+    "build",
+    "dist",
+    "temp_files",  # Your custom folders
+    "cache"
+]
+
+# Use in any configuration class
+config = RAGConfig(
+    llm=Settings.DEFAULT_LLM,
+    provider=Settings.OLLAMA,
+    ignore_folders=custom_ignore_folders  # Override default
+)
+```
+
+See the complete example in [examples/ignore_folders_config_example.py](examples/ignore_folders_config_example.py) for all configuration types.
 
 ## Environment Variables
 
@@ -226,6 +274,7 @@ You can modify several parameters in your config :
 - `api_base` : Your API URL (Ollama URL, LM Studio URL, ...)
 - `num_ctx` : Your context max_length
 - `verbosity_level` : You logs verbosity level
+- `ignore_folders` : List of folders to exclude during indexing (e.g., [".venv", "node_modules", "__pycache__"])
 
 ```python
 from raglight.config.settings import Settings
@@ -250,13 +299,26 @@ vector_store_config = VectorStoreConfig(
     collection_name = collection_name
 )
 
+# Custom ignore folders - you can override the default list
+custom_ignore_folders = [
+    ".venv",
+    "venv", 
+    "node_modules",
+    "__pycache__",
+    ".git",
+    "build",
+    "dist",
+    "my_custom_folder_to_ignore"  # Add your custom folders here
+]
+
 config = AgenticRAGConfig(
             provider = Settings.MISTRAL,
             model = "mistral-large-2411",
             k = 10,
             system_prompt = Settings.DEFAULT_AGENT_PROMPT,
             max_steps = 4,
-            api_key = Settings.MISTRAL_API_KEY # os.environ.get('MISTRAL_API_KEY')
+            api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
+            ignore_folders = custom_ignore_folders,  # Use custom ignore folders
             # api_base = ... # If you have a custom client URL
             # num_ctx = ... # Max context length
             # verbosity_level = ... # Default = 2

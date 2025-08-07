@@ -1,5 +1,7 @@
 from typing import List
 from typing_extensions import override
+import shutil
+import logging
 
 from ..config.vector_store_config import VectorStoreConfig
 from .agentic_rag import AgenticRAG
@@ -7,7 +9,7 @@ from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorstore.vector_store import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
 from ..config.settings import Settings
-from ..models.data_source_model import DataSource
+from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 from .simple_rag_api import RAGPipeline
 
 
@@ -27,6 +29,7 @@ class AgenticRAGPipeline(RAGPipeline):
             provider (str, optional): The name of the LLM provider you want to use : Ollama.
         """
         self.knowledge_base: List[DataSource] = config.knowledge_base
+        self.ignore_folders = config.ignore_folders
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
 
         self.agenticRag = AgenticRAG(config, vector_store_config)

@@ -1,5 +1,9 @@
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load .env file if it exists
+load_dotenv()
 
 
 class Settings:
@@ -174,3 +178,28 @@ class Settings:
     DEFAULT_REASONING_LLM = "deepseek-r1:1.5b"
     THINKING_PATTERN = r"<think>(.*?)</think>"
     DEFAULT_K = 5
+    
+    # Default folders to ignore during indexing
+    DEFAULT_IGNORE_FOLDERS = [
+        ".venv",
+        "venv",
+        "env",
+        "node_modules",
+        "__pycache__",
+        ".git",
+        ".vscode",
+        ".idea",
+        "build",
+        "dist",
+        "target",
+        ".pytest_cache",
+        ".coverage",
+        "htmlcov",
+        ".tox",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".cache",
+        "logs",
+        "tmp",
+        "temp"
+    ]
