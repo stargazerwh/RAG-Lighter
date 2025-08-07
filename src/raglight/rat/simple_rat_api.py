@@ -40,7 +40,7 @@ class RATPipeline(RAGPipeline):
         """
         # Call parent constructor to set up the base RAG pipeline
         super().__init__(config, vector_store_config)
-        
+
         # Override the RAG instance with RAT
         model_embeddings: str = vector_store_config.embedding_model
         persist_directory: str = vector_store_config.persist_directory
@@ -51,14 +51,21 @@ class RATPipeline(RAGPipeline):
         self.file_extension: str = vector_store_config.file_extension
         self.rat: RAT = (
             Builder()
-            .with_embeddings(embeddings_privider, model_name=model_embeddings, api_base=vector_store_config.api_base)
+            .with_embeddings(
+                embeddings_privider,
+                model_name=model_embeddings,
+                api_base=vector_store_config.api_base,
+            )
             .with_vector_store(
                 database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
             .with_llm(
-                config.provider, model_name=config.llm, system_prompt=system_prompt, api_base=config.api_base
+                config.provider,
+                model_name=config.llm,
+                system_prompt=system_prompt,
+                api_base=config.api_base,
             )
             .with_reasoning_llm(
                 config.provider,

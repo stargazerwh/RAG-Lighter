@@ -178,7 +178,7 @@ class Settings:
     DEFAULT_REASONING_LLM = "deepseek-r1:1.5b"
     THINKING_PATTERN = r"<think>(.*?)</think>"
     DEFAULT_K = 5
-    
+
     # Default folders to ignore during indexing
     DEFAULT_IGNORE_FOLDERS = [
         ".venv",
@@ -201,5 +201,5 @@ class Settings:
         ".cache",
         "logs",
         "tmp",
-        "temp"
+        "temp",
     ]
