@@ -21,19 +21,34 @@ collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 vector_store_config = VectorStoreConfig(
     embedding_model = model_embeddings,
+    # api_base = ... # If you have a custom client URL
     database=Settings.CHROMA,
     persist_directory = persist_directory,
     provider = Settings.HUGGINGFACE,
     collection_name = collection_name
 )
 
+# Custom ignore folders - you can override the default list
+custom_ignore_folders = [
+    ".venv",
+    "venv", 
+    "node_modules",
+    "__pycache__",
+    ".git",
+    "build",
+    "dist",
+    "my_custom_folder_to_ignore"  # Add your custom folders here
+]
+
 config = AgenticRAGConfig(
             provider = Settings.MISTRAL,
             model = "mistral-large-2411",
             k = 10,
             system_prompt = Settings.DEFAULT_AGENT_PROMPT,
+            # api_base = ... # If you have a custom client URL
             max_steps = 4,
-            api_key = Settings.MISTRAL_API_KEY # os.environ.get('MISTRAL_API_KEY')
+            api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
+            ignore_folders = custom_ignore_folders,  # Use custom ignore folders
             # api_base = ... # If you have a custom client URL
             # num_ctx = ... # Max context length
             # verbosity_level = ... # Default = 2

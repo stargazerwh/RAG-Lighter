@@ -6,6 +6,7 @@ import ast
 import logging
 from langchain_text_splitters import Language
 from ..embeddings.embeddings_model import EmbeddingsModel
+from ..config.settings import Settings
 
 
 class VectorStore(ABC):
@@ -119,19 +120,51 @@ class VectorStore(ABC):
         }
         return extension_to_language.get(extension)
 
-    def get_classes(self, repos_path: str) -> dict:
+    def should_ignore_directory(self, path: str, ignore_folders: List[str]) -> bool:
+        """
+        Checks if a given directory path should be ignored based on a list of folders.
+
+        Args:
+            path (str): The directory path to check.
+            ignore_folders (List[str]): A list of folder names to ignore.
+
+        Returns:
+            bool: True if the directory should be ignored, False otherwise.
+        """
+        # Normalize the path to handle different path separators
+        normalized_path = os.path.normpath(path)
+        path_parts = normalized_path.split(os.sep)
+
+        for folder in ignore_folders:
+            if folder in path_parts:
+                return True
+        return False
+
+    def get_classes(
+        self,
+        repos_path: str,
+        ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS,
+    ) -> dict:
         """
         Extracts all class names and their signatures from the project's source code.
 
         Args:
             repos_path (str): Path to the project's root directory.
+            ignore_folders (List[str], optional): List of folder names to ignore.
+                                                 Defaults to Settings.DEFAULT_IGNORE_FOLDERS.
 
         Returns:
             dict: A dictionary where keys are file paths and values are lists of class signatures.
         """
         class_map = {}
+        if ignore_folders is None:
+            ignore_folders = Settings.DEFAULT_IGNORE_FOLDERS
 
         for root, _, files in os.walk(repos_path):
+            if self.should_ignore_directory(root, ignore_folders):
+                logging.info(f"Skipping directory: {root}")
+                continue
+
             for file in files:
                 file_path = os.path.join(root, file)
                 file_extension = os.path.splitext(file)[1][1:]

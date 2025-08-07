@@ -91,20 +91,23 @@ class AgenticRAG:
         )
 
         if config.provider.lower() == Settings.MISTRAL.lower():
+            api_base = config.api_base or Settings.MISTRAL_API
             model = OpenAIServerModel(
                 model_id=config.model,
                 api_key=Settings.MISTRAL_API_KEY,
-                api_base=Settings.MISTRAL_API,
+                api_base=api_base,
             )
 
         elif config.provider == Settings.OPENAI:
+            api_base = config.api_base or Settings.DEFAULT_OPENAI_CLIENT
             model = OpenAIServerModel(
                 model_id=config.model,
                 api_key=Settings.OPENAI_API_KEY,
-                api_base=Settings.DEFAULT_OPENAI_CLIENT,
+                api_base=api_base,
             )
 
         else:
+            api_base = config.api_base or Settings.DEFAULT_OLLAMA_CLIENT
             model = LiteLLMModel(
                 model_id=f"{config.provider.lower()}/{config.model}",
                 api_base=config.api_base,
@@ -151,7 +154,11 @@ class AgenticRAG:
         """
         return (
             Builder()
-            .with_embeddings(config.provider, model_name=config.embedding_model)
+            .with_embeddings(
+                config.provider,
+                model_name=config.embedding_model,
+                api_base=config.api_base,
+            )
             .with_vector_store(
                 type=config.database,
                 persist_directory=config.persist_directory,

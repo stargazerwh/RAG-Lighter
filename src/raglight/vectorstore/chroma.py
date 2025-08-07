@@ -1,5 +1,6 @@
 import glob
 import logging
+from pathlib import Path
 from typing import Any, List, Dict
 from typing_extensions import override
 from .vector_store import VectorStore
@@ -9,6 +10,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 import os
 from ..embeddings.embeddings_model import EmbeddingsModel
+from ..config.settings import Settings
 
 
 class ChromaVS(VectorStore):
@@ -59,16 +61,17 @@ class ChromaVS(VectorStore):
         Ingests documents, splits them into chunks, and indexes them in the vector store.
 
         Args:
-            file_extension (str): File extension pattern (e.g., '*.txt') for document loading.
             data_path (str): Path to the directory containing the documents.
+            ignore_folders (List[str], optional): List of folder names to ignore.
         """
         data_path = kwargs.get("data_path", "")
+        ignore_folders = kwargs.get("ignore_folders", None)
         if not data_path:
             raise ValueError("data_path is required for document ingestion")
 
-        docs = self.load_docs(data_path)
+        docs = self.load_docs(data_path, ignore_folders)
         if not docs:
-            raise ValueError(f"No documents were loaded from {data_path}")
+            logging.warning(f"No documents were loaded from {data_path}")
 
         all_splits = self.split_docs(docs)
         self.add_index(all_splits)
@@ -148,7 +151,11 @@ class ChromaVS(VectorStore):
             _ = self.vector_store.add_documents(documents=batch)
         logging.info("✅ Documents added to index")
 
-    def load_docs(self, data_path: str) -> List[Document]:
+    def load_docs(
+        self,
+        data_path: str,
+        ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS,
+    ) -> List[Document]:
         """
         Loads all documents from a directory, using PyPDFLoader for PDFs
         and DirectoryLoader for other file types.
@@ -164,8 +171,15 @@ class ChromaVS(VectorStore):
         try:
             logging.info(f"⏳ Loading documents from {data_path}...")
 
-            pdf_files = glob.glob(os.path.join(data_path, "*.pdf"))
+            # --- Load PDFs manually (with folder exclusion) ---
+            pdf_files = glob.glob(
+                os.path.join(data_path, "**", "*.pdf"), recursive=True
+            )
             for pdf_file in pdf_files:
+                # Skip if file is in an ignored folder
+                if any(ignored in Path(pdf_file).parts for ignored in ignore_folders):
+                    logging.info(f"Skipping PDF in ignored folder: {pdf_file}")
+                    continue
                 try:
                     loader = PyPDFLoader(pdf_file)
                     pdf_docs = loader.load()
@@ -178,6 +192,7 @@ class ChromaVS(VectorStore):
                 except Exception as e:
                     logging.warning(f"⚠️ Failed to load PDF {pdf_file}: {e}")
 
+            # --- Load other formats using DirectoryLoader (with exclude) ---
             non_pdf_extensions = [
                 "*.txt",
                 "*.docx",
@@ -188,15 +203,20 @@ class ChromaVS(VectorStore):
             ]
             for ext in non_pdf_extensions:
                 try:
-                    if glob.glob(os.path.join(data_path, ext)):
-                        loader = DirectoryLoader(path=data_path, glob=ext)
-                        other_docs = loader.load()
-                        for doc in other_docs:
-                            doc.metadata = {
-                                "source": os.path.basename(doc.metadata["source"])
-                            }
-                        all_docs.extend(other_docs)
-                        logging.info(f"✅ Successfully loaded {ext} files")
+                    loader = DirectoryLoader(
+                        path=data_path,
+                        glob=ext,
+                        recursive=True,
+                        exclude=ignore_folders,
+                        silent_errors=True,
+                    )
+                    other_docs = loader.load()
+                    for doc in other_docs:
+                        doc.metadata = {
+                            "source": os.path.basename(doc.metadata["source"])
+                        }
+                    all_docs.extend(other_docs)
+                    logging.info(f"✅ Successfully loaded {ext} files")
                 except Exception as e:
                     logging.warning(f"⚠️ Failed to load {ext} files: {e}")
 
@@ -215,14 +235,15 @@ class ChromaVS(VectorStore):
         Ingests code from directory, splits it based on the language, and indexes it.
 
         Args:
-            repo_urls (List[str]): List of directories to ingest.
-            branch (str, optional): The branch of each repository to clone. Defaults to "main".
+            repos_path (str): Path to the directory containing code files.
+            ignore_folders (List[str], optional): List of folder names to ignore.
         """
         repos_path = kwargs.get("repos_path", "")
+        ignore_folders = kwargs.get("ignore_folders", None)
         all_splits = []
         class_entries = []
 
-        class_map = self.get_classes(repos_path)
+        class_map = self.get_classes(repos_path, ignore_folders)
 
         for file_path, class_signatures in class_map.items():
             try:

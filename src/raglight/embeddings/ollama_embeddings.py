@@ -39,6 +39,4 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         Returns:
             OllamaEmbeddings: The loaded Ollama embeddings model.
         """
-        return OllamaEmbeddings(
-            model=self.model_name, base_url=self.api_base
-        )
+        return OllamaEmbeddings(model=self.model_name, base_url=self.api_base)

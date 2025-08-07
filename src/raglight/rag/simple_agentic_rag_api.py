@@ -1,5 +1,7 @@
 from typing import List
 from typing_extensions import override
+import shutil
+import logging
 
 from ..config.vector_store_config import VectorStoreConfig
 from .agentic_rag import AgenticRAG
@@ -27,6 +29,7 @@ class AgenticRAGPipeline(RAGPipeline):
             provider (str, optional): The name of the LLM provider you want to use : Ollama.
         """
         self.knowledge_base: List[DataSource] = config.knowledge_base
+        self.ignore_folders = config.ignore_folders
         self.file_extension: str = Settings.DEFAULT_EXTENSIONS
 
         self.agenticRag = AgenticRAG(config, vector_store_config)

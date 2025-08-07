@@ -1,4 +1,6 @@
 from typing import List
+import shutil
+import logging
 
 from ..config.vector_store_config import VectorStoreConfig
 from ..config.rat_config import RATConfig
@@ -7,7 +9,7 @@ from ..rag.simple_rag_api import RAGPipeline
 from .rat import RAT
 from ..config.settings import Settings
 from ..vectorstore.vector_store import VectorStore
-from ..models.data_source_model import DataSource
+from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 from ..scrapper.github_scrapper import GithubScrapper
 from typing_extensions import override
 
@@ -36,7 +38,10 @@ class RATPipeline(RAGPipeline):
             reasoning_model_name (str, optional): The name of the LLM to use for reasoning. Defaults to Settings.DEFAULT_REASONING_LLM.
             reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
         """
-        self.knowledge_base: List[DataSource] = config.knowledge_base
+        # Call parent constructor to set up the base RAG pipeline
+        super().__init__(config, vector_store_config)
+
+        # Override the RAG instance with RAT
         model_embeddings: str = vector_store_config.embedding_model
         persist_directory: str = vector_store_config.persist_directory
         collection_name: str = vector_store_config.collection_name
@@ -46,17 +51,25 @@ class RATPipeline(RAGPipeline):
         self.file_extension: str = vector_store_config.file_extension
         self.rat: RAT = (
             Builder()
-            .with_embeddings(embeddings_privider, model_name=model_embeddings)
+            .with_embeddings(
+                embeddings_privider,
+                model_name=model_embeddings,
+                api_base=vector_store_config.api_base,
+            )
             .with_vector_store(
                 database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
             .with_llm(
-                config.provider, model_name=config.llm, system_prompt=system_prompt
+                config.provider,
+                model_name=config.llm,
+                system_prompt=system_prompt,
+                api_base=config.api_base,
             )
             .with_reasoning_llm(
                 config.provider,
+                api_base=config.api_base,
                 model_name=config.reasoning_llm,
                 system_prompt=system_prompt,
             )

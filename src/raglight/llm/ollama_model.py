@@ -52,9 +52,7 @@ class OllamaModel(LLM):
         Returns:
             Client: An instance of the Ollama model client, configured with the necessary host and headers.
         """
-        return Client(
-            host=self.api_base, headers={"x-some-header": "some-value"}
-        )
+        return Client(host=self.api_base, headers={"x-some-header": "some-value"})
 
     @override
     def generate(self, input: Dict[str, Any]) -> str:
