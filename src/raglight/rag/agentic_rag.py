@@ -154,7 +154,11 @@ class AgenticRAG:
         """
         return (
             Builder()
-            .with_embeddings(config.provider, model_name=config.embedding_model, api_base=config.api_base)
+            .with_embeddings(
+                config.provider,
+                model_name=config.embedding_model,
+                api_base=config.api_base,
+            )
             .with_vector_store(
                 type=config.database,
                 persist_directory=config.persist_directory,

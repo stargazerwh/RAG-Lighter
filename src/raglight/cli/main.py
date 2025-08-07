@@ -21,6 +21,7 @@ from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
 
+
 def download_nltk_resources_if_needed():
     """Download necessary NLTK resources if they are not already available."""
     required_resources = ["punkt", "stopwords"]
@@ -49,12 +50,12 @@ custom_style = questionary.Style(
     ]
 )
 
+
 def prompt_input():
     session = Prompt()
     return session.prompt(
         ">>> ", placeholder="<gray> enter your input here, type bye to quit</gray>"
     )
-
 
 
 def print_llm_response(response: str):
@@ -68,17 +69,12 @@ def print_llm_response(response: str):
 
 def select_with_arrows(message, choices, default=None):
     """Prompt the user to select from a list using arrow keys."""
-    return questionary.select(
-        message,
-        choices=choices,
-        default=default
-    ).ask()
+    return questionary.select(message, choices=choices, default=default).ask()
 
 
 app = typer.Typer(
     help="RAGLight CLI: An interactive wizard to index and chat with your documents."
 )
-
 
 
 @app.callback()
@@ -115,7 +111,9 @@ def interactive_chat_command():
 
     console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
     cwd = os.getcwd()
-    data_path_str = typer.prompt(f"Enter the path to the directory with your documents)", default=cwd)
+    data_path_str = typer.prompt(
+        f"Enter the path to the directory with your documents)", default=cwd
+    )
     data_path = Path(data_path_str)
     if not data_path.is_dir():
         console.print(
@@ -124,17 +122,27 @@ def interactive_chat_command():
         raise typer.Exit(code=1)
 
     # Configure ignore folders
-    console.print("[bold cyan]\n--- 🚫 Step 1.5: Ignore Folders Configuration ---[/bold cyan]")
-    console.print("[yellow]By default, the following folders will be ignored during indexing:[/yellow]")
+    console.print(
+        "[bold cyan]\n--- 🚫 Step 1.5: Ignore Folders Configuration ---[/bold cyan]"
+    )
+    console.print(
+        "[yellow]By default, the following folders will be ignored during indexing:[/yellow]"
+    )
     default_ignore_folders = Settings.DEFAULT_IGNORE_FOLDERS
     for folder in default_ignore_folders:
         console.print(f"  • {folder}")
-    
-    if typer.confirm("Do you want to customize the ignore folders list?", default=False):
+
+    if typer.confirm(
+        "Do you want to customize the ignore folders list?", default=False
+    ):
         ignore_folders = []
-        console.print("[cyan]Enter folder names to ignore (one per line, press Enter twice to finish):[/cyan]")
-        console.print("[yellow]Leave empty to use default list, or type 'default' to use default list[/yellow]")
-        
+        console.print(
+            "[cyan]Enter folder names to ignore (one per line, press Enter twice to finish):[/cyan]"
+        )
+        console.print(
+            "[yellow]Leave empty to use default list, or type 'default' to use default list[/yellow]"
+        )
+
         while True:
             folder = input("Folder to ignore (or Enter to finish): ").strip()
             if not folder:
@@ -143,13 +151,15 @@ def interactive_chat_command():
                 ignore_folders = default_ignore_folders.copy()
                 break
             ignore_folders.append(folder)
-        
+
         if not ignore_folders:
             ignore_folders = default_ignore_folders.copy()
     else:
         ignore_folders = default_ignore_folders.copy()
-    
-    console.print(f"[green]✅ Will ignore {len(ignore_folders)} folders during indexing[/green]")
+
+    console.print(
+        f"[green]✅ Will ignore {len(ignore_folders)} folders during indexing[/green]"
+    )
 
     console.print("[bold cyan]\n--- 💾 Step 2: Vector Database ---[/bold cyan]")
     db_path = typer.prompt(
@@ -232,7 +242,9 @@ def interactive_chat_command():
                 should_index = False
 
         builder = Builder()
-        builder.with_embeddings(emb_provider, model_name=emb_model, api_base=embeddings_base_url)
+        builder.with_embeddings(
+            emb_provider, model_name=emb_model, api_base=embeddings_base_url
+        )
         builder.with_vector_store(
             Settings.CHROMA,
             persist_directory=db_path,
@@ -242,7 +254,9 @@ def interactive_chat_command():
         if should_index:
             vector_store = builder.build_vector_store()
             vector_store.ingest(data_path=str(data_path), ignore_folders=ignore_folders)
-            vector_store.ingest_code(repos_path=str(data_path), ignore_folders=ignore_folders)
+            vector_store.ingest_code(
+                repos_path=str(data_path), ignore_folders=ignore_folders
+            )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print(
@@ -289,7 +303,8 @@ def interactive_chat_command():
 
         traceback.print_exc()
         raise typer.Exit(code=1)
-    
+
+
 @app.command(name="agentic-chat")
 def interactive_chat_command():
     """
@@ -304,7 +319,9 @@ def interactive_chat_command():
 
     console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
     cwd = os.getcwd()
-    data_path_str = typer.prompt(f"Enter the path to the directory with your documents)", default=cwd)
+    data_path_str = typer.prompt(
+        f"Enter the path to the directory with your documents)", default=cwd
+    )
     data_path = Path(data_path_str)
     if not data_path.is_dir():
         console.print(
@@ -313,17 +330,27 @@ def interactive_chat_command():
         raise typer.Exit(code=1)
 
     # Configure ignore folders
-    console.print("[bold cyan]\n--- 🚫 Step 1.5: Ignore Folders Configuration ---[/bold cyan]")
-    console.print("[yellow]By default, the following folders will be ignored during indexing:[/yellow]")
+    console.print(
+        "[bold cyan]\n--- 🚫 Step 1.5: Ignore Folders Configuration ---[/bold cyan]"
+    )
+    console.print(
+        "[yellow]By default, the following folders will be ignored during indexing:[/yellow]"
+    )
     default_ignore_folders = Settings.DEFAULT_IGNORE_FOLDERS
     for folder in default_ignore_folders:
         console.print(f"  • {folder}")
-    
-    if typer.confirm("Do you want to customize the ignore folders list?", default=False):
+
+    if typer.confirm(
+        "Do you want to customize the ignore folders list?", default=False
+    ):
         ignore_folders = []
-        console.print("[cyan]Enter folder names to ignore (one per line, press Enter twice to finish):[/cyan]")
-        console.print("[yellow]Leave empty to use default list, or type 'default' to use default list[/yellow]")
-        
+        console.print(
+            "[cyan]Enter folder names to ignore (one per line, press Enter twice to finish):[/cyan]"
+        )
+        console.print(
+            "[yellow]Leave empty to use default list, or type 'default' to use default list[/yellow]"
+        )
+
         while True:
             folder = input("Folder to ignore (or Enter to finish): ").strip()
             if not folder:
@@ -332,13 +359,15 @@ def interactive_chat_command():
                 ignore_folders = default_ignore_folders.copy()
                 break
             ignore_folders.append(folder)
-        
+
         if not ignore_folders:
             ignore_folders = default_ignore_folders.copy()
     else:
         ignore_folders = default_ignore_folders.copy()
-    
-    console.print(f"[green]✅ Will ignore {len(ignore_folders)} folders during indexing[/green]")
+
+    console.print(
+        f"[green]✅ Will ignore {len(ignore_folders)} folders during indexing[/green]"
+    )
 
     console.print("[bold cyan]\n--- 💾 Step 2: Vector Database ---[/bold cyan]")
     db_path = typer.prompt(
@@ -405,7 +434,7 @@ def interactive_chat_command():
         style=custom_style,
     ).ask()
     k = int(k)
-    
+
     console.print("[bold green]\n✅ Configuration complete![/bold green]")
 
     try:
@@ -421,30 +450,33 @@ def interactive_chat_command():
                 should_index = False
 
         vector_store_config = VectorStoreConfig(
-            embedding_model = emb_model,
-            api_base = embeddings_base_url,
+            embedding_model=emb_model,
+            api_base=embeddings_base_url,
             database=Settings.CHROMA,
-            persist_directory = db_path,
-            provider = emb_provider,
-            collection_name = collection
+            persist_directory=db_path,
+            provider=emb_provider,
+            collection_name=collection,
         )
 
         config = AgenticRAGConfig(
-                    provider = llm_provider,
-                    model = llm_model,
-                    k = k,
-                    system_prompt = Settings.DEFAULT_AGENT_PROMPT,
-                    max_steps = 4,
-                    api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
-                    api_base = llm_base_url
-                )
+            provider=llm_provider,
+            model=llm_model,
+            k=k,
+            system_prompt=Settings.DEFAULT_AGENT_PROMPT,
+            max_steps=4,
+            api_key=Settings.MISTRAL_API_KEY,  # os.environ.get('MISTRAL_API_KEY')
+            api_base=llm_base_url,
+        )
 
         agenticRag = AgenticRAGPipeline(config, vector_store_config)
 
-
         if should_index:
-            agenticRag.get_vector_store().ingest(data_path=str(data_path), ignore_folders=ignore_folders)
-            agenticRag.get_vector_store().ingest_code(repos_path=str(data_path), ignore_folders=ignore_folders)
+            agenticRag.get_vector_store().ingest(
+                data_path=str(data_path), ignore_folders=ignore_folders
+            )
+            agenticRag.get_vector_store().ingest_code(
+                repos_path=str(data_path), ignore_folders=ignore_folders
+            )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print(
@@ -485,10 +517,9 @@ def interactive_chat_command():
         console.print(f"[bold red]❌ An unexpected error occurred: {e}[/bold red]")
         import traceback
 
-
         traceback.print_exc()
         raise typer.Exit(code=1)
 
+
 if __name__ == "__main__":
     app()
-

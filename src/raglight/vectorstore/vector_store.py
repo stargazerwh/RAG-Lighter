@@ -134,19 +134,23 @@ class VectorStore(ABC):
         # Normalize the path to handle different path separators
         normalized_path = os.path.normpath(path)
         path_parts = normalized_path.split(os.sep)
-        
+
         for folder in ignore_folders:
             if folder in path_parts:
                 return True
         return False
 
-    def get_classes(self, repos_path: str, ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS) -> dict:
+    def get_classes(
+        self,
+        repos_path: str,
+        ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS,
+    ) -> dict:
         """
         Extracts all class names and their signatures from the project's source code.
 
         Args:
             repos_path (str): Path to the project's root directory.
-            ignore_folders (List[str], optional): List of folder names to ignore. 
+            ignore_folders (List[str], optional): List of folder names to ignore.
                                                  Defaults to Settings.DEFAULT_IGNORE_FOLDERS.
 
         Returns:

@@ -48,7 +48,11 @@ class RAGPipeline:
         k: int = config.k
         self.rag: RAG = (
             Builder()
-            .with_embeddings(embeddings_provider, model_name=model_embeddings, api_base=embeddings_api_base)
+            .with_embeddings(
+                embeddings_provider,
+                model_name=model_embeddings,
+                api_base=embeddings_api_base,
+            )
             .with_vector_store(
                 database,
                 persist_directory=persist_directory,
@@ -80,11 +84,13 @@ class RAGPipeline:
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.get_vector_store().ingest(
-                    file_extension=self.file_extension, 
+                    file_extension=self.file_extension,
                     data_path=source.path,
-                    ignore_folders=self.ignore_folders
+                    ignore_folders=self.ignore_folders,
                 )
-                self.get_vector_store().ingest_code(repos_path=source.path, ignore_folders=self.ignore_folders)
+                self.get_vector_store().ingest_code(
+                    repos_path=source.path, ignore_folders=self.ignore_folders
+                )
             if isinstance(source, GitHubSource):
                 repositories.append(source.url)
         if len(repositories) > 0:
@@ -99,7 +105,9 @@ class RAGPipeline:
         """
         self.github_scrapper.set_repositories(repositories)
         repos_path: str = self.github_scrapper.clone_all()
-        self.get_vector_store().ingest_code(repos_path=repos_path, ignore_folders=self.ignore_folders)
+        self.get_vector_store().ingest_code(
+            repos_path=repos_path, ignore_folders=self.ignore_folders
+        )
         shutil.rmtree(repos_path)
         logging.info("✅ GitHub repositories cleaned successfully!")
 

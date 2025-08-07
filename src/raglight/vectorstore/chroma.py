@@ -151,7 +151,11 @@ class ChromaVS(VectorStore):
             _ = self.vector_store.add_documents(documents=batch)
         logging.info("✅ Documents added to index")
 
-    def load_docs(self, data_path: str, ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS) -> List[Document]:
+    def load_docs(
+        self,
+        data_path: str,
+        ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS,
+    ) -> List[Document]:
         """
         Loads all documents from a directory, using PyPDFLoader for PDFs
         and DirectoryLoader for other file types.
@@ -168,7 +172,9 @@ class ChromaVS(VectorStore):
             logging.info(f"⏳ Loading documents from {data_path}...")
 
             # --- Load PDFs manually (with folder exclusion) ---
-            pdf_files = glob.glob(os.path.join(data_path, "**", "*.pdf"), recursive=True)
+            pdf_files = glob.glob(
+                os.path.join(data_path, "**", "*.pdf"), recursive=True
+            )
             for pdf_file in pdf_files:
                 # Skip if file is in an ignored folder
                 if any(ignored in Path(pdf_file).parts for ignored in ignore_folders):
@@ -180,7 +186,9 @@ class ChromaVS(VectorStore):
                     for doc in pdf_docs:
                         doc.metadata = {"source": os.path.basename(pdf_file)}
                     all_docs.extend(pdf_docs)
-                    logging.info(f"✅ Successfully loaded PDF: {os.path.basename(pdf_file)}")
+                    logging.info(
+                        f"✅ Successfully loaded PDF: {os.path.basename(pdf_file)}"
+                    )
                 except Exception as e:
                     logging.warning(f"⚠️ Failed to load PDF {pdf_file}: {e}")
 
@@ -212,13 +220,14 @@ class ChromaVS(VectorStore):
                 except Exception as e:
                     logging.warning(f"⚠️ Failed to load {ext} files: {e}")
 
-            logging.info(f"✅ Total: {len(all_docs)} documents/pages loaded successfully")
+            logging.info(
+                f"✅ Total: {len(all_docs)} documents/pages loaded successfully"
+            )
 
         except Exception as e:
             logging.error(f"❌ Critical error during document loading: {e}")
 
         return all_docs
-
 
     @override
     def ingest_code(self, **kwargs: Any) -> None:
