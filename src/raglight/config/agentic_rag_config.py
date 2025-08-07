@@ -16,7 +16,7 @@ class AgenticRAGConfig:
     max_steps: int = field(default=4)
     system_prompt: str = field(default=Settings.DEFAULT_AGENT_PROMPT)
     knowledge_base: List[DataSource] = field(default=None)
-    ignore_folders: List[str] = field(default=Settings.DEFAULT_IGNORE_FOLDERS)
+    ignore_folders: list = field(default_factory=lambda: list(Settings.DEFAULT_IGNORE_FOLDERS))
 
 
 @dataclass(kw_only=True)
@@ -30,4 +30,4 @@ class SimpleAgenticRAGConfig:
     verbosity_level: int = field(default=2)
     max_steps: int = field(default=4)
     system_prompt: str = field(default=Settings.DEFAULT_AGENT_PROMPT)
-    ignore_folders: List[str] = field(default=Settings.DEFAULT_IGNORE_FOLDERS)
+    ignore_folders: list = field(default_factory=lambda: list(Settings.DEFAULT_IGNORE_FOLDERS))

@@ -140,7 +140,7 @@ class VectorStore(ABC):
                 return True
         return False
 
-    def get_classes(self, repos_path: str, ignore_folders: List[str] = None) -> dict:
+    def get_classes(self, repos_path: str, ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS) -> dict:
         """
         Extracts all class names and their signatures from the project's source code.
 

@@ -16,4 +16,4 @@ class RAGConfig:
     k: int = field(default=2)
     stream: int = field(default=False)
     knowledge_base: List[DataSource] = field(default=None)
-    ignore_folders: List[str] = field(default=Settings.DEFAULT_IGNORE_FOLDERS)
+    ignore_folders: list = field(default_factory=lambda: list(Settings.DEFAULT_IGNORE_FOLDERS))
