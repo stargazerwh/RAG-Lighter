@@ -232,7 +232,7 @@ def interactive_chat_command():
                 should_index = False
 
         builder = Builder()
-        builder.with_embeddings(emb_provider, model_name=emb_model)
+        builder.with_embeddings(emb_provider, model_name=emb_model, api_base=embeddings_base_url)
         builder.with_vector_store(
             Settings.CHROMA,
             persist_directory=db_path,
@@ -256,6 +256,7 @@ def interactive_chat_command():
         rag_pipeline: RAG = builder.with_llm(
             llm_provider,
             model_name=llm_model,
+            api_base=llm_base_url,
             system_prompt=Settings.DEFAULT_SYSTEM_PROMPT,
         ).build_rag(k=k)
 
@@ -421,6 +422,7 @@ def interactive_chat_command():
 
         vector_store_config = VectorStoreConfig(
             embedding_model = emb_model,
+            api_base = embeddings_base_url,
             database=Settings.CHROMA,
             persist_directory = db_path,
             provider = emb_provider,
@@ -434,7 +436,7 @@ def interactive_chat_command():
                     system_prompt = Settings.DEFAULT_AGENT_PROMPT,
                     max_steps = 4,
                     api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
-                    api_base = Settings.DEFAULT_OLLAMA_CLIENT # If you have a custom client URL
+                    api_base = llm_base_url
                 )
 
         agenticRag = AgenticRAGPipeline(config, vector_store_config)
@@ -486,60 +488,6 @@ def interactive_chat_command():
 
         traceback.print_exc()
         raise typer.Exit(code=1)
-
-
-@app.command(name="index", hidden=True)
-def index_command(
-    data_path: Annotated[
-        Path,
-        typer.Argument(
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            readable=True,
-            resolve_path=True,
-            help="Path to the directory containing documents to index.",
-        ),
-    ],
-    db_path: Annotated[
-        str, typer.Option("--db-path", "-db")
-    ] = Settings.DEFAULT_PERSIST_DIRECTORY,
-    collection: Annotated[
-        str, typer.Option("--collection", "-c")
-    ] = Settings.DEFAULT_COLLECTION_NAME,
-    embeddings: Annotated[
-        str, typer.Option("--embeddings-model", "-e")
-    ] = Settings.DEFAULT_EMBEDDINGS_MODEL,
-    ignore_folders: Annotated[
-        str, typer.Option("--ignore-folders", "-i", help="Comma-separated list of folders to ignore")
-    ] = None,
-):
-    """(Hidden) A direct command to index a directory for scripting purposes."""
-    try:
-        # Parse ignore folders if provided
-        parsed_ignore_folders = None
-        if ignore_folders:
-            parsed_ignore_folders = [folder.strip() for folder in ignore_folders.split(",")]
-        else:
-            parsed_ignore_folders = Settings.DEFAULT_IGNORE_FOLDERS
-        
-        vector_store = (
-            Builder()
-            .with_embeddings(Settings.HUGGINGFACE, model_name=embeddings)
-            .with_vector_store(
-                Settings.CHROMA, persist_directory=db_path, collection_name=collection
-            )
-            .build_vector_store()
-        )
-        vector_store.ingest(data_path=str(data_path), ignore_folders=parsed_ignore_folders)
-        vector_store.ingest_code(repos_path=str(data_path), ignore_folders=parsed_ignore_folders)
-        console.print(
-            f"[bold green]✅ Successfully indexed all documents from {data_path}[/bold green]"
-        )
-    except Exception as e:
-        console.print(f"[bold red]❌ An error occurred during indexing: {e}[/bold red]")
-        raise typer.Exit(code=1)
-
 
 if __name__ == "__main__":
     app()

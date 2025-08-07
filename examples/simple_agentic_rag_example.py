@@ -21,6 +21,7 @@ collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 vector_store_config = VectorStoreConfig(
     embedding_model = model_embeddings,
+    # api_base = ... # If you have a custom client URL
     database=Settings.CHROMA,
     persist_directory = persist_directory,
     provider = Settings.HUGGINGFACE,
@@ -44,6 +45,7 @@ config = AgenticRAGConfig(
             model = "mistral-large-2411",
             k = 10,
             system_prompt = Settings.DEFAULT_AGENT_PROMPT,
+            # api_base = ... # If you have a custom client URL
             max_steps = 4,
             api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
             ignore_folders = custom_ignore_folders,  # Use custom ignore folders

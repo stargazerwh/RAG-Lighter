@@ -1,5 +1,6 @@
 import glob
 import logging
+from pathlib import Path
 from typing import Any, List, Dict
 from typing_extensions import override
 from .vector_store import VectorStore

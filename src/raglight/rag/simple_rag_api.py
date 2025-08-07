@@ -38,6 +38,7 @@ class RAGPipeline:
         collection_name: str = vector_store_config.collection_name
         system_prompt: str = config.system_prompt
         api_base: str = config.api_base
+        embeddings_api_base: str = vector_store_config.api_base
         database: str = vector_store_config.database
         self.file_extension: str = vector_store_config.file_extension
         model_name: str = config.llm
@@ -47,7 +48,7 @@ class RAGPipeline:
         k: int = config.k
         self.rag: RAG = (
             Builder()
-            .with_embeddings(embeddings_provider, model_name=model_embeddings)
+            .with_embeddings(embeddings_provider, model_name=model_embeddings, api_base=embeddings_api_base)
             .with_vector_store(
                 database,
                 persist_directory=persist_directory,
@@ -83,6 +84,7 @@ class RAGPipeline:
                     data_path=source.path,
                     ignore_folders=self.ignore_folders
                 )
+                self.get_vector_store().ingest_code(repos_path=source.path, ignore_folders=self.ignore_folders)
             if isinstance(source, GitHubSource):
                 repositories.append(source.url)
         if len(repositories) > 0:
