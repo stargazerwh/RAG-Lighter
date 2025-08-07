@@ -41,42 +41,6 @@ class AgenticRAGPipeline(RAGPipeline):
         return self.agenticRag.vector_store
 
     @override
-    def build(self) -> None:
-        """
-        Builds the AgenticRAG pipeline by ingesting data from the knowledge base.
-
-        This method processes the data sources (e.g., folders, GitHub repositories)
-        and creates the embeddings for the vector store.
-        """
-        repositories: List[str] = []
-        if not self.knowledge_base:
-            return
-        for source in self.knowledge_base:
-            if isinstance(source, FolderSource):
-                self.get_vector_store().ingest(
-                    file_extension=self.file_extension, 
-                    data_path=source.path,
-                    ignore_folders=self.ignore_folders
-                )
-            if isinstance(source, GitHubSource):
-                repositories.append(source.url)
-        if len(repositories) > 0:
-            self.ingest_github_repositories(repositories)
-
-    def ingest_github_repositories(self, repositories: List[str]) -> None:
-        """
-        Clones and processes GitHub repositories for the pipeline.
-
-        Args:
-            repositories (List[str]): A list of GitHub repository URLs to clone and ingest.
-        """
-        self.github_scrapper.set_repositories(repositories)
-        repos_path: str = self.github_scrapper.clone_all()
-        self.get_vector_store().ingest_code(repos_path=repos_path, ignore_folders=self.ignore_folders)
-        shutil.rmtree(repos_path)
-        logging.info("✅ GitHub repositories cleaned successfully!")
-
-    @override
     def generate(self, question: str, stream: bool = False) -> str:
         """
         Asks a question to the pipeline and retrieves the generated answer.
