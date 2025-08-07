@@ -7,6 +7,7 @@ from ..config.settings import Settings
 class VectorStoreConfig:
     embedding_model: str
     persist_directory: str
+    api_base: str = field(default=Settings.DEFAULT_OLLAMA_CLIENT)
     provider: str = field(default=Settings.HUGGINGFACE)
     database: str = field(default=Settings.CHROMA)
     file_extension: str = field(default=Settings.DEFAULT_EXTENSIONS)

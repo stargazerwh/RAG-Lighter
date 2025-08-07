@@ -9,7 +9,7 @@ from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorstore.vector_store import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
 from ..config.settings import Settings
-from ..models.data_source_model import DataSource, FolderSource, GitHubSource
+from ..models.data_source_model import DataSource
 from .simple_rag_api import RAGPipeline
 
 

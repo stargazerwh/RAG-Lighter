@@ -421,6 +421,7 @@ def interactive_chat_command():
 
         vector_store_config = VectorStoreConfig(
             embedding_model = emb_model,
+            api_base = ,
             database=Settings.CHROMA,
             persist_directory = db_path,
             provider = emb_provider,

@@ -51,17 +51,18 @@ class RATPipeline(RAGPipeline):
         self.file_extension: str = vector_store_config.file_extension
         self.rat: RAT = (
             Builder()
-            .with_embeddings(embeddings_privider, model_name=model_embeddings)
+            .with_embeddings(embeddings_privider, model_name=model_embeddings, api_base=vector_store_config.api_base)
             .with_vector_store(
                 database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
             )
             .with_llm(
-                config.provider, model_name=config.llm, system_prompt=system_prompt
+                config.provider, model_name=config.llm, system_prompt=system_prompt, api_base=config.api_base
             )
             .with_reasoning_llm(
                 config.provider,
+                api_base=config.api_base,
                 model_name=config.reasoning_llm,
                 system_prompt=system_prompt,
             )

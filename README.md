@@ -83,6 +83,7 @@ After configuration, it will automatically index your documents and start a chat
 ### Ignore Folders Feature 🚫
 
 RAGLight automatically excludes common directories that shouldn't be indexed, such as:
+
 - Virtual environments (`.venv`, `venv`, `env`)
 - Node.js dependencies (`node_modules`)
 - Python cache files (`__pycache__`)
@@ -97,7 +98,7 @@ You can customize this list during the CLI setup or use the default configuratio
 The ignore folders feature is also available in all configuration classes, allowing you to specify which directories to exclude during indexing:
 
 - **RAGConfig**: Use `ignore_folders` parameter to exclude folders during RAG pipeline indexing
-- **AgenticRAGConfig**: Use `ignore_folders` parameter to exclude folders during AgenticRAG pipeline indexing  
+- **AgenticRAGConfig**: Use `ignore_folders` parameter to exclude folders during AgenticRAG pipeline indexing
 - **RATConfig**: Use `ignore_folders` parameter to exclude folders during RAT pipeline indexing
 - **VectorStoreConfig**: Use `ignore_folders` parameter to exclude folders during vector store operations
 
@@ -108,7 +109,7 @@ All configuration classes use `Settings.DEFAULT_IGNORE_FOLDERS` as the default v
 custom_ignore_folders = [
     ".venv",
     "venv",
-    "node_modules", 
+    "node_modules",
     "__pycache__",
     ".git",
     "build",
@@ -228,6 +229,7 @@ knowledge_base=[
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+    api_base = Settings.DEFAULT_OLLAMA_CLIENT,
     provider=Settings.HUGGINGFACE,
     database=Settings.CHROMA,
     persist_directory = './defaultDb',
@@ -293,6 +295,7 @@ collection_name = Settings.DEFAULT_COLLECTION_NAME
 
 vector_store_config = VectorStoreConfig(
     embedding_model = model_embeddings,
+    api_base = Settings.DEFAULT_OLLAMA_CLIENT,
     database=Settings.CHROMA,
     persist_directory = persist_directory,
     provider = Settings.HUGGINGFACE,
@@ -302,7 +305,7 @@ vector_store_config = VectorStoreConfig(
 # Custom ignore folders - you can override the default list
 custom_ignore_folders = [
     ".venv",
-    "venv", 
+    "venv",
     "node_modules",
     "__pycache__",
     ".git",
@@ -356,6 +359,7 @@ knowledge_base=[
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+    api_base = Settings.DEFAULT_OLLAMA_CLIENT,
     provider=Settings.HUGGINGFACE,
     database=Settings.CHROMA,
     persist_directory = './defaultDb',

@@ -13,6 +13,7 @@ knowledge_base=[
 
 vector_store_config = VectorStoreConfig(
     embedding_model = Settings.DEFAULT_EMBEDDINGS_MODEL,
+    # api_base = ... # If you have a custom client URL
     provider=Settings.HUGGINGFACE,
     database=Settings.CHROMA,
     persist_directory = './defaultDb',
@@ -21,6 +22,7 @@ vector_store_config = VectorStoreConfig(
 
 config = RATConfig(
         cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
+        # api_base = ... # If you have a custom client URL
         llm = "llama3.2:3b",
         k = Settings.DEFAULT_K,
         provider = Settings.OLLAMA,
