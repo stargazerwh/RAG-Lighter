@@ -29,6 +29,10 @@ dependencies = [
     "rich==14.0.0",
     "quo==2023.5.1",
     "questionary==2.0.1",
+    "langchain-google-genai==2.0.7",
+    "python-dotenv>=1.1.1",
+    "pydantic>=2.11.7",
+    "google-genai>=1.2.0",
 ]
 [project.scripts]
 raglight = "raglight.cli.main:app"

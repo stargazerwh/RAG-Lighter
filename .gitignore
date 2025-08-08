@@ -19,6 +19,7 @@ qdrant_storage/
 *.ipynb
 new_version.sh
 .envrc
+data/
 
 # --- Standard Python ignores ---
 *.py[cod]
