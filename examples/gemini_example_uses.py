@@ -7,7 +7,7 @@ from raglight.config.vector_store_config import VectorStoreConfig
 Settings.setup_logging()
 
 knowledge_base=[
-    FolderSource(path="data/knowledge_base"),
+    # FolderSource(path="data/knowledge_base"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
     ]
 
@@ -27,7 +27,7 @@ config = RAGConfig(
         # k = Settings.DEFAULT_K,
         # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
         # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
-        # knowledge_base = knowledge_base
+        knowledge_base = knowledge_base
     )
 
 pipeline = RAGPipeline(config, vector_store_config)
