@@ -40,7 +40,6 @@ class RAGPipeline:
         api_base: str = config.api_base
         embeddings_api_base: str = vector_store_config.api_base
         database: str = vector_store_config.database
-        self.file_extension: str = vector_store_config.file_extension
         model_name: str = config.llm
         provider: str = config.provider
         embeddings_provider: str = vector_store_config.provider
@@ -84,12 +83,8 @@ class RAGPipeline:
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.get_vector_store().ingest(
-                    file_extension=self.file_extension,
                     data_path=source.path,
-                    ignore_folders=self.ignore_folders,
-                )
-                self.get_vector_store().ingest_code(
-                    repos_path=source.path, ignore_folders=self.ignore_folders
+                    ignore_folders=self.ignore_folders
                 )
             if isinstance(source, GitHubSource):
                 repositories.append(source.url)

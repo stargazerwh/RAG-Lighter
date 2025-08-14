@@ -258,9 +258,6 @@ def interactive_chat_command():
         if should_index:
             vector_store = builder.build_vector_store()
             vector_store.ingest(data_path=str(data_path), ignore_folders=ignore_folders)
-            vector_store.ingest_code(
-                repos_path=str(data_path), ignore_folders=ignore_folders
-            )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print(

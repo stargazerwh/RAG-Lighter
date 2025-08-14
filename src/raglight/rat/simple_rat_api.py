@@ -48,7 +48,6 @@ class RATPipeline(RAGPipeline):
         database: str = vector_store_config.database
         embeddings_privider: str = vector_store_config.provider
         system_prompt: str = config.system_prompt
-        self.file_extension: str = vector_store_config.file_extension
         self.rat: RAT = (
             Builder()
             .with_embeddings(

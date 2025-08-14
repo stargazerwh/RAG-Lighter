@@ -184,7 +184,6 @@ class Settings:
     THINKING_PATTERN = r"<think>(.*?)</think>"
     DEFAULT_K = 5
 
-    # Default folders to ignore during indexing
     DEFAULT_IGNORE_FOLDERS = [
         ".venv",
         "venv",

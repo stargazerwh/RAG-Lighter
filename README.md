@@ -417,7 +417,7 @@ Then you can ingest data into your vector store.
 1. You can use default pipeline that'll ingest no code data :
 
 ```python
-rag.vector_store.ingest(file_extension='**/*.pdf', data_path='./data')
+rag.vector_store.ingest(data_path='./data')
 ```
 
 2. Or you can use code pipeline :
