@@ -3,20 +3,28 @@ from .pdf_processor import PDFProcessor
 from .code_processor import CodeProcessor
 from .text_processor import TextProcessor
 
+
 class DocumentProcessorFactory:
     """
-    A stateless factory that returns the appropriate DocumentProcessor 
+    A stateless factory that returns the appropriate DocumentProcessor
     strategy for a given file path.
     """
+
     def __init__(self):
         self._processors = {
             # PDF files
             "pdf": PDFProcessor(),
             # Code files
-            "py": CodeProcessor(), "js": CodeProcessor(), "ts": CodeProcessor(),
-            "java": CodeProcessor(), "cpp": CodeProcessor(), "cs": CodeProcessor(),
+            "py": CodeProcessor(),
+            "js": CodeProcessor(),
+            "ts": CodeProcessor(),
+            "java": CodeProcessor(),
+            "cpp": CodeProcessor(),
+            "cs": CodeProcessor(),
             # Text files
-            "txt": TextProcessor(), "md": TextProcessor(), "html": TextProcessor(),
+            "txt": TextProcessor(),
+            "md": TextProcessor(),
+            "html": TextProcessor(),
         }
 
     def get_processor(self, file_path: str) -> DocumentProcessor | None:

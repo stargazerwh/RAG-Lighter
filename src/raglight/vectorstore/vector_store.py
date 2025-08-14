@@ -9,6 +9,7 @@ from ..document_processing.document_processor_factory import DocumentProcessorFa
 from ..embeddings.embeddings_model import EmbeddingsModel
 from ..config.settings import Settings
 
+
 class VectorStore(ABC):
     """
     Abstract base class for vector store implementations.
@@ -45,20 +46,28 @@ class VectorStore(ABC):
         all_chunks = []
         all_class_docs = []
         factory = DocumentProcessorFactory()
-        
+
         logging.info(f"⏳ Starting ingestion from '{data_path}'...")
 
         for root, dirs, files in os.walk(data_path, topdown=True):
-            dirs[:] = [d for d in dirs if not self._should_ignore(os.path.join(root, d), ignore_folders)]
+            dirs[:] = [
+                d
+                for d in dirs
+                if not self._should_ignore(os.path.join(root, d), ignore_folders)
+            ]
 
             for file in files:
                 file_path = os.path.join(root, file)
                 processor = factory.get_processor(file_path)
-                
+
                 if processor:
-                    logging.info(f"  -> Processing '{file_path}' with {processor.__class__.__name__}")
+                    logging.info(
+                        f"  -> Processing '{file_path}' with {processor.__class__.__name__}"
+                    )
                     try:
-                        processed_docs = processor.process(file_path, chunk_size=2500, chunk_overlap=250)
+                        processed_docs = processor.process(
+                            file_path, chunk_size=2500, chunk_overlap=250
+                        )
                         all_chunks.extend(processed_docs.get("chunks", []))
                         all_class_docs.extend(processed_docs.get("classes", []))
                     except Exception as e:
@@ -67,14 +76,14 @@ class VectorStore(ABC):
         if not all_chunks and not all_class_docs:
             logging.warning(f"No processable documents were found in '{data_path}'.")
             return
-            
+
         if all_chunks:
             all_chunks = self._flatten_metadata(all_chunks)
             self.add_documents(all_chunks)
         if all_class_docs:
             all_class_docs = self._flatten_metadata(all_class_docs)
             self.add_class_documents(all_class_docs)
-        
+
         logging.info("🎉 Ingestion process completed successfully!")
 
     def _flatten_metadata(self, documents: List[Document]) -> List[Document]:
@@ -83,13 +92,12 @@ class VectorStore(ABC):
         (lists, dicts) into their string representations.
         """
         cloned_documents = copy.deepcopy(documents)
-        
+
         for doc in cloned_documents:
             for key, value in doc.metadata.items():
                 if not isinstance(value, (str, int, float, bool)):
                     doc.metadata[key] = str(value)
         return cloned_documents
-
 
     @abstractmethod
     def add_documents(self, documents: List[Document]) -> None:
@@ -104,21 +112,24 @@ class VectorStore(ABC):
         Adds a list of class signature documents to the dedicated class vector store.
         """
         pass
-    
+
     @abstractmethod
-    def similarity_search(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Document]:
+    def similarity_search(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Document]:
         """
         Performs a similarity search in the main vector store.
         """
         pass
 
     @abstractmethod
-    def similarity_search_class(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Document]:
+    def similarity_search_class(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Document]:
         """
         Performs a similarity search in the class vector store.
         """
         pass
-
 
     def _should_ignore(self, path: str, ignore_folders: List[str]) -> bool:
         """

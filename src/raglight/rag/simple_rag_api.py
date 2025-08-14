@@ -83,8 +83,7 @@ class RAGPipeline:
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.get_vector_store().ingest(
-                    data_path=source.path,
-                    ignore_folders=self.ignore_folders
+                    data_path=source.path, ignore_folders=self.ignore_folders
                 )
             if isinstance(source, GitHubSource):
                 repositories.append(source.url)

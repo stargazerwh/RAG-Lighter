@@ -7,12 +7,13 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from ..embeddings.embeddings_model import EmbeddingsModel
 
+
 class ChromaVS(VectorStore):
     """
-    Concrete implementation for ChromaDB. 
-    
-    It inherits the main ingestion logic from the base VectorStore class and 
-    only implements the Chroma-specific methods for adding documents and 
+    Concrete implementation for ChromaDB.
+
+    It inherits the main ingestion logic from the base VectorStore class and
+    only implements the Chroma-specific methods for adding documents and
     performing searches.
     """
 
@@ -26,7 +27,7 @@ class ChromaVS(VectorStore):
         Initializes a ChromaVS instance.
         """
         super().__init__(persist_directory, embeddings_model)
-        
+
         self.vector_store = Chroma(
             embedding_function=self.embeddings_model,
             persist_directory=persist_directory,
@@ -48,7 +49,9 @@ class ChromaVS(VectorStore):
         if not documents:
             return
 
-        logging.info(f"⏳ Adding {len(documents)} document chunks to ChromaDB collection '{self.vector_store._collection_name}'...")
+        logging.info(
+            f"⏳ Adding {len(documents)} document chunks to ChromaDB collection '{self.vector_store._collection_name}'..."
+        )
         self.vector_store.add_documents(documents=documents)
         logging.info("✅ Documents successfully added to the main collection.")
 
@@ -61,19 +64,25 @@ class ChromaVS(VectorStore):
         if not documents:
             return
 
-        logging.info(f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.vector_store_classes._collection_name}'...")
+        logging.info(
+            f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.vector_store_classes._collection_name}'..."
+        )
         self.vector_store_classes.add_documents(documents=documents)
         logging.info("✅ Class documents successfully added to the class collection.")
 
     @override
-    def similarity_search(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Document]:
+    def similarity_search(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Document]:
         """
         Implements similarity search using the main ChromaDB client.
         """
         return self.vector_store.similarity_search(question, k=k, filter=filter)
 
     @override
-    def similarity_search_class(self, question: str, k: int = 5, filter: Dict[str, str] = None) -> List[Document]:
+    def similarity_search_class(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Document]:
         """
         Implements similarity search using the dedicated class ChromaDB client.
         """

@@ -9,6 +9,7 @@ from .llm import LLM
 from google.genai import Client
 from google.genai import types
 
+
 class GeminiModel(LLM):
     """
     A subclass of LLM that uses Google's Gemini as the backend for text generation.

@@ -7,39 +7,45 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from langchain_core.documents import Document
 from .document_processor import DocumentProcessor
 
+
 class CodeProcessor(DocumentProcessor):
     """A strategy for processing source code files."""
 
-    def process(self, file_path: str, chunk_size: int, chunk_overlap: int) -> Dict[str, List[Document]]:
+    def process(
+        self, file_path: str, chunk_size: int, chunk_overlap: int
+    ) -> Dict[str, List[Document]]:
         """
         Processes a single source code file. It extracts class signatures
         and splits the full code into chunks.
-        
+
         Returns:
             A dictionary containing two lists of documents:
             - "chunks": The full code split into chunks.
             - "classes": Documents representing only the class signatures.
         """
-        language = self._get_language_from_extension(os.path.splitext(file_path)[1][1:].lower())
+        language = self._get_language_from_extension(
+            os.path.splitext(file_path)[1][1:].lower()
+        )
         if not language:
             return {"chunks": [], "classes": []}
 
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 code = f.read()
-            
+
             if not code.strip():
                 return {"chunks": [], "classes": []}
 
             class_signatures = self._extract_class_signatures(code, language)
-            class_docs = [Document(page_content=sig, metadata={"source": file_path}) for sig in class_signatures]
+            class_docs = [
+                Document(page_content=sig, metadata={"source": file_path})
+                for sig in class_signatures
+            ]
 
             splitter = RecursiveCharacterTextSplitter.from_language(
-                language=language,
-                chunk_size=chunk_size,
-                chunk_overlap=chunk_overlap
+                language=language, chunk_size=chunk_size, chunk_overlap=chunk_overlap
             )
-            code_chunks = splitter.create_documents([code]) 
+            code_chunks = splitter.create_documents([code])
 
             class_names_str = ", ".join(class_signatures)
             for chunk in code_chunks:
@@ -56,7 +62,13 @@ class CodeProcessor(DocumentProcessor):
         """Dispatcher method to extract class signatures based on language."""
         if language == Language.PYTHON:
             return self._extract_python_class_signatures(code)
-        elif language in {Language.JS, Language.TS, Language.JAVA, Language.CPP, Language.CSHARP}:
+        elif language in {
+            Language.JS,
+            Language.TS,
+            Language.JAVA,
+            Language.CPP,
+            Language.CSHARP,
+        }:
             return self._extract_class_signatures_with_regex(code, language)
         return []
 
@@ -74,7 +86,9 @@ class CodeProcessor(DocumentProcessor):
         except SyntaxError:
             return []
 
-    def _extract_class_signatures_with_regex(self, code: str, language: Language) -> List[str]:
+    def _extract_class_signatures_with_regex(
+        self, code: str, language: Language
+    ) -> List[str]:
         """Extracts class signatures using regex for various languages."""
         patterns = {
             Language.JAVA: r"class\s+(\w+)\s*(?:extends\s+\w+)?\s*(?:implements\s+[\w,\s]+)?",
@@ -86,7 +100,7 @@ class CodeProcessor(DocumentProcessor):
         pattern = patterns.get(language)
         if not pattern:
             return []
-            
+
         matches = re.findall(pattern, code)
         full_signatures = [f"class {match}" for match in matches]
         return full_signatures
@@ -94,11 +108,24 @@ class CodeProcessor(DocumentProcessor):
     def _get_language_from_extension(self, extension: str) -> Language | None:
         """Maps a file extension to a Language enum."""
         extension_to_language = {
-            "py": Language.PYTHON, "js": Language.JS, "ts": Language.TS, "java": Language.JAVA,
-            "cpp": Language.CPP, "go": Language.GO, "php": Language.PHP, "rb": Language.RUBY,
-            "rs": Language.RUST, "scala": Language.SCALA, "swift": Language.SWIFT,
-            "md": Language.MARKDOWN, "html": Language.HTML, "sol": Language.SOL,
-            "cs": Language.CSHARP, "c": Language.C, "lua": Language.LUA,
-            "pl": Language.PERL, "hs": Language.HASKELL,
+            "py": Language.PYTHON,
+            "js": Language.JS,
+            "ts": Language.TS,
+            "java": Language.JAVA,
+            "cpp": Language.CPP,
+            "go": Language.GO,
+            "php": Language.PHP,
+            "rb": Language.RUBY,
+            "rs": Language.RUST,
+            "scala": Language.SCALA,
+            "swift": Language.SWIFT,
+            "md": Language.MARKDOWN,
+            "html": Language.HTML,
+            "sol": Language.SOL,
+            "cs": Language.CSHARP,
+            "c": Language.C,
+            "lua": Language.LUA,
+            "pl": Language.PERL,
+            "hs": Language.HASKELL,
         }
         return extension_to_language.get(extension)

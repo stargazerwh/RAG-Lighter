@@ -21,6 +21,7 @@ from ..embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 from ..embeddings.gemini_embeddings import GeminiEmbeddingsModel
 from ..llm.gemini_model import GeminiModel
 
+
 class Builder:
     """
     Builder class for creating and configuring components of a Retrieval-Augmented Generation (RAG)

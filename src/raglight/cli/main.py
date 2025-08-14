@@ -174,7 +174,12 @@ def interactive_chat_command():
     console.print("[bold blue]\n--- 🧠 Step 3: Embeddings Model ---[/bold blue]")
     emb_provider = questionary.select(
         "Which embeddings provider do you want to use?",
-        choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI, Settings.GOOGLE_GEMINI],
+        choices=[
+            Settings.HUGGINGFACE,
+            Settings.OLLAMA,
+            Settings.OPENAI,
+            Settings.GOOGLE_GEMINI,
+        ],
         default=Settings.HUGGINGFACE,
         style=custom_style,
     ).ask()
@@ -199,7 +204,13 @@ def interactive_chat_command():
     console.print("[bold blue]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold blue]")
     llm_provider = questionary.select(
         "Which LLM provider do you want to use?",
-        choices=[Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO, Settings.GOOGLE_GEMINI],
+        choices=[
+            Settings.OLLAMA,
+            Settings.MISTRAL,
+            Settings.OPENAI,
+            Settings.LMSTUDIO,
+            Settings.GOOGLE_GEMINI,
+        ],
         default=Settings.OLLAMA,
         style=custom_style,
     ).ask()
