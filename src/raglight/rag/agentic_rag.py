@@ -1,5 +1,4 @@
-from typing import TypedDict, Dict
-from smolagents import Tool, tool
+from smolagents import Tool, tool, MCPClient
 from smolagents import CodeAgent, OpenAIServerModel, LiteLLMModel
 
 from ..config.vector_store_config import VectorStoreConfig
@@ -7,9 +6,6 @@ from ..config.settings import Settings
 from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorstore.vector_store import VectorStore
 from ..rag.builder import Builder
-
-import json
-
 
 class RetrieverTool(Tool):
     name = "retriever"
@@ -79,48 +75,39 @@ class ClassRetrieverTool(Tool):
 
 class AgenticRAG:
     def __init__(
-        self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig
+        self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig,
     ):
+        self.config = config
+        self.mcp_configs = config.mcp_config or []
         self.vector_store = self.create_vector_store(vector_store_config)
 
         self.k: int = config.k
 
-        retriever_tool = RetrieverTool(k=config.k, vector_store=self.vector_store)
-        class_retriever_tool = ClassRetrieverTool(
-            k=config.k, vector_store=self.vector_store
-        )
+        self.local_tools = [
+            RetrieverTool(k=config.k, vector_store=self.vector_store),
+            ClassRetrieverTool(k=config.k, vector_store=self.vector_store)
+        ]
 
+        self.model = self._create_llm_model(config)
+        
+    def _create_llm_model(self, config: AgenticRAGConfig):
+        """Crée l'instance du modèle LLM à partir de la config."""
         if config.provider.lower() == Settings.MISTRAL.lower():
             api_base = config.api_base or Settings.MISTRAL_API
-            model = OpenAIServerModel(
-                model_id=config.model,
-                api_key=Settings.MISTRAL_API_KEY,
-                api_base=api_base,
+            return OpenAIServerModel(
+                model_id=config.model, api_key=Settings.MISTRAL_API_KEY, api_base=api_base
             )
-
         elif config.provider == Settings.OPENAI:
             api_base = config.api_base or Settings.DEFAULT_OPENAI_CLIENT
-            model = OpenAIServerModel(
-                model_id=config.model,
-                api_key=Settings.OPENAI_API_KEY,
-                api_base=api_base,
+            return OpenAIServerModel(
+                model_id=config.model, api_key=Settings.OPENAI_API_KEY, api_base=api_base
             )
-
         else:
             api_base = config.api_base or Settings.DEFAULT_OLLAMA_CLIENT
-            model = LiteLLMModel(
+            return LiteLLMModel(
                 model_id=f"{config.provider.lower()}/{config.model}",
-                api_base=config.api_base,
-                api_key=config.api_key,
-                num_ctx=config.num_ctx,
+                api_base=config.api_base, api_key=config.api_key, num_ctx=config.num_ctx
             )
-        self.agent = CodeAgent(
-            tools=[retriever_tool, class_retriever_tool],
-            model=model,
-            max_steps=config.max_steps,
-            verbosity_level=config.verbosity_level,
-            prompt_templates=create_prompt_templates(config.system_prompt),
-        )
 
     def generate(
         self, query: str, search_type: str = "code", stream: bool = False
@@ -140,8 +127,23 @@ class AgenticRAG:
         task_instruction += (
             f"\nTool: {'class_retriever' if search_type == 'class' else 'retriever'}"
         )
-
-        return self.agent.run(task_instruction, stream)
+        if not self.mcp_configs:
+            agent = CodeAgent(
+                tools=self.local_tools,
+                model=self.model,
+                max_steps=self.config.max_steps,
+                verbosity_level=self.config.verbosity_level,
+                )
+            return agent.run(task_instruction, stream)
+        else :
+            with MCPClient(self.mcp_configs) as mcp_tools:
+                agent = CodeAgent(
+                tools=[*self.local_tools, *mcp_tools],
+                model=self.model,
+                max_steps=self.config.max_steps,
+                verbosity_level=self.config.verbosity_level,
+                )
+                return agent.run("Please analyze the latest research and suggest remedies for headaches.")
 
     def create_vector_store(self, config: VectorStoreConfig) -> VectorStore:
         """Creates a vector store using the provided configuration.
@@ -166,64 +168,3 @@ class AgenticRAG:
             )
             .build_vector_store()
         )
-
-
-class PlanningPromptTemplate(TypedDict):
-    """
-    Prompt templates for the planning step.
-    """
-
-    initial_facts_pre_task: str
-    initial_facts_task: str
-    initial_plan: str
-    update_facts_pre_messages: str
-    update_facts_post_messages: str
-    update_plan_pre_messages: str
-    update_plan_post_messages: str
-
-
-class ManagedAgentPromptTemplate(TypedDict):
-    """
-    Prompt templates for the managed agent.
-    """
-
-    task: str
-    report: str
-
-
-class FinalAnswerPromptTemplate(TypedDict):
-    """
-    Prompt templates for the final answer.
-    """
-
-    pre_messages: str
-    post_messages: str
-
-
-class PromptTemplates(TypedDict):
-    """
-    Prompt templates for the agent.
-    """
-
-    system_prompt: str
-    planning: PlanningPromptTemplate
-    managed_agent: ManagedAgentPromptTemplate
-    final_answer: FinalAnswerPromptTemplate
-
-
-def create_prompt_templates(
-    system_prompt: str = Settings.DEFAULT_AGENT_PROMPT,
-) -> PromptTemplates:
-    return PromptTemplates(
-        system_prompt=system_prompt,
-        planning=PlanningPromptTemplate(
-            initial_facts="",
-            initial_plan="",
-            update_facts_pre_messages="",
-            update_facts_post_messages="",
-            update_plan_pre_messages="",
-            update_plan_post_messages="",
-        ),
-        managed_agent=ManagedAgentPromptTemplate(task="", report=""),
-        final_answer=FinalAnswerPromptTemplate(pre_messages="", post_messages=""),
-    )
