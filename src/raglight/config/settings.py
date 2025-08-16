@@ -26,7 +26,7 @@ class Settings:
     GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
     GEMINI_EMBEDDING_MODEL = "models/gemini-embedding-001"
     GEMINI_LLM_MODEL = "gemini-2.5-pro"
-    DEFAULT_GOOGLE_CLIENT = os.environ.get("GOOGLE_CLIENT_URL", None)
+    DEFAULT_GOOGLE_CLIENT = os.environ.get("GOOGLE_CLIENT_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
     MISTRAL_API = "https://api.mistral.ai/v1"
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
@@ -113,6 +113,10 @@ class Settings:
         - **Arguments**:
             - query (string): Name or description of the class.
         - **Outputs**: string
+
+        3. **MCP Servers**
+        - **Description**: Connects to MCP servers for real-time data retrieval.
+        - It's possible you have access to some MCP servers that provide additional tools, use it when needed.
 
         ---
 

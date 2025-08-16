@@ -99,8 +99,8 @@ class RAGPipeline:
         """
         self.github_scrapper.set_repositories(repositories)
         repos_path: str = self.github_scrapper.clone_all()
-        self.get_vector_store().ingest_code(
-            repos_path=repos_path, ignore_folders=self.ignore_folders
+        self.get_vector_store().ingest(
+            data_path=repos_path, ignore_folders=self.ignore_folders
         )
         shutil.rmtree(repos_path)
         logging.info("✅ GitHub repositories cleaned successfully!")

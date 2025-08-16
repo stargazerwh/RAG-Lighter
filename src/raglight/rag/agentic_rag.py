@@ -102,6 +102,13 @@ class AgenticRAG:
             return OpenAIServerModel(
                 model_id=config.model, api_key=Settings.OPENAI_API_KEY, api_base=api_base
             )
+        elif config.provider == Settings.GOOGLE_GEMINI:
+            api_base = config.api_base or Settings.DEFAULT_GOOGLE_CLIENT
+            return OpenAIServerModel(
+            model_id=config.model,
+            api_base= api_base,
+            api_key=config.api_key or Settings.GEMINI_API_KEY,
+            )
         else:
             api_base = config.api_base or Settings.DEFAULT_OLLAMA_CLIENT
             return LiteLLMModel(
@@ -143,7 +150,7 @@ class AgenticRAG:
                 max_steps=self.config.max_steps,
                 verbosity_level=self.config.verbosity_level,
                 )
-                return agent.run("Please analyze the latest research and suggest remedies for headaches.")
+                return agent.run(task_instruction, stream)
 
     def create_vector_store(self, config: VectorStoreConfig) -> VectorStore:
         """Creates a vector store using the provided configuration.
