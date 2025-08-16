@@ -7,6 +7,7 @@ from ..config.agentic_rag_config import AgenticRAGConfig
 from ..vectorstore.vector_store import VectorStore
 from ..rag.builder import Builder
 
+
 class RetrieverTool(Tool):
     name = "retriever"
     description = (
@@ -75,7 +76,9 @@ class ClassRetrieverTool(Tool):
 
 class AgenticRAG:
     def __init__(
-        self, config: AgenticRAGConfig, vector_store_config: VectorStoreConfig,
+        self,
+        config: AgenticRAGConfig,
+        vector_store_config: VectorStoreConfig,
     ):
         self.config = config
         self.mcp_configs = config.mcp_config or []
@@ -85,35 +88,41 @@ class AgenticRAG:
 
         self.local_tools = [
             RetrieverTool(k=config.k, vector_store=self.vector_store),
-            ClassRetrieverTool(k=config.k, vector_store=self.vector_store)
+            ClassRetrieverTool(k=config.k, vector_store=self.vector_store),
         ]
 
         self.model = self._create_llm_model(config)
-        
+
     def _create_llm_model(self, config: AgenticRAGConfig):
         """Crée l'instance du modèle LLM à partir de la config."""
         if config.provider.lower() == Settings.MISTRAL.lower():
             api_base = config.api_base or Settings.MISTRAL_API
             return OpenAIServerModel(
-                model_id=config.model, api_key=Settings.MISTRAL_API_KEY, api_base=api_base
+                model_id=config.model,
+                api_key=Settings.MISTRAL_API_KEY,
+                api_base=api_base,
             )
         elif config.provider == Settings.OPENAI:
             api_base = config.api_base or Settings.DEFAULT_OPENAI_CLIENT
             return OpenAIServerModel(
-                model_id=config.model, api_key=Settings.OPENAI_API_KEY, api_base=api_base
+                model_id=config.model,
+                api_key=Settings.OPENAI_API_KEY,
+                api_base=api_base,
             )
         elif config.provider == Settings.GOOGLE_GEMINI:
             api_base = config.api_base or Settings.DEFAULT_GOOGLE_CLIENT
             return OpenAIServerModel(
-            model_id=config.model,
-            api_base= api_base,
-            api_key=config.api_key or Settings.GEMINI_API_KEY,
+                model_id=config.model,
+                api_base=api_base,
+                api_key=config.api_key or Settings.GEMINI_API_KEY,
             )
         else:
             api_base = config.api_base or Settings.DEFAULT_OLLAMA_CLIENT
             return LiteLLMModel(
                 model_id=f"{config.provider.lower()}/{config.model}",
-                api_base=config.api_base, api_key=config.api_key, num_ctx=config.num_ctx
+                api_base=config.api_base,
+                api_key=config.api_key,
+                num_ctx=config.num_ctx,
             )
 
     def generate(
@@ -140,15 +149,15 @@ class AgenticRAG:
                 model=self.model,
                 max_steps=self.config.max_steps,
                 verbosity_level=self.config.verbosity_level,
-                )
+            )
             return agent.run(task_instruction, stream)
-        else :
+        else:
             with MCPClient(self.mcp_configs) as mcp_tools:
                 agent = CodeAgent(
-                tools=[*self.local_tools, *mcp_tools],
-                model=self.model,
-                max_steps=self.config.max_steps,
-                verbosity_level=self.config.verbosity_level,
+                    tools=[*self.local_tools, *mcp_tools],
+                    model=self.model,
+                    max_steps=self.config.max_steps,
+                    verbosity_level=self.config.verbosity_level,
                 )
                 return agent.run(task_instruction, stream)
 
