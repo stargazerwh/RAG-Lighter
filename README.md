@@ -18,7 +18,7 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 - [Requirements](#⚠️-requirements)
 - [Features](#features)
 - [Import library](#import-library-🛠️)
-- [Chat with Your Documents Instantly With CLI 💬](#chat-with-your-documents-instantly-with-cli-💬)
+- [Chat with Your Documents Instantly With CLI](#chat-with-your-documents-instantly-with-cli-💬)
 
   - [Ignore Folders Feature](#ignore-folders-feature-🚫)
   - [Ignore Folders in Configuration Classes](#ignore-folders-in-configuration-classes-🚫)
