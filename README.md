@@ -205,10 +205,7 @@ For your vector store, you can use :
 
 ## Quick Start 🚀
 
-<a id="knowledge-base"></a>
-
-<details>
-<summary> <b>Knowledge Base</b> </summary>
+### Knowledge Base
 
 Knowledge Base is a way to define data you want to ingest inside your vector store during the initialization of your RAG.
 It's the data ingest when you call `build` function :
@@ -246,12 +243,7 @@ from raglight import GitHubSource
 GitHubSource(url="https://github.com/Bessouat40/RAGLight")
 ```
 
-</details>
-
-<a id="rag"></a>
-
-<details>
-<summary> <b>RAG</b> </summary>
+### RAG
 
 You can setup easily your RAG with RAGLight :
 
@@ -300,12 +292,7 @@ You just have to fill the model you want to use.
 > ⚠️
 > By default, LLM Provider will be Ollama
 
-</details>
-
-<a id="agentic-rag"></a>
-
-<details>
-<summary> <b>Agentic RAG</b> </summary>
+### Agentic RAG
 
 This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
 an additional Agent. This agent can retrieve data from your vector store.
@@ -379,12 +366,8 @@ response = agenticRag.generate("Please implement for me AgenticRAGPipeline inspi
 print('response : ', response)
 ```
 
-</details>
+### MCP Integration
 
-<a id="mcp-integration"></a>
-
-<details>
-<summary> <b>MCP Tool Integration (External Tools)</b> </summary>
 RAGLight supports MCP Server integration to enhance the reasoning capabilities of your agent. MCP allows the agent to interact with external tools (e.g., code execution environments, database tools, or search agents) via a standardized server interface.
 
 To use MCP, simply pass a mcp_config parameter to your AgenticRAGConfig, where each config defines the url (and optionally transport) of the MCP server.
@@ -405,12 +388,7 @@ config = AgenticRAGConfig(
 
 > 📚 Documentation: Learn how to configure and launch an MCP server using [MCPClient.server_parameters](https://huggingface.co/docs/smolagents/en/reference/tools#smolagents.MCPClient.server_parameters)
 
-</details>
-
-<a id="rat"></a>
-
-<details>
-<summary> <b>RAT</b> </summary>
+### RAT
 
 This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
 an additional reasoning step using a specialized reasoning language model (LLM).
@@ -458,12 +436,7 @@ response = pipeline.generate("How can I create an easy RAGPipeline using ragligh
 print(response)
 ```
 
-</details>
-
-<a id="use-custom-pipeline"></a>
-
-<details>
-<summary> <b>Use Custom Pipeline</b> </summary>
+### Use Custom Pipeline
 
 **1. Configure Your Pipeline**
 
@@ -510,9 +483,9 @@ response = rag.generate("How can I optimize my marathon training?")
 print(response)
 ```
 
-</details>
-
-You can find more examples here : [examples](https://github.com/Bessouat40/RAGLight/blob/main/examples).
+> ### ✚ More Examples
+>
+> You can find more examples for all these use cases in the [examples](https://github.com/Bessouat40/RAGLight/blob/main/examples) directory.
 
 ## Use RAGLight with Docker
 
