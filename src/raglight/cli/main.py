@@ -486,9 +486,6 @@ def interactive_chat_command():
             agenticRag.get_vector_store().ingest(
                 data_path=str(data_path), ignore_folders=ignore_folders
             )
-            agenticRag.get_vector_store().ingest_code(
-                repos_path=str(data_path), ignore_folders=ignore_folders
-            )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print(

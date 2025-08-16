@@ -13,7 +13,7 @@ dependencies = [
     "langchain-openai==0.2.0",
     "langchain==0.3.11",
     "mistralai==1.5.0",
-    "smolagents==1.8.1",
+    "smolagents[mcp]==1.21.1",
     "langchain-huggingface==0.1.2",
     "langchain-text-splitters==0.3.2",
     "ollama==0.4.0",
