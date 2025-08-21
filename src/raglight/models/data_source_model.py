@@ -10,6 +10,7 @@ class FolderSource(BaseModel):
 class GitHubSource(BaseModel):
     type: Literal["github"] = "github"
     url: str
+    branch: str = Field(default="main")
 
 
 DataSource = Union[FolderSource, GitHubSource]

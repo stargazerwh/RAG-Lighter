@@ -12,7 +12,7 @@ Settings.setup_logging()
 
 knowledge_base=[
     # FolderSource(path="<path to your folder with pdf>/knowledge_base"),
-    GitHubSource(url="https://github.com/Bessouat40/RAGLight")
+    GitHubSource(url="https://github.com/Bessouat40/RAGLight", branch="main"),
     ]
 
 persist_directory = './defaultDb'
@@ -26,7 +26,7 @@ vector_store_config = VectorStoreConfig(
     # host='localhost', If you want to use a remote ChromaDB
     # port='8000', If you want to use a remote ChromaDB
     persist_directory = persist_directory, # If you want to use a local ChromaDB
-    provider = Settings.HUGGINGFACE,
+    provider = Settings.OLLAMA,
     collection_name = collection_name
 )
 
@@ -51,10 +51,9 @@ config = AgenticRAGConfig(
             #     {"url": "http://127.0.0.1:8001/sse"}
             # ],
             # api_base = ... # If you have a custom client URL
-            max_steps = 4,
+            max_steps = 5,
             api_key = Settings.MISTRAL_API_KEY, # os.environ.get('MISTRAL_API_KEY')
             ignore_folders = custom_ignore_folders,  # Use custom ignore folders
-            # api_base = ... # If you have a custom client URL
             # num_ctx = ... # Max context length
             # verbosity_level = ... # Default = 2
             knowledge_base = knowledge_base
