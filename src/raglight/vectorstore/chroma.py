@@ -8,6 +8,7 @@ from langchain_core.documents import Document
 from .vector_store import VectorStore
 from ..embeddings.embeddings_model import EmbeddingsModel
 
+
 class ChromaVS(VectorStore):
     """
     Concrete implementation for ChromaDB.
