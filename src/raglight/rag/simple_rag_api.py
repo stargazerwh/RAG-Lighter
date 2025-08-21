@@ -88,11 +88,11 @@ class RAGPipeline:
                     data_path=source.path, ignore_folders=self.ignore_folders
                 )
             if isinstance(source, GitHubSource):
-                repositories.append(source.url)
+                repositories.append(source)
         if len(repositories) > 0:
             self.ingest_github_repositories(repositories)
 
-    def ingest_github_repositories(self, repositories: List[str]) -> None:
+    def ingest_github_repositories(self, repositories: List[GitHubSource]) -> None:
         """
         Clones and processes GitHub repositories for the pipeline.
 
