@@ -31,12 +31,16 @@ class VectorStore(ABC):
         self.vector_store_classes: Any = None
 
     @staticmethod
-    def _process_file(file_path: str, factory: DocumentProcessorFactory, flatten_metadata):
+    def _process_file(
+        file_path: str, factory: DocumentProcessorFactory, flatten_metadata
+    ):
         processor = factory.get_processor(file_path)
         if not processor:
             return [], []
         try:
-            processed_docs = processor.process(file_path, chunk_size=2500, chunk_overlap=250)
+            processed_docs = processor.process(
+                file_path, chunk_size=2500, chunk_overlap=250
+            )
             chunks = flatten_metadata(processed_docs.get("chunks", []))
             classes = flatten_metadata(processed_docs.get("classes", []))
             return chunks, classes
@@ -64,17 +68,25 @@ class VectorStore(ABC):
 
         files_to_process = []
         for root, dirs, files in os.walk(data_path, topdown=True):
-            dirs[:] = [d for d in dirs if not self._should_ignore(os.path.join(root, d), ignore_folders)]
+            dirs[:] = [
+                d
+                for d in dirs
+                if not self._should_ignore(os.path.join(root, d), ignore_folders)
+            ]
             for file in files:
                 file_path = os.path.join(root, file)
                 processor = factory.get_processor(file_path)
                 if processor:
-                    logging.info(f"  -> Queuing '{file_path}' with {processor.__class__.__name__}")
+                    logging.info(
+                        f"  -> Queuing '{file_path}' with {processor.__class__.__name__}"
+                    )
                     files_to_process.append((file_path, processor))
 
         with ThreadPoolExecutor(max_workers=4) as executor:
             futures = [
-                executor.submit(self._process_file, file_path, factory, self._flatten_metadata)
+                executor.submit(
+                    self._process_file, file_path, factory, self._flatten_metadata
+                )
                 for file_path, _ in files_to_process
             ]
 

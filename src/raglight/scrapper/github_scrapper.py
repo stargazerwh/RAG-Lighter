@@ -64,7 +64,7 @@ class GithubScrapper:
 
         for repo in self.repositories:
             url = repo.url
-            branch = repo.branch if hasattr(repo, 'branch') else "main"
+            branch = repo.branch if hasattr(repo, "branch") else "main"
             repo_name = url.split("/")[-1].replace(".git", "")
             clone_path = temp_path / repo_name
             self.clone_github_repo(url, str(clone_path), branch)
