@@ -181,6 +181,8 @@ class AgenticRAG:
                 type=config.database,
                 persist_directory=config.persist_directory,
                 collection_name=config.collection_name,
+                host=config.host,
+                port=config.port,
             )
             .build_vector_store()
         )

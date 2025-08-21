@@ -1,12 +1,12 @@
 import logging
 from typing import List, Dict
 from typing_extensions import override
-
-from .vector_store import VectorStore
+import chromadb
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from ..embeddings.embeddings_model import EmbeddingsModel
 
+from .vector_store import VectorStore
+from ..embeddings.embeddings_model import EmbeddingsModel
 
 class ChromaVS(VectorStore):
     """
@@ -19,26 +19,50 @@ class ChromaVS(VectorStore):
 
     def __init__(
         self,
-        persist_directory: str,
         collection_name: str,
         embeddings_model: EmbeddingsModel,
+        persist_directory: str = None,
+        host: str = None,
+        port: int = None,
     ) -> None:
         """
         Initializes a ChromaVS instance.
         """
         super().__init__(persist_directory, embeddings_model)
 
-        self.vector_store = Chroma(
-            embedding_function=self.embeddings_model,
-            persist_directory=persist_directory,
-            collection_name=collection_name,
-        )
+        if not host and not port:
+            self.vector_store = Chroma(
+                embedding_function=self.embeddings_model,
+                persist_directory=persist_directory,
+                collection_name=collection_name,
+            )
 
-        self.vector_store_classes = Chroma(
-            embedding_function=self.embeddings_model,
-            persist_directory=persist_directory,
-            collection_name=f"{collection_name}_classes",
-        )
+            self.vector_store_classes = Chroma(
+                embedding_function=self.embeddings_model,
+                persist_directory=persist_directory,
+                collection_name=f"{collection_name}_classes",
+            )
+        elif host and port:
+            client = chromadb.HttpClient(host=host, port=port, ssl=False)
+            self.vector_store = Chroma(
+                client=client,
+                embedding_function=self.embeddings_model,
+                collection_name=collection_name,
+            )
+
+            self.vector_store_classes = Chroma(
+                client=client,
+                embedding_function=self.embeddings_model,
+                collection_name=f"{collection_name}_classes",
+            )
+        else:
+            raise ValueError(
+                "Invalid configuration for ChromaVS: "
+                "You must either:\n"
+                "  • Provide both host and port (for remote ChromaDB), OR\n"
+                "  • Provide a persist_directory (for local persistence).\n"
+                f"Received -> host={host}, port={port}, persist_directory={persist_directory}"
+            )
 
     @override
     def add_documents(self, documents: List[Document]) -> None:

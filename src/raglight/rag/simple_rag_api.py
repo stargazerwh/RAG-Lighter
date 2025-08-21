@@ -56,6 +56,8 @@ class RAGPipeline:
                 database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
+                host=vector_store_config.host,
+                port=vector_store_config.port,
             )
             .with_llm(
                 provider,

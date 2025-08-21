@@ -311,7 +311,7 @@ You can modify several parameters in your config :
 
 ```python
 from raglight.config.settings import Settings
-from raglight.rag.agentic_rag import AgenticRAG
+from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
 from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.config.settings import Settings
@@ -329,6 +329,8 @@ vector_store_config = VectorStoreConfig(
     api_base = Settings.DEFAULT_OLLAMA_CLIENT,
     database=Settings.CHROMA,
     persist_directory = persist_directory,
+    # host='localhost',
+    # port='8001',
     provider = Settings.HUGGINGFACE,
     collection_name = collection_name
 )
@@ -359,7 +361,7 @@ config = AgenticRAGConfig(
             # knowledge_base = knowledge_base
         )
 
-agenticRag = AgenticRAG(config, vector_store_config)
+agenticRag = AgenticRAGPipeline(config, vector_store_config)
 
 response = agenticRag.generate("Please implement for me AgenticRAGPipeline inspired by RAGPipeline and AgenticRAG and RAG")
 
