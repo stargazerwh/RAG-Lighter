@@ -10,9 +10,7 @@ from ..rag.builder import Builder
 
 class RetrieverTool(Tool):
     name = "retriever"
-    description = (
-        "Uses semantic search to retrieve relevant parts of the code documentation or the knowledge base."
-    )
+    description = "Uses semantic search to retrieve relevant parts of the code documentation or the knowledge base."
 
     inputs = {
         "query": {
@@ -34,7 +32,9 @@ class RetrieverTool(Tool):
 
     def forward(self, query: str, collection_name: str = None) -> str:
 
-        retrieved_docs = self.vector_store.similarity_search(query, k=self.k, collection_name=collection_name)
+        retrieved_docs = self.vector_store.similarity_search(
+            query, k=self.k, collection_name=collection_name
+        )
 
         return "\nRetrieved documents:\n" + "".join(
             [
@@ -72,7 +72,9 @@ class ClassRetrieverTool(Tool):
 
     def forward(self, query: str, collection_name: str = None) -> str:
 
-        retrieved_classes = self.vector_store.similarity_search_class(query, k=self.k, collection_name=collection_name)
+        retrieved_classes = self.vector_store.similarity_search_class(
+            query, k=self.k, collection_name=collection_name
+        )
 
         return "\nRetrieved classes:\n" + "".join(
             [

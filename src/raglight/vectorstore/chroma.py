@@ -101,7 +101,11 @@ class ChromaVS(VectorStore):
 
     @override
     def similarity_search(
-        self, question: str, k: int = 5, filter: Dict[str, str] = None, collection_name: str = None
+        self,
+        question: str,
+        k: int = 5,
+        filter: Dict[str, str] = None,
+        collection_name: str = None,
     ) -> List[Document]:
         """
         Implements similarity search using the main ChromaDB client.
@@ -112,7 +116,7 @@ class ChromaVS(VectorStore):
                     embedding_function=self.embeddings_model,
                     persist_directory=self.persist_directory,
                     collection_name=collection_name,
-                    )
+                )
             else:
                 client = chromadb.HttpClient(host=self.host, port=self.port, ssl=False)
                 vector_store = Chroma(
@@ -126,18 +130,26 @@ class ChromaVS(VectorStore):
 
     @override
     def similarity_search_class(
-        self, question: str, k: int = 5, filter: Dict[str, str] = None, collection_name: str = None
+        self,
+        question: str,
+        k: int = 5,
+        filter: Dict[str, str] = None,
+        collection_name: str = None,
     ) -> List[Document]:
         """
         Implements similarity search using the dedicated class ChromaDB client.
         """
-        if collection_name and f"{collection_name}_classes" != self.vector_store_classes._collection_name:
+        if (
+            collection_name
+            and f"{collection_name}_classes"
+            != self.vector_store_classes._collection_name
+        ):
             if not self.host and not self.port:
                 vector_store = Chroma(
                     embedding_function=self.embeddings_model,
                     persist_directory=self.persist_directory,
                     collection_name=f"{collection_name}_classes",
-                    )
+                )
             else:
                 client = chromadb.HttpClient(host=self.host, port=self.port, ssl=False)
                 vector_store = Chroma(
