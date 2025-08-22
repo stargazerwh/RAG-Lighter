@@ -1,3 +1,4 @@
+from typing import Optional
 from smolagents import Tool, tool, MCPClient
 from smolagents import CodeAgent, OpenAIServerModel, LiteLLMModel
 
@@ -21,6 +22,7 @@ class RetrieverTool(Tool):
             "type": "string",
             "description": "The name of the collection to search in. If not provided, the default collection will be used.",
             "optional": True,
+            "nullable": True,
         },
     }
     output_type = "string"
@@ -30,7 +32,7 @@ class RetrieverTool(Tool):
         self.vector_store: VectorStore = vector_store
         self.k: int = k
 
-    def forward(self, query: str, collection_name: str = None) -> str:
+    def forward(self, query: str, collection_name: Optional[str] = None) -> str:
 
         retrieved_docs = self.vector_store.similarity_search(
             query, k=self.k, collection_name=collection_name
@@ -61,6 +63,7 @@ class ClassRetrieverTool(Tool):
             "type": "string",
             "description": "The name of the collection to search in. If not provided, the default collection will be used.",
             "optional": True,
+            "nullable": True,
         },
     }
     output_type = "string"
@@ -70,7 +73,7 @@ class ClassRetrieverTool(Tool):
         self.vector_store: VectorStore = vector_store
         self.k: int = k
 
-    def forward(self, query: str, collection_name: str = None) -> str:
+    def forward(self, query: str, collection_name: Optional[str] = None) -> str:
 
         retrieved_classes = self.vector_store.similarity_search_class(
             query, k=self.k, collection_name=collection_name
