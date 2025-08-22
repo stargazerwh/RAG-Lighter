@@ -31,6 +31,10 @@ class ChromaVS(VectorStore):
         """
         super().__init__(persist_directory, embeddings_model)
 
+        self.persist_directory = persist_directory
+        self.host = host
+        self.port = port
+
         if not host and not port:
             self.vector_store = Chroma(
                 embedding_function=self.embeddings_model,
@@ -97,18 +101,49 @@ class ChromaVS(VectorStore):
 
     @override
     def similarity_search(
-        self, question: str, k: int = 5, filter: Dict[str, str] = None
+        self, question: str, k: int = 5, filter: Dict[str, str] = None, collection_name: str = None
     ) -> List[Document]:
         """
         Implements similarity search using the main ChromaDB client.
         """
-        return self.vector_store.similarity_search(question, k=k, filter=filter)
+        if collection_name and collection_name != self.vector_store._collection_name:
+            if not self.host and not self.port:
+                vector_store = Chroma(
+                    embedding_function=self.embeddings_model,
+                    persist_directory=self.persist_directory,
+                    collection_name=collection_name,
+                    )
+            else:
+                client = chromadb.HttpClient(host=self.host, port=self.port, ssl=False)
+                vector_store = Chroma(
+                    client=client,
+                    embedding_function=self.embeddings_model,
+                    collection_name=collection_name,
+                )
+            return vector_store.similarity_search(question, k=k, filter=filter)
+        else:
+            return self.vector_store.similarity_search(question, k=k, filter=filter)
 
     @override
     def similarity_search_class(
-        self, question: str, k: int = 5, filter: Dict[str, str] = None
+        self, question: str, k: int = 5, filter: Dict[str, str] = None, collection_name: str = None
     ) -> List[Document]:
         """
         Implements similarity search using the dedicated class ChromaDB client.
         """
+        if collection_name and f"{collection_name}_classes" != self.vector_store_classes._collection_name:
+            if not self.host and not self.port:
+                vector_store = Chroma(
+                    embedding_function=self.embeddings_model,
+                    persist_directory=self.persist_directory,
+                    collection_name=f"{collection_name}_classes",
+                    )
+            else:
+                client = chromadb.HttpClient(host=self.host, port=self.port, ssl=False)
+                vector_store = Chroma(
+                    client=client,
+                    embedding_function=self.embeddings_model,
+                    collection_name=f"{collection_name}_classes",
+                )
+            return vector_store.similarity_search(question, k=k, filter=filter)
         return self.vector_store_classes.similarity_search(question, k=k, filter=filter)

@@ -11,13 +11,18 @@ from ..rag.builder import Builder
 class RetrieverTool(Tool):
     name = "retriever"
     description = (
-        "Uses semantic search to retrieve relevant parts of the code documentation."
+        "Uses semantic search to retrieve relevant parts of the code documentation or the knowledge base."
     )
 
     inputs = {
         "query": {
             "type": "string",
             "description": "The query to perform. Should be semantically close to the target documents.",
+        },
+        "collection_name": {
+            "type": "string",
+            "description": "The name of the collection to search in. If not provided, the default collection will be used.",
+            "optional": True,
         },
     }
     output_type = "string"
@@ -27,9 +32,9 @@ class RetrieverTool(Tool):
         self.vector_store: VectorStore = vector_store
         self.k: int = k
 
-    def forward(self, query: str) -> str:
+    def forward(self, query: str, collection_name: str = None) -> str:
 
-        retrieved_docs = self.vector_store.similarity_search(query, k=self.k)
+        retrieved_docs = self.vector_store.similarity_search(query, k=self.k, collection_name=collection_name)
 
         return "\nRetrieved documents:\n" + "".join(
             [
@@ -52,6 +57,11 @@ class ClassRetrieverTool(Tool):
             "type": "string",
             "description": "The name or description of the class to retrieve.",
         },
+        "collection_name": {
+            "type": "string",
+            "description": "The name of the collection to search in. If not provided, the default collection will be used.",
+            "optional": True,
+        },
     }
     output_type = "string"
 
@@ -60,9 +70,9 @@ class ClassRetrieverTool(Tool):
         self.vector_store: VectorStore = vector_store
         self.k: int = k
 
-    def forward(self, query: str) -> str:
+    def forward(self, query: str, collection_name: str = None) -> str:
 
-        retrieved_classes = self.vector_store.similarity_search_class(query, k=self.k)
+        retrieved_classes = self.vector_store.similarity_search_class(query, k=self.k, collection_name=collection_name)
 
         return "\nRetrieved classes:\n" + "".join(
             [
