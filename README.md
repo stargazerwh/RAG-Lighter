@@ -362,6 +362,7 @@ config = AgenticRAGConfig(
         )
 
 agenticRag = AgenticRAGPipeline(config, vector_store_config)
+agenticRag.build()
 
 response = agenticRag.generate("Please implement for me AgenticRAGPipeline inspired by RAGPipeline and AgenticRAG and RAG")
 
