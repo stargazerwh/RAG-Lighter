@@ -40,7 +40,6 @@ class RAGPipeline:
         api_base: str = config.api_base
         embeddings_api_base: str = vector_store_config.api_base
         database: str = vector_store_config.database
-        self.file_extension: str = vector_store_config.file_extension
         model_name: str = config.llm
         provider: str = config.provider
         embeddings_provider: str = vector_store_config.provider
@@ -57,6 +56,8 @@ class RAGPipeline:
                 database,
                 persist_directory=persist_directory,
                 collection_name=collection_name,
+                host=vector_store_config.host,
+                port=vector_store_config.port,
             )
             .with_llm(
                 provider,
@@ -84,19 +85,14 @@ class RAGPipeline:
         for source in self.knowledge_base:
             if isinstance(source, FolderSource):
                 self.get_vector_store().ingest(
-                    file_extension=self.file_extension,
-                    data_path=source.path,
-                    ignore_folders=self.ignore_folders,
-                )
-                self.get_vector_store().ingest_code(
-                    repos_path=source.path, ignore_folders=self.ignore_folders
+                    data_path=source.path, ignore_folders=self.ignore_folders
                 )
             if isinstance(source, GitHubSource):
-                repositories.append(source.url)
+                repositories.append(source)
         if len(repositories) > 0:
             self.ingest_github_repositories(repositories)
 
-    def ingest_github_repositories(self, repositories: List[str]) -> None:
+    def ingest_github_repositories(self, repositories: List[GitHubSource]) -> None:
         """
         Clones and processes GitHub repositories for the pipeline.
 
@@ -105,8 +101,8 @@ class RAGPipeline:
         """
         self.github_scrapper.set_repositories(repositories)
         repos_path: str = self.github_scrapper.clone_all()
-        self.get_vector_store().ingest_code(
-            repos_path=repos_path, ignore_folders=self.ignore_folders
+        self.get_vector_store().ingest(
+            data_path=repos_path, ignore_folders=self.ignore_folders
         )
         shutil.rmtree(repos_path)
         logging.info("✅ GitHub repositories cleaned successfully!")

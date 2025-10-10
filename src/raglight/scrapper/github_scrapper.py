@@ -48,7 +48,7 @@ class GithubScrapper:
         except Exception as e:
             logging.error(f"Unexpected error occurred: {e}")
 
-    def clone_all(self, branch: str = "main") -> str:
+    def clone_all(self) -> str:
         """
         Clones all repositories in the `repo_urls` list to a temporary directory.
 
@@ -62,7 +62,9 @@ class GithubScrapper:
         temp_path = Path(temp_dir)
         logging.info(f"Cloning repositories into folder: {temp_path}")
 
-        for url in self.repo_urls:
+        for repo in self.repositories:
+            url = repo.url
+            branch = repo.branch if hasattr(repo, "branch") else "main"
             repo_name = url.split("/")[-1].replace(".git", "")
             clone_path = temp_path / repo_name
             self.clone_github_repo(url, str(clone_path), branch)
@@ -76,13 +78,13 @@ class GithubScrapper:
         Returns:
             List[str]: The list of repository URLs.
         """
-        return self.repo_urls
+        return [self.repositories[i].url for i in range(len(self.repositories))]
 
-    def set_repositories(self, repositories: List[str]) -> None:
+    def set_repositories(self, repositories: List[GitHubSource]) -> None:
         """
         Sets the list of GitHub repositories to manage.
 
         Args:
             repositories (List[GitHubSource]): A list of GitHub repository sources to manage.
         """
-        self.repo_urls = repositories
+        self.repositories = repositories

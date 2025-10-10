@@ -13,11 +13,45 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 ---
 
+## 📚 Table of Contents
+
+- [Requirements](#⚠️-requirements)
+- [Features](#features)
+- [Import library](#import-library-🛠️)
+- [Chat with Your Documents Instantly With CLI](#chat-with-your-documents-instantly-with-cli-💬)
+
+  - [Ignore Folders Feature](#ignore-folders-feature-🚫)
+  - [Ignore Folders in Configuration Classes](#ignore-folders-in-configuration-classes-🚫)
+
+- [Environment Variables](#environment-variables)
+- [Providers and Databases](#providers-and-databases)
+
+  - [LLM](#llm)
+  - [Embeddings](#embeddings)
+  - [Vector Store](#vector-store)
+
+- [Quick Start](#quick-start-🚀)
+
+  - [Knowledge Base](#knowledge-base)
+  - [RAG](#rag)
+  - [Agentic RAG](#agentic-rag)
+  - [MCP Integration](#mcp-integration)
+  - [RAT](#rat)
+  - [Use Custom Pipeline](#use-custom-pipeline)
+
+- [Use RAGLight with Docker](#use-raglight-with-docker)
+
+  - [Build your image](#build-your-image)
+  - [Run your image](#run-your-image)
+
+---
+
 > ## ⚠️ Requirements
 >
 > Actually RAGLight supports :
 >
 > - Ollama
+> - Google
 > - LMStudio
 > - vLLM
 > - OpenAI API
@@ -32,6 +66,7 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 - **RAG Pipeline**: Combines document retrieval and language generation in a unified workflow.
 - **RAT Pipeline**: Combines document retrieval and language generation in a unified workflow. Add reflection loops using a reasoning model like **Deepseek-R1** or **o1**.
 - **Agentic RAG Pipeline**: Use Agent to improve your RAG performances.
+- 🔌 **MCP Integration**: Add external tool capabilities (e.g. code execution, database access) via MCP servers.
 - **Flexible Document Support**: Ingest and index various document types (e.g., PDF, TXT, DOCX, Python, Javascript, ...).
 - **Extensible Architecture**: Easily swap vector stores, embedding models, or LLMs to suit your needs.
 
@@ -39,7 +74,7 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 
 ## Import library 🛠️
 
-If you want to install library, use :
+To install the library, run:
 
 ```bash
 pip install raglight
@@ -47,7 +82,7 @@ pip install raglight
 
 ---
 
-## Chat with Your Documents Instantly (CLI Wizard) 💬
+## Chat with Your Documents Instantly With CLI 💬
 
 For the quickest and easiest way to get started, RAGLight provides an interactive command-line wizard. It will guide you through every step, from selecting your documents to chatting with them, without writing a single line of Python.
 Prerequisite: Ensure you have a local LLM service like Ollama running.
@@ -58,7 +93,7 @@ Just run this one command in your terminal:
 raglight chat
 ```
 
-Or you can use Agentic RAG using this command :
+You can also launch the Agentic RAG wizard with:
 
 ```bash
 raglight agentic-chat
@@ -137,6 +172,7 @@ You can set several environment vaiables to change **RAGLight** settings :
 - `LMSTUDIO_CLIENT` if you have a custom LMStudio URL
 - `OPENAI_CLIENT_URL` if you have a custom OpenAI URL or vLLM URL
 - `OPENAI_API_KEY` if you need an OpenAI key
+- `GEMINI_API_KEY` if you need an OpenAI key
 
 ## Providers and databases
 
@@ -149,6 +185,7 @@ For your LLM inference, you can use these providers :
 - Mistral API (`Settings.MISTRAL`)
 - vLLM (`Settings.VLLM`)
 - OpenAI (`Settings.OPENAI`)
+- Google (`Settings.GOOGLE_GEMINI`)
 
 ### Embeddings
 
@@ -158,6 +195,7 @@ For embeddings models, you can use these providers :
 - Ollama (`Settings.OLLAMA`)
 - vLLM (`Settings.VLLM`)
 - OpenAI (`Settings.OPENAI`)
+- Google (`Settings.GOOGLE_GEMINI`)
 
 ### Vector Store
 
@@ -167,8 +205,7 @@ For your vector store, you can use :
 
 ## Quick Start 🚀
 
-<details>
-<summary> <b>Knowledge Base</b> </summary>
+### Knowledge Base
 
 Knowledge Base is a way to define data you want to ingest inside your vector store during the initialization of your RAG.
 It's the data ingest when you call `build` function :
@@ -190,7 +227,7 @@ You can define two different knowledge base :
 
 1. Folder Knowledge Base
 
-All files/folders into this directory will be ingested inside the vectore store :
+All files/folders into this directory will be ingested inside the vector store :
 
 ```python
 from raglight import FolderSource
@@ -206,10 +243,7 @@ from raglight import GitHubSource
 GitHubSource(url="https://github.com/Bessouat40/RAGLight")
 ```
 
-</details>
-
-<details>
-<summary> <b>RAG</b> </summary>
+### RAG
 
 You can setup easily your RAG with RAGLight :
 
@@ -258,10 +292,7 @@ You just have to fill the model you want to use.
 > ⚠️
 > By default, LLM Provider will be Ollama
 
-</details>
-
-<details>
-<summary> <b>Agentic RAG</b> </summary>
+### Agentic RAG
 
 This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
 an additional Agent. This agent can retrieve data from your vector store.
@@ -275,12 +306,12 @@ You can modify several parameters in your config :
 - `api_key` : Your Mistral API key
 - `api_base` : Your API URL (Ollama URL, LM Studio URL, ...)
 - `num_ctx` : Your context max_length
-- `verbosity_level` : You logs verbosity level
+- `verbosity_level` : Your logs' verbosity level
 - `ignore_folders` : List of folders to exclude during indexing (e.g., [".venv", "node_modules", "__pycache__"])
 
 ```python
 from raglight.config.settings import Settings
-from raglight.rag.agentic_rag import AgenticRAG
+from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
 from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.config.settings import Settings
@@ -298,6 +329,8 @@ vector_store_config = VectorStoreConfig(
     api_base = Settings.DEFAULT_OLLAMA_CLIENT,
     database=Settings.CHROMA,
     persist_directory = persist_directory,
+    # host='localhost',
+    # port='8001',
     provider = Settings.HUGGINGFACE,
     collection_name = collection_name
 )
@@ -328,17 +361,37 @@ config = AgenticRAGConfig(
             # knowledge_base = knowledge_base
         )
 
-agenticRag = AgenticRAG(config, vector_store_config)
+agenticRag = AgenticRAGPipeline(config, vector_store_config)
+agenticRag.build()
 
 response = agenticRag.generate("Please implement for me AgenticRAGPipeline inspired by RAGPipeline and AgenticRAG and RAG")
 
 print('response : ', response)
 ```
 
-</details>
+### MCP Integration
 
-<details>
-<summary> <b>RAT</b> </summary>
+RAGLight supports MCP Server integration to enhance the reasoning capabilities of your agent. MCP allows the agent to interact with external tools (e.g., code execution environments, database tools, or search agents) via a standardized server interface.
+
+To use MCP, simply pass a mcp_config parameter to your AgenticRAGConfig, where each config defines the url (and optionally transport) of the MCP server.
+
+Just add this parameter to your AgenticRAGPipeline :
+
+```python
+config = AgenticRAGConfig(
+    provider = Settings.OPENAI,
+    model = "gpt-4o",
+    k = 10,
+    mcp_config = [
+        {"url": "http://127.0.0.1:8001/sse"}  # Your MCP server URL
+    ],
+    ...
+)
+```
+
+> 📚 Documentation: Learn how to configure and launch an MCP server using [MCPClient.server_parameters](https://huggingface.co/docs/smolagents/en/reference/tools#smolagents.MCPClient.server_parameters)
+
+### RAT
 
 This pipeline extends the Retrieval-Augmented Generation (RAG) concept by incorporating
 an additional reasoning step using a specialized reasoning language model (LLM).
@@ -386,10 +439,7 @@ response = pipeline.generate("How can I create an easy RAGPipeline using ragligh
 print(response)
 ```
 
-</details>
-
-<details>
-<summary> <b>Use Custom Pipeline</b> </summary>
+### Use Custom Pipeline
 
 **1. Configure Your Pipeline**
 
@@ -413,7 +463,7 @@ Then you can ingest data into your vector store.
 1. You can use default pipeline that'll ingest no code data :
 
 ```python
-rag.vector_store.ingest(file_extension='**/*.pdf', data_path='./data')
+rag.vector_store.ingest(data_path='./data')
 ```
 
 2. Or you can use code pipeline :
@@ -436,9 +486,9 @@ response = rag.generate("How can I optimize my marathon training?")
 print(response)
 ```
 
-</details>
-
-You can find more examples here : [examples](https://github.com/Bessouat40/RAGLight/blob/main/examples).
+> ### ✚ More Examples
+>
+> You can find more examples for all these use cases in the [examples](https://github.com/Bessouat40/RAGLight/blob/main/examples) directory.
 
 ## Use RAGLight with Docker
 
@@ -453,7 +503,7 @@ Just go to **examples** directory and run :
 docker build -t docker-raglight -f Dockerfile.example .
 ```
 
-## Run you image
+## Run your image
 
 In order your container can communicate with Ollama or LMStudio, you need to add a custom host-to-IP mapping :
 

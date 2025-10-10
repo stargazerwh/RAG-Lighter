@@ -18,7 +18,7 @@ class TestVectorStore(unittest.TestCase):
         )
 
     def test_ingest(self):
-        self.store.ingest(file_extension="**/*.pdf", data_path=self.data_path)
+        self.store.ingest(data_path=self.data_path)
         self.assertEqual(True, True, "Embedding should be added to the store.")
 
 

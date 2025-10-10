@@ -9,8 +9,6 @@ from .llm import LLM
 from google.genai import Client
 from google.genai import types
 
-Settings.setup_logging()
-
 
 class GeminiModel(LLM):
     """

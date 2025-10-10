@@ -7,7 +7,7 @@ Settings.setup_logging()
 
 persist_directory = './defaultDb'
 model_embeddings = Settings.DEFAULT_EMBEDDINGS_MODEL
-model_name = 'llama3.2:3b'
+model_name = 'gemma3:4b'
 system_prompt_directory = Settings.DEFAULT_SYSTEM_PROMPT
 collection_name = Settings.DEFAULT_COLLECTION_NAME
 
@@ -17,6 +17,10 @@ rag = Builder() \
     .with_llm(Settings.OLLAMA, model_name=model_name, system_prompt=system_prompt_directory) \
     .build_rag(k = 5)
 
-response = rag.generate("Can you tell me something about grece mythology ?")
+rag.vector_store.ingest(
+                    data_path='../src/',
+                    # ignore_folders=ignore_folders
+                )
+response = rag.generate("How can I use RAGLight to build a RAG Pipeline ?")
 print(response)
 

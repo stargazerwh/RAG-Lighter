@@ -30,7 +30,6 @@ class AgenticRAGPipeline(RAGPipeline):
         """
         self.knowledge_base: List[DataSource] = config.knowledge_base
         self.ignore_folders = config.ignore_folders
-        self.file_extension: str = Settings.DEFAULT_EXTENSIONS
 
         self.agenticRag = AgenticRAG(config, vector_store_config)
 

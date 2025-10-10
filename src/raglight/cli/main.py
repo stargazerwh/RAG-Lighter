@@ -174,7 +174,12 @@ def interactive_chat_command():
     console.print("[bold blue]\n--- 🧠 Step 3: Embeddings Model ---[/bold blue]")
     emb_provider = questionary.select(
         "Which embeddings provider do you want to use?",
-        choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
+        choices=[
+            Settings.HUGGINGFACE,
+            Settings.OLLAMA,
+            Settings.OPENAI,
+            Settings.GOOGLE_GEMINI,
+        ],
         default=Settings.HUGGINGFACE,
         style=custom_style,
     ).ask()
@@ -184,6 +189,8 @@ def interactive_chat_command():
         default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
     elif emb_provider == Settings.OPENAI:
         default_api_base = Settings.DEFAULT_OPENAI_CLIENT
+    elif emb_provider == Settings.GOOGLE_GEMINI:
+        default_api_base = Settings.DEFAULT_GOOGLE_CLIENT
 
     embeddings_base_url = RichPrompt.ask(
         "[bold]What is your base URL for the embeddings provider? (Not needed for HuggingFace)[/bold]",
@@ -197,7 +204,13 @@ def interactive_chat_command():
     console.print("[bold blue]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold blue]")
     llm_provider = questionary.select(
         "Which LLM provider do you want to use?",
-        choices=[Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
+        choices=[
+            Settings.OLLAMA,
+            Settings.MISTRAL,
+            Settings.OPENAI,
+            Settings.LMSTUDIO,
+            Settings.GOOGLE_GEMINI,
+        ],
         default=Settings.OLLAMA,
         style=custom_style,
     ).ask()
@@ -209,6 +222,8 @@ def interactive_chat_command():
         llm_default_api_base = Settings.DEFAULT_OPENAI_CLIENT
     elif llm_provider == Settings.LMSTUDIO:
         llm_default_api_base = Settings.DEFAULT_LMSTUDIO_CLIENT
+    elif llm_provider == Settings.GOOGLE_GEMINI:
+        llm_default_api_base = Settings.DEFAULT_GOOGLE_CLIENT
 
     llm_base_url = RichPrompt.ask(
         "[bold]What is your base URL for the LLM provider? (Not needed for Mistral)[/bold]",
@@ -254,9 +269,6 @@ def interactive_chat_command():
         if should_index:
             vector_store = builder.build_vector_store()
             vector_store.ingest(data_path=str(data_path), ignore_folders=ignore_folders)
-            vector_store.ingest_code(
-                repos_path=str(data_path), ignore_folders=ignore_folders
-            )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print(
@@ -473,9 +485,6 @@ def interactive_chat_command():
         if should_index:
             agenticRag.get_vector_store().ingest(
                 data_path=str(data_path), ignore_folders=ignore_folders
-            )
-            agenticRag.get_vector_store().ingest_code(
-                repos_path=str(data_path), ignore_folders=ignore_folders
             )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:

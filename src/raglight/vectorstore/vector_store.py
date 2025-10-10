@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Any, List, Dict
 import os
-import re
-import ast
 import logging
-from langchain_text_splitters import Language
+from langchain_core.documents import Document
+import copy
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from ..document_processing.document_processor_factory import DocumentProcessorFactory
 from ..embeddings.embeddings_model import EmbeddingsModel
 from ..config.settings import Settings
 
@@ -13,14 +15,8 @@ class VectorStore(ABC):
     """
     Abstract base class for vector store implementations.
 
-    This class provides a blueprint for creating vector stores that handle document ingestion,
-    indexing, and similarity search. Concrete implementations must define the methods for
-    specific vector store backends.
-
-    Attributes:
-        persist_directory (str): The directory where the vector store data is persisted.
-        embeddings_model: The embeddings model used for encoding documents.
-        vector_store: The actual instance of the vector store, initialized in the subclass.
+    This class provides a shared ingestion pipeline and defines the abstract methods
+    that concrete implementations (like Chroma, Qdrant) must provide.
     """
 
     def __init__(
@@ -28,233 +24,132 @@ class VectorStore(ABC):
     ) -> None:
         """
         Initializes a VectorStore instance.
-
-        Args:
-            persist_directory (str): Directory where the vector store data will be persisted.
-            embeddings_model (Any): The embeddings model instance used for vectorization.
         """
-        self.JAVA_TS_CPP_CLASS_PATTERN = r"\bclass\s+(\w+)"
-        self.CSHARP_CLASS_PATTERN = r"\bclass\s+(\w+)"
         self.embeddings_model: Any = embeddings_model.get_model()
         self.persist_directory: str = persist_directory
         self.vector_store: Any = None
+        self.vector_store_classes: Any = None
 
-    @abstractmethod
-    def ingest(self, **kwargs: Any) -> None:
+    @staticmethod
+    def _process_file(
+        file_path: str, factory: DocumentProcessorFactory, flatten_metadata
+    ):
+        processor = factory.get_processor(file_path)
+        if not processor:
+            return [], []
+        try:
+            processed_docs = processor.process(
+                file_path, chunk_size=2500, chunk_overlap=250
+            )
+            chunks = flatten_metadata(processed_docs.get("chunks", []))
+            classes = flatten_metadata(processed_docs.get("classes", []))
+            return chunks, classes
+        except Exception as e:
+            logging.warning(f"⚠️ Error processing {file_path}: {e}")
+            return [], []
+
+    def ingest(self, data_path: str, ignore_folders: List[str] = None) -> None:
         """
-        Abstract method to ingest and index documents in the vector store.
-
-        Args:
-            **kwargs (Any): Additional parameters required for ingestion, depending on the implementation.
+        Orchestrates the ingestion of documents by recursively walking the data_path,
+        ignoring specified folders, and using a factory to select the correct
+        processing strategy for each file. This logic is shared across all
+        VectorStore implementations.
         """
-        pass
+        if not os.path.isdir(data_path):
+            logging.error(f"Provided data_path '{data_path}' is not a valid directory.")
+            return
 
-    @abstractmethod
-    def ingest_code(self, **kwargs: Any) -> None:
-        """
-        Abstract method to ingest and index code in the vector store.
-
-        Args:
-            **kwargs (Any): Additional parameters required for ingestion, depending on the implementation.
-        """
-        pass
-
-    @abstractmethod
-    def similarity_search(self, question: str, k: int = 2) -> List[Any]:
-        """
-        Abstract method to perform similarity search in the vector store.
-
-        Args:
-            question (str): The input query for similarity search.
-            k (int, optional): The number of top results to retrieve. Defaults to 2.
-
-        Returns:
-            List[Any]: A list of top-k similar documents.
-        """
-        pass
-
-    @abstractmethod
-    def similarity_search_class(self, question: str, k: int = 2) -> List[Any]:
-        """
-        Abstract method to perform similarity search in the vector store.
-
-        Args:
-            question (str): The input query for similarity search.
-            k (int, optional): The number of top results to retrieve. Defaults to 2.
-
-        Returns:
-            List[Any]: A list of top-k similar documents.
-        """
-        pass
-
-    def get_language_from_extension(self, extension: str) -> Language | None:
-        """
-        Maps a file extension to a Language enum.
-
-        Args:
-            extension (str): File extension (e.g., 'py', 'js').
-
-        Returns:
-            Language: Corresponding Language enum, or None if not supported.
-        """
-        extension_to_language = {
-            "py": Language.PYTHON,
-            "js": Language.JS,
-            "ts": Language.TS,
-            "java": Language.JAVA,
-            "cpp": Language.CPP,
-            "go": Language.GO,
-            "php": Language.PHP,
-            "rb": Language.RUBY,
-            "rs": Language.RUST,
-            "scala": Language.SCALA,
-            "swift": Language.SWIFT,
-            "md": Language.MARKDOWN,
-            "html": Language.HTML,
-            "sol": Language.SOL,
-            "cs": Language.CSHARP,
-            "c": Language.C,
-            "lua": Language.LUA,
-            "pl": Language.PERL,
-            "hs": Language.HASKELL,
-        }
-        return extension_to_language.get(extension)
-
-    def should_ignore_directory(self, path: str, ignore_folders: List[str]) -> bool:
-        """
-        Checks if a given directory path should be ignored based on a list of folders.
-
-        Args:
-            path (str): The directory path to check.
-            ignore_folders (List[str]): A list of folder names to ignore.
-
-        Returns:
-            bool: True if the directory should be ignored, False otherwise.
-        """
-        # Normalize the path to handle different path separators
-        normalized_path = os.path.normpath(path)
-        path_parts = normalized_path.split(os.sep)
-
-        for folder in ignore_folders:
-            if folder in path_parts:
-                return True
-        return False
-
-    def get_classes(
-        self,
-        repos_path: str,
-        ignore_folders: List[str] = Settings.DEFAULT_IGNORE_FOLDERS,
-    ) -> dict:
-        """
-        Extracts all class names and their signatures from the project's source code.
-
-        Args:
-            repos_path (str): Path to the project's root directory.
-            ignore_folders (List[str], optional): List of folder names to ignore.
-                                                 Defaults to Settings.DEFAULT_IGNORE_FOLDERS.
-
-        Returns:
-            dict: A dictionary where keys are file paths and values are lists of class signatures.
-        """
-        class_map = {}
         if ignore_folders is None:
             ignore_folders = Settings.DEFAULT_IGNORE_FOLDERS
 
-        for root, _, files in os.walk(repos_path):
-            if self.should_ignore_directory(root, ignore_folders):
-                logging.info(f"Skipping directory: {root}")
-                continue
+        factory = DocumentProcessorFactory()
 
+        logging.info(f"⏳ Starting ingestion from '{data_path}'...")
+
+        files_to_process = []
+        for root, dirs, files in os.walk(data_path, topdown=True):
+            dirs[:] = [
+                d
+                for d in dirs
+                if not self._should_ignore(os.path.join(root, d), ignore_folders)
+            ]
             for file in files:
                 file_path = os.path.join(root, file)
-                file_extension = os.path.splitext(file)[1][1:]
-                language = self.get_language_from_extension(file_extension)
-                class_signatures = []
+                processor = factory.get_processor(file_path)
+                if processor:
+                    logging.info(
+                        f"  -> Queuing '{file_path}' with {processor.__class__.__name__}"
+                    )
+                    files_to_process.append((file_path, processor))
 
-                if language:
-                    try:
-                        logging.info(f"🔍 Extracting classes from {file_path}")
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [
+                executor.submit(
+                    self._process_file, file_path, factory, self._flatten_metadata
+                )
+                for file_path, _ in files_to_process
+            ]
 
-                        if language == Language.PYTHON:
-                            class_signatures = self.extract_python_class_signatures(
-                                file_path
-                            )
-                        elif language in {
-                            Language.JS,
-                            Language.TS,
-                            Language.JAVA,
-                            Language.CPP,
-                            Language.CSHARP,
-                        }:
-                            class_signatures = self.extract_class_signatures_with_regex(
-                                file_path, language
-                            )
+            for future in as_completed(futures):
+                try:
+                    chunks, classes = future.result()
+                    if chunks:
+                        self.add_documents(chunks)
+                    if classes:
+                        self.add_class_documents(classes)
+                except Exception as e:
+                    logging.warning(f"⚠️ Future raised an exception: {e}")
 
-                        if class_signatures:
-                            class_map[file_path] = class_signatures
+        logging.info("🎉 Ingestion process completed successfully!")
 
-                    except Exception as e:
-                        logging.warning(
-                            f"⚠️ Error extracting classes from {file_path}: {e}"
-                        )
-
-        logging.info(
-            f"✅ Extracted {sum(len(v) for v in class_map.values())} class signatures"
-        )
-        return class_map
-
-    def extract_python_class_signatures(self, file_path: str) -> List[str]:
+    def _flatten_metadata(self, documents: List[Document]) -> List[Document]:
         """
-        Extracts class signatures (name + inheritance) from a Python file.
-
-        Args:
-            file_path (str): Path to the Python file.
-
-        Returns:
-            List[str]: List of class signatures.
+        Creates a deep copy of the documents and converts any complex metadata values
+        (lists, dicts) into their string representations.
         """
-        with open(file_path, "r", encoding="utf-8") as f:
-            tree = ast.parse(f.read(), filename=file_path)
+        cloned_documents = copy.deepcopy(documents)
 
-        class_signatures = []
-        for node in ast.walk(tree):
-            if isinstance(node, ast.ClassDef):
-                bases = [
-                    base.id if isinstance(base, ast.Name) else "?"
-                    for base in node.bases
-                ]
-                class_signature = f"class {node.name}({', '.join(bases)})"
-                class_signatures.append(class_signature)
+        for doc in cloned_documents:
+            for key, value in doc.metadata.items():
+                if not isinstance(value, (str, int, float, bool)):
+                    doc.metadata[key] = str(value)
+        return cloned_documents
 
-        return class_signatures
-
-    def extract_class_signatures_with_regex(
-        self, file_path: str, language: Language
-    ) -> List[str]:
+    @abstractmethod
+    def add_documents(self, documents: List[Document]) -> None:
         """
-        Extracts class signatures using regex for various languages.
-
-        Args:
-            file_path (str): Path to the source code file.
-            language (Language): The programming language.
-
-        Returns:
-            List[str]: List of class signatures.
+        Adds a list of document chunks to the main vector store.
         """
-        patterns = {
-            Language.JAVA: r"class\s+(\w+)\s*(?:extends\s+(\w+))?\s*(?:implements\s+([\w, ]+))?",
-            Language.JS: r"class\s+(\w+)\s*(?:extends\s+(\w+))?",
-            Language.TS: r"class\s+(\w+)\s*(?:extends\s+(\w+))?",
-            Language.CPP: r"class\s+(\w+)\s*(?::\s*(public|private|protected)?\s*(\w+))?",
-            Language.CSHARP: r"class\s+(\w+)\s*(?::\s*(\w+))?",
-        }
+        pass
 
-        pattern = patterns.get(language)
-        if not pattern:
-            return []
+    @abstractmethod
+    def add_class_documents(self, documents: List[Document]) -> None:
+        """
+        Adds a list of class signature documents to the dedicated class vector store.
+        """
+        pass
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            code = f.read()
+    @abstractmethod
+    def similarity_search(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Document]:
+        """
+        Performs a similarity search in the main vector store.
+        """
+        pass
 
-        matches = re.findall(pattern, code)
-        return [f"class {m[0]}({', '.join(filter(None, m[1:]))})" for m in matches]
+    @abstractmethod
+    def similarity_search_class(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None
+    ) -> List[Document]:
+        """
+        Performs a similarity search in the class vector store.
+        """
+        pass
+
+    def _should_ignore(self, path: str, ignore_folders: List[str]) -> bool:
+        """
+        Checks if a given path should be ignored.
+        """
+        normalized_path = os.path.normpath(path)
+        return any(folder in normalized_path.split(os.sep) for folder in ignore_folders)
