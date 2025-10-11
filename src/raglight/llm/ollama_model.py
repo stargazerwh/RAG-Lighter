@@ -25,6 +25,7 @@ class OllamaModel(LLM):
     def __init__(
         self,
         model_name: str,
+        options: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
         api_base: Optional[str] = None,
@@ -35,6 +36,7 @@ class OllamaModel(LLM):
 
         Args:
             model_name (str): The name of the Ollama model to be loaded.
+            options (Optional[Dict]): Ollama options, both load and runtime, see https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter
             system_prompt (Optional[str]): System prompt. Defaults to None.
             system_prompt_file (Optional[str]): Path to a file containing a custom system prompt. Defaults to None.
             role (str): The role of the user in the chat (e.g., 'user', 'assistant'). Defaults to 'user'.
@@ -43,6 +45,7 @@ class OllamaModel(LLM):
         super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using Ollama with {model_name} model 🤖")
         self.role: str = role
+        self.options = options
 
     @override
     def load(self) -> Client:
@@ -76,6 +79,7 @@ class OllamaModel(LLM):
                     "content": new_input,
                 },
             ],
+            options=self.options
         )
         return response.message.content
 

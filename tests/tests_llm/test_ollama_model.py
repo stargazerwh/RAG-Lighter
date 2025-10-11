@@ -8,7 +8,9 @@ class TestOllamaModel(unittest.TestCase):
         model_name = TestsConfig.OLLAMA_MODEL
         system_prompt_directory = TestsConfig.SYSTEM_PROMPT
         self.model = OllamaModel(
-            model_name=model_name, system_prompt_file=system_prompt_directory
+            model_name=model_name, 
+            system_prompt_file=system_prompt_directory,
+            options={"temperature": 0.3}
         )
 
     def test_generate_response(self):
