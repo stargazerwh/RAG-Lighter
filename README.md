@@ -172,7 +172,7 @@ You can set several environment vaiables to change **RAGLight** settings :
 - `LMSTUDIO_CLIENT` if you have a custom LMStudio URL
 - `OPENAI_CLIENT_URL` if you have a custom OpenAI URL or vLLM URL
 - `OPENAI_API_KEY` if you need an OpenAI key
-- `GEMINI_API_KEY` if you need an OpenAI key
+- `GEMINI_API_KEY` if you need a Google Gemini API key
 
 ## Providers and databases
 
