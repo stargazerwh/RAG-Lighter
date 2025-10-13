@@ -79,7 +79,7 @@ class OllamaModel(LLM):
                     "content": new_input,
                 },
             ],
-            options=self.options
+            options=self.options,
         )
         return response.message.content
 
