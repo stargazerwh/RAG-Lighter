@@ -5,6 +5,6 @@ class TestsConfig:
     GEMINI_EMBEDDING_MODEL = "models/gemini-embedding-001"
     CHROMA_PERSIST_DIRECTORY = "/Users/labess40/dev/RAGLight/chromaDb"
     CHROMA_PERSIST_DIRECTORY_INGESTION = "/Users/labess40/dev/RAGLight/chromaDb2"
-    SYSTEM_PROMPT = "/Users/labess40/dev/RAGLight/systemPrompt.txt"
+    TEST_SYSTEM_PROMPT = "tests/prompts/prompt.txt"
     COLLECTION_NAME = "grece"
     DATA_PATH = "/Users/labess40/Desktop/nutrition/grece"
