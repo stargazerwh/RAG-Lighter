@@ -1,9 +1,7 @@
 from __future__ import annotations
-from typing import Any, Optional
 from typing_extensions import override
 from .embeddings_model import EmbeddingsModel
 from langchain_huggingface import HuggingFaceEmbeddings
-
 
 class HuggingfaceEmbeddingsModel(EmbeddingsModel):
     """
@@ -16,13 +14,14 @@ class HuggingfaceEmbeddingsModel(EmbeddingsModel):
         model_name (str): The name of the HuggingFace model to be loaded.
     """
 
-    def __init__(self, model_name: str, api_base: Optional[str]) -> None:
+    def __init__(self, model_name: str) -> None:
         """
         Initializes a HuggingfaceEmbeddingsModel instance.
 
         Args:
             model_name (str): The name of the HuggingFace model to load.
         """
+        self.api_base = None
         super().__init__(model_name)
 
     @override

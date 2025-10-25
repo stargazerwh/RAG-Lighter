@@ -7,6 +7,8 @@ from ..test_config import TestsConfig
 
 
 class TestGeminiModel(unittest.TestCase):
+    _MOCK_RESPONSE = "Hello! This is a test response."
+
     @patch("raglight.Settings.GEMINI_API_KEY", "DUMMY_KEY")
     def setUp(self):
         model_name = TestsConfig.GEMINI_LLM_MODEL
@@ -15,7 +17,7 @@ class TestGeminiModel(unittest.TestCase):
         )
 
         mock_response = MagicMock()
-        mock_response.text = "Hello! This is a test response."
+        mock_response.text = self._MOCK_RESPONSE
         mock_response.candidates = [MagicMock()]  # Non-empty to pass the check
         mock_generate = MagicMock(return_value=mock_response)
 
@@ -26,10 +28,9 @@ class TestGeminiModel(unittest.TestCase):
     def test_generate_response(self):
         prompt = "Say hello."
         response = self.model.generate({"question": prompt})
-        print(response)
         self.assertIsInstance(response, str, "Response should be a string.")
         self.assertGreater(len(response), 0, "Response should not be empty.")
-        self.assertEqual(response, "Hello! This is a test response.")
+        self.assertEqual(response, self._MOCK_RESPONSE)
 
 
 if __name__ == "__main__":
