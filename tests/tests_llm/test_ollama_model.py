@@ -7,6 +7,7 @@ from ..test_config import TestsConfig
 
 
 class TestOllamaModel(unittest.TestCase):
+    
     def setUp(self):
         mock_ollama_client = MagicMock()
 

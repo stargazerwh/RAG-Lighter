@@ -1,3 +1,4 @@
+import os
 import unittest
 from raglight.vectorstore.chroma import ChromaVS
 from raglight.embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
@@ -15,6 +16,9 @@ class TestVectorStore(unittest.TestCase):
             persist_directory=persist_directory,
             collection_name=collection_name,
         )
+
+    def tearDown(self):
+        os.remove(TestsConfig.CHROMA_PERSIST_DIRECTORY_INGESTION+"/chroma.sqlite3")
 
     def test_ingest(self):
         self.store.ingest(data_path=self.data_path)
