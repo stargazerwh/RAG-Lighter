@@ -15,6 +15,7 @@ class TestOllamaModel(unittest.TestCase):
             model_name=TestsConfig.OLLAMA_MODEL,
             system_prompt_file=TestsConfig.TEST_SYSTEM_PROMPT,
             options={"temperature": 0.3},
+            headers={"x-some-header": "some-value"},
         )
 
         message: Message = Message(
