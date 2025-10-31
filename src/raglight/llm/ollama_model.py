@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Iterable, Optional, Dict, Any
+from typing import Iterable, Mapping, Optional, Dict, Any
 from typing_extensions import override
 from ..config.settings import Settings
 from .llm import LLM
@@ -30,6 +30,7 @@ class OllamaModel(LLM):
         system_prompt_file: Optional[str] = None,
         api_base: Optional[str] = None,
         role: str = "user",
+        headers: Optional[Mapping[str, str]] = None,
     ) -> None:
         """
         Initializes an OllamaModel instance.
@@ -40,8 +41,10 @@ class OllamaModel(LLM):
             system_prompt (Optional[str]): System prompt. Defaults to None.
             system_prompt_file (Optional[str]): Path to a file containing a custom system prompt. Defaults to None.
             role (str): The role of the user in the chat (e.g., 'user', 'assistant'). Defaults to 'user'.
+            headers (Optional[Dict[str, str]]): Headers to be sent with the request. Defaults to None.
         """
         self.api_base = api_base or Settings.DEFAULT_OLLAMA_CLIENT
+        self.headers = headers
         super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using Ollama with {model_name} model 🤖")
         self.role: str = role
@@ -55,7 +58,7 @@ class OllamaModel(LLM):
         Returns:
             Client: An instance of the Ollama model client, configured with the necessary host and headers.
         """
-        return Client(host=self.api_base, headers={"x-some-header": "some-value"})
+        return Client(host=self.api_base, headers=self.headers)
 
     @override
     def generate(self, input: Dict[str, Any]) -> str:
