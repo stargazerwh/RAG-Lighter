@@ -72,19 +72,23 @@ class OllamaModel(LLM):
         Returns:
             str: The generated output from the model.
         """
-        input["system prompt"] = self.system_prompt
-        new_input = dumps(input)
-        response = self.model.chat(
+        images = None
+
+        if "images" in input:
+            images = [img["bytes"] for img in input["images"]]
+            del input["images"]
+
+        prompt = input.get("question", "")
+
+        response = self.model.generate(
             model=self.model_name,
-            messages=[
-                {
-                    "role": self.role,
-                    "content": new_input,
-                },
-            ],
-            options=self.options,
+            system=self.system_prompt,
+            prompt=prompt,
+            images=images,
+            options=self.options
         )
-        return response.message.content
+
+        return response.response
 
     @override
     def generate_streaming(self, input: Dict[str, Any]) -> Iterable[str]:

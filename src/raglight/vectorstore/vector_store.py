@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 import os
 import logging
 from langchain_core.documents import Document
 import copy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from ..document_processing.document_processor import DocumentProcessor
 from ..document_processing.document_processor_factory import DocumentProcessorFactory
 from ..embeddings.embeddings_model import EmbeddingsModel
 from ..config.settings import Settings
@@ -20,7 +21,10 @@ class VectorStore(ABC):
     """
 
     def __init__(
-        self, persist_directory: str, embeddings_model: EmbeddingsModel
+        self,
+        persist_directory: str,
+        embeddings_model: EmbeddingsModel,
+        custom_processors: Optional[Dict[str, DocumentProcessor]] = None,
     ) -> None:
         """
         Initializes a VectorStore instance.
@@ -29,6 +33,7 @@ class VectorStore(ABC):
         self.persist_directory: str = persist_directory
         self.vector_store: Any = None
         self.vector_store_classes: Any = None
+        self.custom_processors: Dict[str, DocumentProcessor] = custom_processors or {}
 
     @staticmethod
     def _process_file(
@@ -62,7 +67,7 @@ class VectorStore(ABC):
         if ignore_folders is None:
             ignore_folders = Settings.DEFAULT_IGNORE_FOLDERS
 
-        factory = DocumentProcessorFactory()
+        factory = DocumentProcessorFactory(custom_processors=self.custom_processors)
 
         logging.info(f"⏳ Starting ingestion from '{data_path}'...")
 
