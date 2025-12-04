@@ -69,31 +69,25 @@ class MistralModel(LLM):
         content_blocks = []
 
         if self.system_prompt:
-            content_blocks.append({
-                "type": "text",
-                "text": f"[SYSTEM PROMPT]\n{self.system_prompt}"
-            })
+            content_blocks.append(
+                {"type": "text", "text": f"[SYSTEM PROMPT]\n{self.system_prompt}"}
+            )
 
-        content_blocks.append({
-            "type": "text",
-            "text": input.get("question", "")
-        })
+        content_blocks.append({"type": "text", "text": input.get("question", "")})
 
         if "images" in input:
             for image in input["images"]:
                 try:
-                    content_blocks.append({
-                        "type": "image_url",
-                        "image_url": f"data:image/jpeg;base64,{image['base64']}",
-                    })
+                    content_blocks.append(
+                        {
+                            "type": "image_url",
+                            "image_url": f"data:image/jpeg;base64,{image['base64']}",
+                        }
+                    )
                 except Exception as e:
                     logging.error(f"Could not read image: {e}")
         response = self.model.chat.complete(
             model=self.model_name,
-            messages=[
-                {"role": self.role,
-                 "content": content_blocks
-                 }
-            ],
+            messages=[{"role": self.role, "content": content_blocks}],
         )
         return response.choices[0].message.content

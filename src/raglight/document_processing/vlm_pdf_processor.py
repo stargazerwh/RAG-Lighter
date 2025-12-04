@@ -13,8 +13,10 @@ from .document_processor import DocumentProcessor
 
 import uuid
 
+
 def to_base64(img_bytes: bytes) -> str:
     return base64.b64encode(img_bytes).decode("utf-8")
+
 
 class VlmPDFProcessor(DocumentProcessor):
     """
@@ -100,13 +102,17 @@ class VlmPDFProcessor(DocumentProcessor):
                         img_b64 = to_base64(img_bytes)
 
                         try:
-                            caption = self.vlm.generate({
-                                "question": "Describe this image in detail.",
-                                "images": [{
-                                    "bytes": img_bytes,
-                                    "base64": img_b64,
-                                }],
-                            })
+                            caption = self.vlm.generate(
+                                {
+                                    "question": "Describe this image in detail.",
+                                    "images": [
+                                        {
+                                            "bytes": img_bytes,
+                                            "base64": img_b64,
+                                        }
+                                    ],
+                                }
+                            )
                         except Exception as e:
                             logging.error(f"VLM caption failed for {img_path}: {e}")
                             caption = "Image (caption unavailable due to VLM error)."

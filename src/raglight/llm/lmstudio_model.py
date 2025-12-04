@@ -31,10 +31,10 @@ class LMStudioModel(LLM):
     def generate(self, input: Dict[str, Any]) -> str:
         new_input = dumps(input)
         payload = {
-                    "role": self.role,
-                    "content": new_input,
-                }
-        if "images" in input :
+            "role": self.role,
+            "content": new_input,
+        }
+        if "images" in input:
             payload["images"] = input["images"]
         response = self.model.chat.completions.create(
             model=self.model_name,

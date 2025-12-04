@@ -85,7 +85,7 @@ class OllamaModel(LLM):
             system=self.system_prompt,
             prompt=prompt,
             images=images,
-            options=self.options
+            options=self.options,
         )
 
         return response.response

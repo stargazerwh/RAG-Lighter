@@ -12,7 +12,9 @@ class DocumentProcessorFactory:
     strategy for a given file path.
     """
 
-    def __init__(self, custom_processors: Optional[Dict[str, DocumentProcessor]] = None):
+    def __init__(
+        self, custom_processors: Optional[Dict[str, DocumentProcessor]] = None
+    ):
         # Default processors
         self._processors: Dict[str, DocumentProcessor] = {
             # PDF files

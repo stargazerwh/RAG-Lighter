@@ -3,6 +3,7 @@ from typing_extensions import override
 from .embeddings_model import EmbeddingsModel
 from langchain_huggingface import HuggingFaceEmbeddings
 
+
 class HuggingfaceEmbeddingsModel(EmbeddingsModel):
     """
     Concrete implementation of the EmbeddingsModel for HuggingFace models.

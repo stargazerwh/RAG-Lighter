@@ -70,34 +70,27 @@ class OpenAIModel(LLM):
         content_blocks = []
 
         if self.system_prompt:
-            content_blocks.append({
-                "type": "input_text",
-                "text": f"[SYSTEM PROMPT]\n{self.system_prompt}"
-            })
+            content_blocks.append(
+                {"type": "input_text", "text": f"[SYSTEM PROMPT]\n{self.system_prompt}"}
+            )
 
-        content_blocks.append({
-            "type": "input_text",
-            "text": input.get("question", "")
-        })
+        content_blocks.append({"type": "input_text", "text": input.get("question", "")})
 
         if "images" in input:
             for image in input["images"]:
                 try:
-                    content_blocks.append({
-                        "type": "input_image",
-                        "image_url": f"data:image/jpeg;base64,{image["base64"]}",
-                    })
+                    content_blocks.append(
+                        {
+                            "type": "input_image",
+                            "image_url": f"data:image/jpeg;base64,{image["base64"]}",
+                        }
+                    )
                 except Exception as e:
                     logging.error(f"Could not read image: {e}")
 
         response = self.model.responses.create(
             model=self.model_name,
-            input=[
-                {
-                    "role": self.role,
-                    "content": content_blocks
-                }
-            ],
+            input=[{"role": self.role, "content": content_blocks}],
         )
 
         return response.output_text
