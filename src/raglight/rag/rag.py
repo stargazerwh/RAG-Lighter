@@ -97,11 +97,20 @@ class RAG:
             Dict[str, str]: A dictionary containing the generated answer under the key 'answer'.
         """
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
-        prompt_json = {"question": state["question"], "context": docs_content}
+        prompt = f"""
+            Here is the retrieved context (excerpts from the document):
+            {docs_content}
+
+            Here is the question:
+            {state["question"]}
+
+
+            FINAL ANSWER (based only on the context):
+            """
         if self.stream:
-            response = self.llm.generate_streaming(prompt_json)
+            response = self.llm.generate_streaming({"question": prompt})
         else:
-            response = self.llm.generate(prompt_json)
+            response = self.llm.generate({"question": prompt})
             return {"answer": response}
 
     def rerank(self, state: Dict[str, List[Document]]) -> Dict[str, List[Document]]:
