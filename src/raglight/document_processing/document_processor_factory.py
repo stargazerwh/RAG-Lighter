@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from .document_processor import DocumentProcessor
 from .pdf_processor import PDFProcessor
 from .code_processor import CodeProcessor
@@ -10,8 +12,9 @@ class DocumentProcessorFactory:
     strategy for a given file path.
     """
 
-    def __init__(self):
-        self._processors = {
+    def __init__(self, custom_processors: Optional[Dict[str, DocumentProcessor]] = None):
+        # Default processors
+        self._processors: Dict[str, DocumentProcessor] = {
             # PDF files
             "pdf": PDFProcessor(),
             # Code files
@@ -26,6 +29,9 @@ class DocumentProcessorFactory:
             "md": TextProcessor(),
             "html": TextProcessor(),
         }
+
+        if custom_processors:
+            self._processors.update(custom_processors)
 
     def get_processor(self, file_path: str) -> DocumentProcessor | None:
         """

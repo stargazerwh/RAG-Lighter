@@ -16,14 +16,18 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 ## 📚 Table of Contents
 
 - [Requirements](#⚠️-requirements)
+
 - [Features](#features)
+
 - [Import library](#import-library-🛠️)
+
 - [Chat with Your Documents Instantly With CLI](#chat-with-your-documents-instantly-with-cli-💬)
 
   - [Ignore Folders Feature](#ignore-folders-feature-🚫)
   - [Ignore Folders in Configuration Classes](#ignore-folders-in-configuration-classes-🚫)
 
 - [Environment Variables](#environment-variables)
+
 - [Providers and Databases](#providers-and-databases)
 
   - [LLM](#llm)
@@ -38,6 +42,7 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
   - [MCP Integration](#mcp-integration)
   - [RAT](#rat)
   - [Use Custom Pipeline](#use-custom-pipeline)
+  - [Override Default Processors](#override-default-processors)
 
 - [Use RAGLight with Docker](#use-raglight-with-docker)
 
@@ -307,7 +312,7 @@ You can modify several parameters in your config :
 - `api_base` : Your API URL (Ollama URL, LM Studio URL, ...)
 - `num_ctx` : Your context max_length
 - `verbosity_level` : Your logs' verbosity level
-- `ignore_folders` : List of folders to exclude during indexing (e.g., [".venv", "node_modules", "__pycache__"])
+- `ignore_folders` : List of folders to exclude during indexing (e.g., [".venv", "node_modules", "**pycache**"])
 
 ```python
 from raglight.config.settings import Settings
@@ -489,6 +494,62 @@ print(response)
 > ### ✚ More Examples
 >
 > You can find more examples for all these use cases in the [examples](https://github.com/Bessouat40/RAGLight/blob/main/examples) directory.
+
+### Override Default Processors
+
+RAGLight ships with built-in document processors based on file extension:
+
+- `pdf` → `PDFProcessor`
+- `py`, `js`, `ts`, `java`, `cpp`, `cs` → `CodeProcessor`
+- `txt`, `md`, `html` → `TextProcessor`
+
+You can override these defaults using the `custom_processors` argument when building your vector store. This is especially useful if you want to handle certain file types with a custom logic, such as using a **Vision-Language Model (VLM)** for PDFs with diagrams and images. RAGLight provides a VLM based Processor too.
+
+#### Register the Custom Processor in the Builder
+
+```python
+from raglight.document_processing.vlm_pdf_processor import VlmPDFProcessor
+from raglight.llm.ollama_model import OllamaModel
+from raglight.rag.builder import Builder
+from raglight.config.settings import Settings
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+Settings.setup_logging()
+
+persist_directory = './defaultDb'
+model_embeddings = Settings.DEFAULT_EMBEDDINGS_MODEL
+collection_name = Settings.DEFAULT_COLLECTION_NAME
+data_path = os.environ.get('DATA_PATH')
+
+# Vision-Language Model (example with Ollama)
+vlm = OllamaModel(
+    model_name="ministral-3:3b",
+    system_prompt="You are a technical documentation visual assistant.",
+)
+
+custom_processors = {
+    "pdf": VlmPDFProcessor(vlm),  # Override default PDF processor
+}
+
+vector_store = Builder() \
+    .with_embeddings(Settings.HUGGINGFACE, model_name=model_embeddings) \
+    .with_vector_store(
+        Settings.CHROMA,
+        persist_directory=persist_directory,
+        collection_name=collection_name,
+        custom_processors=custom_processors,
+    ) \
+    .build_vector_store()
+
+vector_store.ingest(data_path=data_path)
+```
+
+With this setup, all `.pdf` files will be processed by your custom `VlmPDFProcessor`, while other file types keep using the default processors.
+
+---
 
 ## Use RAGLight with Docker
 

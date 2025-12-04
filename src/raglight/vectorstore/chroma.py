@@ -1,9 +1,11 @@
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 from typing_extensions import override
 import chromadb
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
+
+from ..document_processing.document_processor import DocumentProcessor
 
 from .vector_store import VectorStore
 from ..embeddings.embeddings_model import EmbeddingsModel
@@ -23,13 +25,14 @@ class ChromaVS(VectorStore):
         collection_name: str,
         embeddings_model: EmbeddingsModel,
         persist_directory: str = None,
+        custom_processors: Optional[Dict[str, DocumentProcessor]] = None,
         host: str = None,
         port: int = None,
     ) -> None:
         """
         Initializes a ChromaVS instance.
         """
-        super().__init__(persist_directory, embeddings_model)
+        super().__init__(persist_directory, embeddings_model, custom_processors)
 
         self.persist_directory = persist_directory
         self.host = host
