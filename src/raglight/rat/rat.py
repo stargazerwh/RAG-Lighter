@@ -83,7 +83,7 @@ class RAT(RAG):
         """
         reflection = ""
         for _ in range(self.reflection):
-            retrieved_docs = self.retrieve({"question": reflection})
+            retrieved_docs = self._retrieve({"question": reflection})
             docs_content = "\n\n".join(
                 doc.page_content for doc in retrieved_docs["context"]
             )
@@ -109,7 +109,7 @@ class RAT(RAG):
             StateGraph: The compiled state graph for managing the RAG process flow.
         """
         graph_builder = StateGraph(State).add_sequence(
-            [self.think, self.retrieve, self.generate_graph]
+            [self.think, self._retrieve, self._generate_graph]
         )
         graph_builder.add_edge(START, "think")
         return graph_builder.compile()
