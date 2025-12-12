@@ -91,8 +91,7 @@ class OllamaModel(LLM):
             user_question = input.get("question", "")
             history = input.get("history", [])
             messages = history + [{"role": self.role, "content": user_question}]
-
-            print("Ollama: ", messages)
+            
             response = self.model.chat(
                 model=self.model_name,
                 messages=messages,
