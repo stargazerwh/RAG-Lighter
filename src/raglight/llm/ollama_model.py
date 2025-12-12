@@ -4,7 +4,6 @@ from typing_extensions import override
 from ..config.settings import Settings
 from .llm import LLM
 from ollama import Client
-from os import environ
 from json import dumps
 import logging
 
@@ -77,18 +76,29 @@ class OllamaModel(LLM):
         if "images" in input:
             images = [img["bytes"] for img in input["images"]]
             del input["images"]
+            prompt = input.get("question", "")
 
-        prompt = input.get("question", "")
+            response = self.model.generate(
+                model=self.model_name,
+                system=self.system_prompt,
+                prompt=prompt,
+                images=images,
+                options=self.options,
+            )
 
-        response = self.model.generate(
-            model=self.model_name,
-            system=self.system_prompt,
-            prompt=prompt,
-            images=images,
-            options=self.options,
-        )
+            return response.response
+        else:
+            user_question = input.get("question", "")
+            history = input.get("history", [])
+            messages = history + [{"role": self.role, "content": user_question}]
 
-        return response.response
+            print("Ollama: ", messages)
+            response = self.model.chat(
+                model=self.model_name,
+                messages=messages,
+                options=self.options,
+            )
+            return response.message.content
 
     @override
     def generate_streaming(self, input: Dict[str, Any]) -> Iterable[str]:

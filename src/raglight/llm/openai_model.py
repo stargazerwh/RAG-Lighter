@@ -82,7 +82,7 @@ class OpenAIModel(LLM):
                     content_blocks.append(
                         {
                             "type": "input_image",
-                            "image_url": f"data:image/jpeg;base64,{image["base64"]}",
+                            "image_url": f"data:image/jpeg;base64,{image['base64']}",
                         }
                     )
                 except Exception as e:
