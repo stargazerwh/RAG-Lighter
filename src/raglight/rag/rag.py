@@ -171,5 +171,4 @@ class RAG:
             {"role": "user", "content": question},
             {"role": "assistant", "content": answer}
         ])
-        print(answer)
         return answer
