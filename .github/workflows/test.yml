@@ -40,5 +40,8 @@ jobs:
           commit_message: 'style: auto-format with black'
           file_pattern: '*.py'
 
+      - name: Install the project
+        run: make install
+
       - name: Run tests
         run: make test
