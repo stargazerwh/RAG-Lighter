@@ -71,20 +71,19 @@ class OllamaModel(LLM):
         Returns:
             str: The generated output from the model.
         """
-        user_question = input.get("question", "")
         history = input.get("history", [])
-        
         messages = []
-        messages.extend(history)
-        user_message = {"role": self.role, "content": user_question}
-    
+        if len(history) > 1:
+            messages.extend(history)
+
+        user_prompt = input.get("question", "")
+        user_message = {"role": self.role, "content": user_prompt}
+
         if "images" in input:
             images = [img["bytes"] for img in input["images"]]
             del input["images"]
             user_message["images"] = images
-        
         messages.append(user_message)
-        
         response = self.model.chat(
             model=self.model_name,
             messages=messages,
