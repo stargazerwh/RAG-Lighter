@@ -73,6 +73,7 @@ class OllamaModel(LLM):
         """
         history = input.get("history", [])
         messages = []
+        messages.append({"role": "system", "content": self.system_prompt})
         if len(history) > 1:
             messages.extend(history)
 
