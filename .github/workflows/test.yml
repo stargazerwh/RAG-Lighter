@@ -5,10 +5,10 @@ env:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
-    
+    branches: ['main']
+
 jobs:
   uv-test:
     name: python
