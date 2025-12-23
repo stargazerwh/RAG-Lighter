@@ -18,12 +18,12 @@ class State(TypedDict):
         question (str): The input question for the RAG process.
         context (List[Document]): A list of documents retrieved from the vector store as context.
         answer (str): The generated answer based on the input question and context.
+        history (List[Dict[str, str]]): The history of the conversation.
     """
-
     question: str
-    context: List[Document]
     answer: str
-
+    context: List[Document] = []
+    history: List[Dict[str, str]] = []
 
 class RAG:
     """
@@ -65,11 +65,12 @@ class RAG:
         self.llm: LLM = llm
         self.k: int = k
         self.stream: bool = stream
+        self.state: State = State(question="", answer="", context=[], history=[])
         self.graph: Any = (
-            self.createGraph()
+            self._createGraph()
         )  # Here type is CompiledGraph but it's not exposed by https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/graph/graph.py
 
-    def retrieve(self, state: Dict[str, str]) -> Dict[str, List[Document]]:
+    def _retrieve(self, state: State) -> Dict[str, List[Document]]:
         """
         Retrieves relevant documents based on the input question.
 
@@ -84,7 +85,7 @@ class RAG:
         )
         return {"context": retrieved_docs, "question": state["question"]}
 
-    def generate_graph(self, state: Dict[str, List[Document]]) -> Dict[str, str]:
+    def _generate_graph(self, state: Dict[str, List[Document]]) -> Dict[str, str]:
         """
         Generates an answer based on the input question and retrieved context.
 
@@ -108,12 +109,12 @@ class RAG:
             FINAL ANSWER (based only on the context):
             """
         if self.stream:
-            response = self.llm.generate_streaming({"question": prompt})
+            response = self.llm.generate_streaming({"question": prompt, "history": state["history"]})
         else:
-            response = self.llm.generate({"question": prompt})
+            response = self.llm.generate({"question": prompt, "history": state["history"]})
             return {"answer": response}
 
-    def rerank(self, state: Dict[str, List[Document]]) -> Dict[str, List[Document]]:
+    def _rerank(self, state: Dict[str, List[Document]]) -> Dict[str, List[Document]]:
         """
         Reranks the retrieved documents based on the cross-encoder model.
 
@@ -135,7 +136,7 @@ class RAG:
             ranked_docs = state["context"]
         return {"context": ranked_docs}
 
-    def createGraph(self) -> Any:
+    def _createGraph(self) -> Any:
         """
         Creates and compiles the state graph for the RAG pipeline.
 
@@ -144,13 +145,13 @@ class RAG:
         """
         if self.cross_encoder:
             graph_builder = StateGraph(State).add_sequence(
-                [self.retrieve, self.rerank, self.generate_graph]
+                [self._retrieve, self._rerank, self._generate_graph]
             )
         else:
             graph_builder = StateGraph(State).add_sequence(
-                [self.retrieve, self.generate_graph]
+                [self._retrieve, self._generate_graph]
             )
-        graph_builder.add_edge(START, "retrieve")
+        graph_builder.add_edge(START, "_retrieve")
         return graph_builder.compile()
 
     def generate(self, question: str) -> str:
@@ -163,6 +164,11 @@ class RAG:
         Returns:
             str: The generated answer from the pipeline.
         """
-        state = {"question": question}
-        response = self.graph.invoke(state)
-        return response["answer"]
+        self.state["question"] = question
+        response = self.graph.invoke(self.state)
+        answer = response["answer"]
+        self.state["history"].extend([
+            {"role": "user", "content": question},
+            {"role": "assistant", "content": answer}
+        ])
+        return answer

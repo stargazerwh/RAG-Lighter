@@ -7,7 +7,6 @@ from ..test_config import TestsConfig
 
 
 class TestOllamaModel(unittest.TestCase):
-    
     def setUp(self):
         mock_ollama_client = MagicMock()
 
@@ -27,8 +26,8 @@ class TestOllamaModel(unittest.TestCase):
         self.model.model = mock_ollama_client
 
     def test_generate_response(self):
-        prompt = "Define machine learning."
-        response = self.model.generate({"question": prompt})
+        question = "Define machine learning."
+        response = self.model.generate({"question": question})
         self.assertIsInstance(response, str, "Response should be a string.")
         self.assertGreater(len(response), 0, "Response should not be empty.")
         self.assertEqual(
@@ -37,9 +36,10 @@ class TestOllamaModel(unittest.TestCase):
         self.model.model.chat.assert_called_once_with(
             model=TestsConfig.OLLAMA_MODEL,
             messages=[
+                {"role": "system", "content": "This is just a test prompt"},
                 {
                     "role": "user",
-                    "content": '{"question": "Define machine learning.", "system prompt": "This is just a test prompt"}',
+                    "content": "Define machine learning.",
                 },
             ],
             options={"temperature": 0.3},
