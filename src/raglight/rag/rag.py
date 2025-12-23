@@ -61,7 +61,7 @@ class RAG:
         """
         self.embeddings: EmbeddingsModel = embedding_model.get_model()
         self.cross_encoder: CrossEncoderModel = (
-            cross_encoder_model.get_model() if cross_encoder_model else None
+            cross_encoder_model if cross_encoder_model else None
         )
         self.vector_store: VectorStore = vector_store
         self.llm: LLM = llm
@@ -134,10 +134,9 @@ class RAG:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            scores = self.cross_encoder.predict(
-                [(question, doc_text) for doc_text in doc_texts]
-            )
+            scores = self.cross_encoder.predict(question, doc_texts, self.k /2)
             ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
+            ranked_docs = ranked_docs[:self.k]
         except:
             ranked_docs = state["context"]
         return {"context": ranked_docs}
@@ -153,6 +152,7 @@ class RAG:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._rerank, self._generate_graph]
             )
+            self.k = 2 * self.k # Because we'll retrieve 2x more data and then filter only k more relevant using our reranking model
         else:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._generate_graph]

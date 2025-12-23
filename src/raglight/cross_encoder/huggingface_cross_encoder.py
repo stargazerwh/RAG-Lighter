@@ -3,6 +3,8 @@ from typing import Any
 from typing_extensions import override
 from .cross_encoder_model import CrossEncoderModel
 from sentence_transformers import CrossEncoder
+from transformers import AutoModel
+from typing import Any, List, Tuple
 
 
 class HuggingfaceCrossEncoderModel(CrossEncoderModel):
@@ -36,4 +38,26 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
         Returns:
             HuggingfaceCrossEncoderModel: The loaded HuggingFace cross encoder model.
         """
-        return CrossEncoder(model_name=self.model_name)
+        return AutoModel.from_pretrained(
+                'jinaai/jina-reranker-v3',
+                dtype="auto",
+                trust_remote_code=True,
+            )
+    
+    @override
+    def predict(self, query: str, documents: List[str], top_n: int) -> List[float]:
+        """
+        Abstract method to predict the similarity scores for a list of queries.
+
+        Args:
+            query_list (List[str]): A list of queries for which to predict the similarity scores.
+
+        Returns:
+            List[float]: The list of similarity scores for the input queries.
+        """
+        return self.model.rerank(
+            query = query,
+            documents = documents,
+            top_n = top_n,
+            return_embeddings = True
+            )
