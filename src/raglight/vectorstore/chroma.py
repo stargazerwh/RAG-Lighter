@@ -1,23 +1,35 @@
+from __future__ import annotations
 import logging
-from typing import List, Dict, Optional
+import uuid
+from typing import List, Dict, Optional, Any, cast
 from typing_extensions import override
+
 import chromadb
-from langchain_chroma import Chroma
+from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 from langchain_core.documents import Document
 
 from ..document_processing.document_processor import DocumentProcessor
-
 from .vector_store import VectorStore
 from ..embeddings.embeddings_model import EmbeddingsModel
 
 
+class ChromaEmbeddingAdapter(EmbeddingFunction):
+    """
+    Adapter to make EmbeddingsModel compatible with ChromaDB's EmbeddingFunction interface.
+    """
+    def __init__(self, embeddings_model: EmbeddingsModel):
+        self.embeddings_model = embeddings_model
+
+    def __call__(self, input: Documents) -> Embeddings:
+        if hasattr(self.embeddings_model, "embed_documents"):
+             return self.embeddings_model.embed_documents(cast(List[str], input))
+        else:
+             raise TypeError(f"Object {type(self.embeddings_model)} does not implement 'embed_documents'.")
+
+
 class ChromaVS(VectorStore):
     """
-    Concrete implementation for ChromaDB.
-
-    It inherits the main ingestion logic from the base VectorStore class and
-    only implements the Chroma-specific methods for adding documents and
-    performing searches.
+    Concrete implementation for ChromaDB using the official chromadb library.
     """
 
     def __init__(
@@ -29,136 +41,124 @@ class ChromaVS(VectorStore):
         host: str = None,
         port: int = None,
     ) -> None:
-        """
-        Initializes a ChromaVS instance.
-        """
         super().__init__(persist_directory, embeddings_model, custom_processors)
 
         self.persist_directory = persist_directory
         self.host = host
         self.port = port
+        self.collection_name = collection_name
+        
+        self.embedding_function = ChromaEmbeddingAdapter(self.embeddings_model)
 
-        if not host and not port:
-            self.vector_store = Chroma(
-                embedding_function=self.embeddings_model,
-                persist_directory=persist_directory,
-                collection_name=collection_name,
-            )
-
-            self.vector_store_classes = Chroma(
-                embedding_function=self.embeddings_model,
-                persist_directory=persist_directory,
-                collection_name=f"{collection_name}_classes",
-            )
-        elif host and port:
-            client = chromadb.HttpClient(host=host, port=port, ssl=False)
-            self.vector_store = Chroma(
-                client=client,
-                embedding_function=self.embeddings_model,
-                collection_name=collection_name,
-            )
-
-            self.vector_store_classes = Chroma(
-                client=client,
-                embedding_function=self.embeddings_model,
-                collection_name=f"{collection_name}_classes",
-            )
+        if host and port:
+            self.client = chromadb.HttpClient(host=host, port=port, ssl=False)
+        elif persist_directory:
+            self.client = chromadb.PersistentClient(path=persist_directory)
         else:
-            raise ValueError(
-                "Invalid configuration for ChromaVS: "
-                "You must either:\n"
-                "  • Provide both host and port (for remote ChromaDB), OR\n"
-                "  • Provide a persist_directory (for local persistence).\n"
-                f"Received -> host={host}, port={port}, persist_directory={persist_directory}"
-            )
+            raise ValueError("Invalid configuration: provide host/port OR persist_directory.")
+
+        self.collection = self.client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=self.embedding_function
+        )
+
+        self.collection_classes = self.client.get_or_create_collection(
+            name=f"{collection_name}_classes",
+            embedding_function=self.embedding_function
+        )
 
     @override
     def add_documents(self, documents: List[Document]) -> None:
-        """
-        Implements the logic to add documents specifically to the main ChromaDB collection,
-        using batching for efficiency.
-        """
         if not documents:
             return
 
         logging.info(
-            f"⏳ Adding {len(documents)} document chunks to ChromaDB collection '{self.vector_store._collection_name}'..."
+            f"⏳ Adding {len(documents)} document chunks to ChromaDB collection '{self.collection.name}'..."
         )
-        self.vector_store.add_documents(documents=documents)
+        
+        # Direct addition of all documents at once
+        self._add_docs_to_collection(self.collection, documents)
+        
         logging.info("✅ Documents successfully added to the main collection.")
 
     @override
     def add_class_documents(self, documents: List[Document]) -> None:
-        """
-        Implements the logic to add class signature documents to the dedicated ChromaDB
-        collection for classes.
-        """
         if not documents:
             return
 
         logging.info(
-            f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.vector_store_classes._collection_name}'..."
+            f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.collection_classes.name}'..."
         )
-        self.vector_store_classes.add_documents(documents=documents)
+        
+        # Direct addition of all documents at once
+        self._add_docs_to_collection(self.collection_classes, documents)
+        
         logging.info("✅ Class documents successfully added to the class collection.")
+
+    def _add_docs_to_collection(self, collection: Any, documents: List[Document]) -> None:
+        ids = [str(uuid.uuid4()) for _ in documents]
+        texts = [doc.page_content for doc in documents]
+        metadatas = [doc.metadata if isinstance(doc.metadata, dict) else {} for doc in documents]
+
+        collection.add(ids=ids, documents=texts, metadatas=metadatas)
 
     @override
     def similarity_search(
         self,
         question: str,
         k: int = 5,
-        filter: Dict[str, str] = None,
-        collection_name: str = None,
+        filter: Optional[Dict[str, str]] = None,
+        collection_name: Optional[str] = None,
     ) -> List[Document]:
-        """
-        Implements similarity search using the main ChromaDB client.
-        """
-        if collection_name and collection_name != self.vector_store._collection_name:
-            if not self.host and not self.port:
-                vector_store = Chroma(
-                    embedding_function=self.embeddings_model,
-                    persist_directory=self.persist_directory,
-                    collection_name=collection_name,
-                )
-            else:
-                client = chromadb.HttpClient(host=self.host, port=self.port, ssl=False)
-                vector_store = Chroma(
-                    client=client,
-                    embedding_function=self.embeddings_model,
-                    collection_name=collection_name,
-                )
-            return vector_store.similarity_search(question, k=k, filter=filter)
-        else:
-            return self.vector_store.similarity_search(question, k=k, filter=filter)
+        target_collection = self.collection
+        
+        if collection_name and collection_name != self.collection.name:
+            target_collection = self.client.get_or_create_collection(
+                name=collection_name,
+                embedding_function=self.embedding_function
+            )
+
+        return self._query_collection(target_collection, question, k, filter)
 
     @override
     def similarity_search_class(
         self,
         question: str,
         k: int = 5,
-        filter: Dict[str, str] = None,
-        collection_name: str = None,
+        filter: Optional[Dict[str, str]] = None,
+        collection_name: Optional[str] = None,
     ) -> List[Document]:
-        """
-        Implements similarity search using the dedicated class ChromaDB client.
-        """
-        if (
-            collection_name
-            and f"{collection_name}_classes"
-            != self.vector_store_classes._collection_name
-        ):
-            if not self.host and not self.port:
-                vector_store = Chroma(
-                    embedding_function=self.embeddings_model,
-                    persist_directory=self.persist_directory,
-                    collection_name=f"{collection_name}_classes",
+        target_collection = self.collection_classes
+        
+        if collection_name:
+            class_col_name = f"{collection_name}_classes"
+            if class_col_name != self.collection_classes.name:
+                target_collection = self.client.get_or_create_collection(
+                    name=class_col_name,
+                    embedding_function=self.embedding_function
                 )
-            else:
-                client = chromadb.HttpClient(host=self.host, port=self.port, ssl=False)
-                vector_store = Chroma(
-                    client=client,
-                    embedding_function=self.embeddings_model,
-                    collection_name=f"{collection_name}_classes",
-                )
-            return vector_store.similarity_search(question, k=k, filter=filter)
-        return self.vector_store_classes.similarity_search(question, k=k, filter=filter)
+        
+        return self._query_collection(target_collection, question, k, filter)
+
+    def _query_collection(
+        self, 
+        collection: Any, 
+        question: str, 
+        k: int, 
+        filter: Optional[Dict[str, Any]]
+    ) -> List[Document]:
+        results = collection.query(
+            query_texts=[question],
+            n_results=k,
+            where=filter
+        )
+        
+        found_docs: List[Document] = []
+        if results['documents'] and results['documents'][0]:
+            docs_list = results['documents'][0]
+            metas_list = results['metadatas'][0] if results['metadatas'] else [{}] * len(docs_list)
+            for text, meta in zip(docs_list, metas_list):
+                safe_meta = meta if isinstance(meta, dict) else {}
+                found_docs.append(Document(page_content=text, metadata=safe_meta))
+                
+        return found_docs
