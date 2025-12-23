@@ -7,6 +7,11 @@ from ollama import Client
 from json import dumps
 import logging
 
+# https://docs.ollama.com/context-length
+OLLAMA_DEFAULT_CONTEXT_SIZE = 4096
+OLLAMA_OPTION_CONTEXT_SIZE = "num_ctx"
+OLLAMA_WARNING_CONTEXT_SIZE = 0.80
+
 
 class OllamaModel(LLM):
     """
@@ -48,6 +53,9 @@ class OllamaModel(LLM):
         logging.info(f"Using Ollama with {model_name} model 🤖")
         self.role: str = role
         self.options = options
+        self.max_context_size = self.options.get(
+            OLLAMA_OPTION_CONTEXT_SIZE, OLLAMA_DEFAULT_CONTEXT_SIZE
+        )
 
     @override
     def load(self) -> Client:
@@ -90,6 +98,14 @@ class OllamaModel(LLM):
             messages=messages,
             options=self.options,
         )
+
+        token_usage = response.eval_count + response.prompt_eval_count
+        if token_usage / self.max_context_size > OLLAMA_WARNING_CONTEXT_SIZE:
+            logging.warning(
+                f"Over {OLLAMA_WARNING_CONTEXT_SIZE * 100}% of context window reached, consider increasing it or reducing prompt size."
+                + f" Current usage : {token_usage}  out of {self.max_context_size} Tokens"
+            )
+
         return response.message.content
 
     @override
