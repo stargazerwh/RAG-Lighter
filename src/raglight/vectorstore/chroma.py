@@ -1,10 +1,14 @@
 from __future__ import annotations
+from __future__ import annotations
 import logging
+import uuid
+from typing import List, Dict, Optional, Any, cast
 import uuid
 from typing import List, Dict, Optional, Any, cast
 from typing_extensions import override
 
 import chromadb
+from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 from langchain_core.documents import Document
 
@@ -32,6 +36,7 @@ class ChromaEmbeddingAdapter(EmbeddingFunction):
 
 class ChromaVS(VectorStore):
     """
+    Concrete implementation for ChromaDB using the official chromadb library.
     Concrete implementation for ChromaDB using the official chromadb library.
     """
 
@@ -92,11 +97,12 @@ class ChromaVS(VectorStore):
 
         logging.info(
             f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.collection_classes.name}'..."
+            f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.collection_classes.name}'..."
         )
-
+        
         # Direct addition of all documents at once
         self._add_docs_to_collection(self.collection_classes, documents)
-
+        
         logging.info("✅ Class documents successfully added to the class collection.")
 
     def _add_docs_to_collection(
@@ -117,6 +123,8 @@ class ChromaVS(VectorStore):
         k: int = 5,
         filter: Optional[Dict[str, str]] = None,
         collection_name: Optional[str] = None,
+        filter: Optional[Dict[str, str]] = None,
+        collection_name: Optional[str] = None,
     ) -> List[Document]:
         target_collection = self.collection
 
@@ -132,6 +140,8 @@ class ChromaVS(VectorStore):
         self,
         question: str,
         k: int = 5,
+        filter: Optional[Dict[str, str]] = None,
+        collection_name: Optional[str] = None,
         filter: Optional[Dict[str, str]] = None,
         collection_name: Optional[str] = None,
     ) -> List[Document]:
