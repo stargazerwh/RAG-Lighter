@@ -134,7 +134,7 @@ class RAG:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            scores = self.cross_encoder.predict(question, doc_texts, self.k /2)
+            scores = self.cross_encoder.predict(question, doc_texts, self.k / 4)
             ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
             ranked_docs = ranked_docs[:self.k]
         except:
@@ -152,7 +152,7 @@ class RAG:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._rerank, self._generate_graph]
             )
-            self.k = 2 * self.k # Because we'll retrieve 2x more data and then filter only k more relevant using our reranking model
+            self.k = 4 * self.k # Because we'll retrieve 4x more data and then filter only k more relevant using our reranking model
         else:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._generate_graph]
