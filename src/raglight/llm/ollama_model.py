@@ -32,7 +32,7 @@ class OllamaModel(LLM):
         options: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
-        preload_model: Optional[bool] = True,
+        preload_model: Optional[bool] = False,
         api_base: Optional[str] = None,
         role: str = "user",
         headers: Optional[Mapping[str, str]] = None,
