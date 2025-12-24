@@ -8,7 +8,9 @@ from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict, Dict
 from langchain_core.documents import Document
 from typing import Any
+import logging
 
+logger = logging.getLogger(__name__)
 
 class State(TypedDict):
     """
@@ -133,9 +135,15 @@ class RAG:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            ranked_docs = self.cross_encoder.predict(question, doc_texts, self.k / 4)
-        except:
+            
+            ranked_texts = self.cross_encoder.predict(question, doc_texts, int(self.k / 4))
+            
+            ranked_docs = [Document(page_content=text) for text in ranked_texts]
+            
+        except Exception as e:
+            logger.warning(f"Reranking failed: {e}")
             ranked_docs = state["context"]
+            
         return {"context": ranked_docs, "question": state["question"]}
 
     def _createGraph(self) -> Any:
@@ -149,7 +157,7 @@ class RAG:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._rerank, self._generate_graph]
             )
-            self.k = 4 * self.k # Because we'll retrieve 4x more data and then filter only k more relevant using our reranking model
+            self.k = 4 * self.k # Increase retrieval window for reranking
         else:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._generate_graph]
