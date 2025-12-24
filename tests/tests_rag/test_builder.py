@@ -6,6 +6,7 @@ from raglight.rag.builder import Builder
 
 logging.getLogger().setLevel(logging.WARNING)
 
+
 class TestRAGBuilder(unittest.TestCase):
     @patch("raglight.rag.builder.ChromaVS")
     def test_builder_rag(self, mock_chroma):
@@ -18,12 +19,13 @@ class TestRAGBuilder(unittest.TestCase):
             .with_vector_store(
                 Settings.CHROMA, persist_directory="/", collection_name="test"
             )
-            .with_llm(Settings.OLLAMA, model_name="gpt-oss:20b")
+            .with_llm(Settings.OLLAMA, model_name="gpt-oss:20b", preload_model=False)
             .build_rag()
         )
 
         mock_chroma.assert_called_once()
         self.assertIsNotNone(rag)
+
 
 class TestRATBuilder(unittest.TestCase):
     @patch("raglight.rag.builder.ChromaVS")
@@ -37,8 +39,8 @@ class TestRATBuilder(unittest.TestCase):
             .with_vector_store(
                 Settings.CHROMA, persist_directory="/", collection_name="test"
             )
-            .with_llm(Settings.OLLAMA, model_name="gpt-oss:20b")
-            .with_reasoning_llm(Settings.OLLAMA, model_name="deepseek:r1:20b")
+            .with_llm(Settings.OLLAMA, model_name="gpt-oss:20b", preload_model=False)
+            .with_reasoning_llm(Settings.OLLAMA, model_name="deepseek:r1:20b", preload_model=False)
             .build_rat()
         )
 
