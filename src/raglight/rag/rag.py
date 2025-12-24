@@ -132,7 +132,7 @@ class RAG:
             ranked_docs = ranked_docs[:self.k]
         except:
             ranked_docs = state["context"]
-        return {"context": ranked_docs}
+        return {"context": ranked_docs, "question": state["question"]}
 
     def createGraph(self) -> Any:
         """
@@ -163,6 +163,7 @@ class RAG:
         Returns:
             str: The generated answer from the pipeline.
         """
-        state = {"question": question}
-        response = self.graph.invoke(state)
+        initial_state = {"question": question}
+        
+        response = self.graph.invoke(initial_state)
         return response["answer"]
