@@ -32,6 +32,7 @@ class OllamaModel(LLM):
         options: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = None,
+        preload_model: Optional[bool] = False,
         api_base: Optional[str] = None,
         role: str = "user",
         headers: Optional[Mapping[str, str]] = None,
@@ -49,6 +50,8 @@ class OllamaModel(LLM):
         """
         self.api_base = api_base or Settings.DEFAULT_OLLAMA_CLIENT
         self.headers = headers
+        self.preload_model = preload_model
+        self.options = options
         super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
         logging.info(f"Using Ollama with {model_name} model 🤖")
         self.role: str = role
@@ -67,7 +70,15 @@ class OllamaModel(LLM):
         Returns:
             Client: An instance of the Ollama model client, configured with the necessary host and headers.
         """
-        return Client(host=self.api_base, headers=self.headers)
+        ollama_client = Client(host=self.api_base, headers=self.headers)
+
+        if self.preload_model:
+            ollama_client.chat(
+                model=self.model_name,
+                messages=[],
+                options=self.options,
+            )
+        return ollama_client
 
     @override
     def generate(self, input: Dict[str, Any]) -> str:
