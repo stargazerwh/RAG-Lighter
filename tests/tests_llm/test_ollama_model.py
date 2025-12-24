@@ -21,7 +21,9 @@ class TestOllamaModel(unittest.TestCase):
             role="assistant",
             content="Machine learning (ML) is a subset of artificial intelligence",
         )
-        chat_response: ChatResponse = ChatResponse(message=message)
+        chat_response: ChatResponse = ChatResponse(
+            message=message, prompt_eval_count=200, eval_count=50
+        )
         mock_ollama_client.chat = MagicMock(return_value=chat_response)
         self.model.model = mock_ollama_client
 
