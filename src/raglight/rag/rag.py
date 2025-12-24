@@ -129,10 +129,7 @@ class RAG:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            scores = self.cross_encoder.predict(question, doc_texts, self.k / 4)
-            ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
-            ranked_docs = ranked_docs[:self.k]
-            ranked_docs = ranked_docs[:self.k]
+            ranked_docs = self.cross_encoder.predict(question, doc_texts, self.k / 4)
         except:
             ranked_docs = state["context"]
         return {"context": ranked_docs, "question": state["question"]}
