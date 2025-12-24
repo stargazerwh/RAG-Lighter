@@ -38,14 +38,10 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
         Returns:
             HuggingfaceCrossEncoderModel: The loaded HuggingFace cross encoder model.
         """
-        return AutoModel.from_pretrained(
-                'jinaai/jina-reranker-v3',
-                dtype="auto",
-                trust_remote_code=True,
-            )
+        return CrossEncoder(self.model_name)
     
     @override
-    def predict(self, query: str, documents: List[str], top_n: int) -> List[float]:
+    def predict(self, query: str, documents: List[str], top_k: int) -> List[float]:
         """
         Abstract method to predict the similarity scores for a list of queries.
 
@@ -55,9 +51,9 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
         Returns:
             List[float]: The list of similarity scores for the input queries.
         """
-        return self.model.rerank(
+        return self.model.rank(
             query = query,
             documents = documents,
-            top_n = top_n,
-            return_embeddings = True
+            top_k = top_k,
+            return_documents = True
             )
