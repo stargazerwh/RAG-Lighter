@@ -134,7 +134,6 @@ class RAG:
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
             scores = self.cross_encoder.predict(question, doc_texts, self.k / 4)
-            scores = self.cross_encoder.predict(question, doc_texts, self.k /2)
             ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
             ranked_docs = ranked_docs[:self.k]
             ranked_docs = ranked_docs[:self.k]
