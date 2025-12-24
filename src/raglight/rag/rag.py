@@ -139,7 +139,7 @@ class RAG:
             ranked_docs = ranked_docs[:self.k]
         except:
             ranked_docs = state["context"]
-        return {"context": ranked_docs}
+        return {"context": ranked_docs, "question": state["question"]}
 
     def _createGraph(self) -> Any:
         """
