@@ -6,33 +6,35 @@ from raglight.config.vector_store_config import VectorStoreConfig
 
 Settings.setup_logging()
 
-knowledge_base=[
+knowledge_base = [
     # FolderSource(path="data/knowledge_base"),
     GitHubSource(url="https://github.com/Bessouat40/RAGLight")
-    ]
+]
 
 vector_store_config = VectorStoreConfig(
-    embedding_model = Settings.GEMINI_EMBEDDING_MODEL,
+    embedding_model=Settings.GEMINI_EMBEDDING_MODEL,
     provider=Settings.GOOGLE_GEMINI,
     database=Settings.CHROMA,
-    persist_directory = './defaultDb',
-    collection_name = Settings.DEFAULT_COLLECTION_NAME
+    persist_directory="./defaultDb",
+    collection_name=Settings.DEFAULT_COLLECTION_NAME,
 )
 
 config = RAGConfig(
-        api_base = Settings.DEFAULT_GOOGLE_CLIENT,
-        llm = Settings.GEMINI_LLM_MODEL,
-        provider = Settings.GOOGLE_GEMINI,
-        # stream = True,
-        # k = Settings.DEFAULT_K,
-        # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
-        # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
-        knowledge_base = knowledge_base
-    )
+    api_base=Settings.DEFAULT_GOOGLE_CLIENT,
+    llm=Settings.GEMINI_LLM_MODEL,
+    provider=Settings.GOOGLE_GEMINI,
+    # stream = True,
+    # k = Settings.DEFAULT_K,
+    # cross_encoder_model = Settings.DEFAULT_CROSS_ENCODER_MODEL,
+    # system_prompt = Settings.DEFAULT_SYSTEM_PROMPT,
+    knowledge_base=knowledge_base,
+)
 
 pipeline = RAGPipeline(config, vector_store_config)
 
 pipeline.build()
 
-response = pipeline.generate("How can I create an easy RAGPipeline using raglight framework ? Give me python implementation")
+response = pipeline.generate(
+    "How can I create an easy RAGPipeline using raglight framework ? Give me python implementation"
+)
 print(response)

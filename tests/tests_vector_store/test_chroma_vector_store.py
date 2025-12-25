@@ -18,7 +18,7 @@ class TestVectorStore(unittest.TestCase):
         )
 
     def tearDown(self):
-        os.remove(TestsConfig.CHROMA_PERSIST_DIRECTORY_INGESTION+"/chroma.sqlite3")
+        os.remove(TestsConfig.CHROMA_PERSIST_DIRECTORY_INGESTION + "/chroma.sqlite3")
 
     def test_ingest(self):
         self.store.ingest(data_path=self.data_path)
