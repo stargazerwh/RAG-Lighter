@@ -13,6 +13,7 @@ class TestHuggingFaceEmbeddings(unittest.TestCase):
         mock_transformer.return_value = MagicMock()
         embeddings = HuggingfaceEmbeddingsModel(TestsConfig.HUGGINGFACE_EMBEDDINGS)
         
+        
         self.assertIsNotNone(embeddings.model, "Model should be loaded successfully.")
         mock_transformer.assert_called_once_with(TestsConfig.HUGGINGFACE_EMBEDDINGS)
 
