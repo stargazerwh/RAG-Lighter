@@ -62,7 +62,6 @@ class RAG:
         self.embeddings: EmbeddingsModel = embedding_model.get_model()
         self.cross_encoder: CrossEncoderModel = (
             cross_encoder_model if cross_encoder_model else None
-            cross_encoder_model if cross_encoder_model else None
         )
         self.vector_store: VectorStore = vector_store
         self.llm: LLM = llm
