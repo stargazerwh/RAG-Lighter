@@ -5,7 +5,7 @@ from ..test_config import TestsConfig
 
 
 class TestGeminiEmbeddings(unittest.TestCase):
-    
+
     @patch("raglight.embeddings.gemini_embeddings.GoogleGenerativeAIEmbeddings")
     def test_model_load(self, mock_embedding: MagicMock):
         mock_embedding.return_value = MagicMock()

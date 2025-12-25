@@ -5,7 +5,7 @@ from ..test_config import TestsConfig
 
 
 class TestHuggingFaceEmbeddings(unittest.TestCase):
-    
+
     @patch("raglight.embeddings.huggingface_embeddings.HuggingFaceEmbeddings")
     def test_model_load(self, mock_embedding: MagicMock):
         mock_embedding.return_value = MagicMock

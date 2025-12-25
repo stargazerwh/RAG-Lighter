@@ -20,10 +20,12 @@ class State(TypedDict):
         answer (str): The generated answer based on the input question and context.
         history (List[Dict[str, str]]): The history of the conversation.
     """
+
     question: str
     answer: str
     context: List[Document] = []
     history: List[Dict[str, str]] = []
+
 
 class RAG:
     """
@@ -109,9 +111,13 @@ class RAG:
             FINAL ANSWER (based only on the context):
             """
         if self.stream:
-            response = self.llm.generate_streaming({"question": prompt, "history": state["history"]})
+            response = self.llm.generate_streaming(
+                {"question": prompt, "history": state["history"]}
+            )
         else:
-            response = self.llm.generate({"question": prompt, "history": state["history"]})
+            response = self.llm.generate(
+                {"question": prompt, "history": state["history"]}
+            )
             return {"answer": response}
 
     def _rerank(self, state: Dict[str, List[Document]]) -> Dict[str, List[Document]]:
@@ -167,8 +173,10 @@ class RAG:
         self.state["question"] = question
         response = self.graph.invoke(self.state)
         answer = response["answer"]
-        self.state["history"].extend([
-            {"role": "user", "content": question},
-            {"role": "assistant", "content": answer}
-        ])
+        self.state["history"].extend(
+            [
+                {"role": "user", "content": question},
+                {"role": "assistant", "content": answer},
+            ]
+        )
         return answer
