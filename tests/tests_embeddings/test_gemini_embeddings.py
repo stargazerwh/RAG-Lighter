@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from raglight.embeddings.gemini_embeddings_model import GeminiEmbeddingsModel
-from raglight.embeddings.gemini_embeddings_model import GeminiEmbeddingsModel
+from raglight.embeddings.gemini_embeddings import GeminiEmbeddingsModel
 from ..test_config import TestsConfig
 
 
 class TestGeminiEmbeddings(unittest.TestCase):
     
+    @patch("raglight.embeddings.gemini_embeddings.genai")
     @patch("raglight.embeddings.gemini_embeddings.genai")
     def test_model_load(self, mock_genai: MagicMock):
         """Test that API configuration is called correctly."""
@@ -15,6 +15,7 @@ class TestGeminiEmbeddings(unittest.TestCase):
         mock_genai.configure.assert_called_once()
         self.assertIsNotNone(model.model, "Model (genai module) should be loaded.")
 
+    @patch("raglight.embeddings.gemini_embeddings.genai")
     @patch("raglight.embeddings.gemini_embeddings.genai")
     def test_embed_documents(self, mock_genai: MagicMock):
         """Test document embedding with the correct task_type."""
