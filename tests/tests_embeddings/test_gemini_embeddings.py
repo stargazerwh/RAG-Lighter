@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from raglight.embeddings.gemini_embeddings import GeminiEmbeddingsModel
+from raglight.embeddings.gemini_embeddings_model import GeminiEmbeddingsModel
 from ..test_config import TestsConfig
 
 
