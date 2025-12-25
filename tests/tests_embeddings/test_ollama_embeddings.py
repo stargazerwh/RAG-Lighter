@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from raglight.embeddings.ollama_embeddings_model import OllamaEmbeddingsModel
+from raglight.embeddings.ollama_embeddings import OllamaEmbeddingsModel
 from ..test_config import TestsConfig
 
 
 class TestOllamaEmbeddings(unittest.TestCase):
     
-    @patch("raglight.embeddings.ollama_embeddings_model.Client")
+    @patch("raglight.embeddings.ollama_embeddings.Client")
     def test_model_load(self, mock_client: MagicMock):
         """Test Ollama client initialization."""
         mock_client.return_value = MagicMock()
@@ -14,7 +14,7 @@ class TestOllamaEmbeddings(unittest.TestCase):
         self.assertIsNotNone(embeddings.model)
         mock_client.assert_called_once()
 
-    @patch("raglight.embeddings.ollama_embeddings_model.Client")
+    @patch("raglight.embeddings.ollama_embeddings.Client")
     def test_embed_documents(self, mock_client: MagicMock):
         """Test batch embedding with .embed() method."""
         mock_instance = mock_client.return_value
@@ -33,7 +33,7 @@ class TestOllamaEmbeddings(unittest.TestCase):
             options=model.options
         )
 
-    @patch("raglight.embeddings.ollama_embeddings_model.Client")
+    @patch("raglight.embeddings.ollama_embeddings.Client")
     def test_embed_query(self, mock_client: MagicMock):
         """Test single embedding with .embeddings() method."""
         mock_instance = mock_client.return_value

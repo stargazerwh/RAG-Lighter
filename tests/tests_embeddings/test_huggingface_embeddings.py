@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import MagicMock, patch
 import numpy as np
-from raglight.embeddings.huggingface_embeddings_model import HuggingfaceEmbeddingsModel
+from raglight.embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 from ..test_config import TestsConfig
 
 
 class TestHuggingFaceEmbeddings(unittest.TestCase):
     
-    @patch("raglight.embeddings.huggingface_embeddings_model.SentenceTransformer")
+    @patch("raglight.embeddings.huggingface_embeddings.SentenceTransformer")
     def test_model_load(self, mock_transformer: MagicMock):
         """Test SentenceTransformer model loading."""
         mock_transformer.return_value = MagicMock()
@@ -16,7 +16,7 @@ class TestHuggingFaceEmbeddings(unittest.TestCase):
         self.assertIsNotNone(embeddings.model, "Model should be loaded successfully.")
         mock_transformer.assert_called_once_with(TestsConfig.HUGGINGFACE_EMBEDDINGS)
 
-    @patch("raglight.embeddings.huggingface_embeddings_model.SentenceTransformer")
+    @patch("raglight.embeddings.huggingface_embeddings.SentenceTransformer")
     def test_embed_documents(self, mock_transformer: MagicMock):
         """Test document encoding."""
         mock_instance = mock_transformer.return_value
