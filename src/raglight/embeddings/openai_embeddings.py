@@ -42,10 +42,7 @@ class OpenAIEmbeddingsModel(EmbeddingsModel):
         """
         Embed list of documents using the official OpenAI client.
         """
-        response = self.model.embeddings.create(
-            input=texts,
-            model=self.model_name
-        )
+        response = self.model.embeddings.create(input=texts, model=self.model_name)
         return [data.embedding for data in response.data]
 
     @override
@@ -53,8 +50,5 @@ class OpenAIEmbeddingsModel(EmbeddingsModel):
         """
         Embed a single query text.
         """
-        response = self.model.embeddings.create(
-            input=[text],
-            model=self.model_name
-        )
+        response = self.model.embeddings.create(input=[text], model=self.model_name)
         return response.data[0].embedding

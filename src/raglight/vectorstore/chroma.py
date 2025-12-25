@@ -17,14 +17,17 @@ class ChromaEmbeddingAdapter(EmbeddingFunction):
     """
     Adapter to make EmbeddingsModel compatible with ChromaDB's EmbeddingFunction interface.
     """
+
     def __init__(self, embeddings_model: EmbeddingsModel):
         self.embeddings_model = embeddings_model
 
     def __call__(self, input: Documents) -> Embeddings:
         if hasattr(self.embeddings_model, "embed_documents"):
-             return self.embeddings_model.embed_documents(cast(List[str], input))
+            return self.embeddings_model.embed_documents(cast(List[str], input))
         else:
-             raise TypeError(f"Object {type(self.embeddings_model)} does not implement 'embed_documents'.")
+            raise TypeError(
+                f"Object {type(self.embeddings_model)} does not implement 'embed_documents'."
+            )
 
 
 class ChromaVS(VectorStore):
@@ -47,7 +50,7 @@ class ChromaVS(VectorStore):
         self.host = host
         self.port = port
         self.collection_name = collection_name
-        
+
         self.embedding_function = ChromaEmbeddingAdapter(self.embeddings_model)
 
         if host and port:
@@ -55,16 +58,17 @@ class ChromaVS(VectorStore):
         elif persist_directory:
             self.client = chromadb.PersistentClient(path=persist_directory)
         else:
-            raise ValueError("Invalid configuration: provide host/port OR persist_directory.")
+            raise ValueError(
+                "Invalid configuration: provide host/port OR persist_directory."
+            )
 
         self.collection = self.client.get_or_create_collection(
-            name=collection_name,
-            embedding_function=self.embedding_function
+            name=collection_name, embedding_function=self.embedding_function
         )
 
         self.collection_classes = self.client.get_or_create_collection(
             name=f"{collection_name}_classes",
-            embedding_function=self.embedding_function
+            embedding_function=self.embedding_function,
         )
 
     @override
@@ -75,10 +79,10 @@ class ChromaVS(VectorStore):
         logging.info(
             f"⏳ Adding {len(documents)} document chunks to ChromaDB collection '{self.collection.name}'..."
         )
-        
+
         # Direct addition of all documents at once
         self._add_docs_to_collection(self.collection, documents)
-        
+
         logging.info("✅ Documents successfully added to the main collection.")
 
     @override
@@ -89,16 +93,20 @@ class ChromaVS(VectorStore):
         logging.info(
             f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.collection_classes.name}'..."
         )
-        
+
         # Direct addition of all documents at once
         self._add_docs_to_collection(self.collection_classes, documents)
-        
+
         logging.info("✅ Class documents successfully added to the class collection.")
 
-    def _add_docs_to_collection(self, collection: Any, documents: List[Document]) -> None:
+    def _add_docs_to_collection(
+        self, collection: Any, documents: List[Document]
+    ) -> None:
         ids = [str(uuid.uuid4()) for _ in documents]
         texts = [doc.page_content for doc in documents]
-        metadatas = [doc.metadata if isinstance(doc.metadata, dict) else {} for doc in documents]
+        metadatas = [
+            doc.metadata if isinstance(doc.metadata, dict) else {} for doc in documents
+        ]
 
         collection.add(ids=ids, documents=texts, metadatas=metadatas)
 
@@ -111,11 +119,10 @@ class ChromaVS(VectorStore):
         collection_name: Optional[str] = None,
     ) -> List[Document]:
         target_collection = self.collection
-        
+
         if collection_name and collection_name != self.collection.name:
             target_collection = self.client.get_or_create_collection(
-                name=collection_name,
-                embedding_function=self.embedding_function
+                name=collection_name, embedding_function=self.embedding_function
             )
 
         return self._query_collection(target_collection, question, k, filter)
@@ -129,36 +136,31 @@ class ChromaVS(VectorStore):
         collection_name: Optional[str] = None,
     ) -> List[Document]:
         target_collection = self.collection_classes
-        
+
         if collection_name:
             class_col_name = f"{collection_name}_classes"
             if class_col_name != self.collection_classes.name:
                 target_collection = self.client.get_or_create_collection(
-                    name=class_col_name,
-                    embedding_function=self.embedding_function
+                    name=class_col_name, embedding_function=self.embedding_function
                 )
-        
+
         return self._query_collection(target_collection, question, k, filter)
 
     def _query_collection(
-        self, 
-        collection: Any, 
-        question: str, 
-        k: int, 
-        filter: Optional[Dict[str, Any]]
+        self, collection: Any, question: str, k: int, filter: Optional[Dict[str, Any]]
     ) -> List[Document]:
-        results = collection.query(
-            query_texts=[question],
-            n_results=k,
-            where=filter
-        )
-        
+        results = collection.query(query_texts=[question], n_results=k, where=filter)
+
         found_docs: List[Document] = []
-        if results['documents'] and results['documents'][0]:
-            docs_list = results['documents'][0]
-            metas_list = results['metadatas'][0] if results['metadatas'] else [{}] * len(docs_list)
+        if results["documents"] and results["documents"][0]:
+            docs_list = results["documents"][0]
+            metas_list = (
+                results["metadatas"][0]
+                if results["metadatas"]
+                else [{}] * len(docs_list)
+            )
             for text, meta in zip(docs_list, metas_list):
                 safe_meta = meta if isinstance(meta, dict) else {}
                 found_docs.append(Document(page_content=text, metadata=safe_meta))
-                
+
         return found_docs

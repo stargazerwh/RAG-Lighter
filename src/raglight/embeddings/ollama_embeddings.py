@@ -14,16 +14,16 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
     """
 
     def __init__(
-        self, 
-        model_name: str, 
+        self,
+        model_name: str,
         api_base: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None
+        options: Optional[Dict[str, Any]] = None,
     ) -> None:
         resolved_api_base = api_base or Settings.DEFAULT_OLLAMA_CLIENT
         super().__init__(model_name, api_base=resolved_api_base)
-        
+
         self.options = options or {}
-        
+
         # Keep critical config to prevent internal Ollama "panic" on large docs
         if "num_batch" not in self.options:
             self.options["num_batch"] = 8192
@@ -42,9 +42,7 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         # OPTIMIZATION: Use 'embed' (not 'embeddings') to process the whole list at once.
         # This sends a single request and leverages GPU batch processing.
         response = self.model.embed(
-            model=self.model_name, 
-            input=texts,
-            options=self.options
+            model=self.model_name, input=texts, options=self.options
         )
         return response["embeddings"]
 
@@ -54,8 +52,6 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         Embed a single query text.
         """
         response = self.model.embeddings(
-            model=self.model_name, 
-            prompt=text,
-            options=self.options
+            model=self.model_name, prompt=text, options=self.options
         )
         return response["embedding"]
