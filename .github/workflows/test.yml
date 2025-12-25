@@ -26,5 +26,8 @@ jobs:
       - name: Install the project
         run: make install
 
+      - name: Check formatting with black
+        run: uv run black --check .
+
       - name: Run tests
         run: make test
