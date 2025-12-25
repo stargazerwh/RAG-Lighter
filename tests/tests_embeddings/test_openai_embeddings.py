@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from raglight.embeddings.openai_embeddings_model import OpenAIEmbeddingsModel
+from raglight.embeddings.openai_embeddings import OpenAIEmbeddingsModel
 from ..test_config import TestsConfig
 
 
 class TestOpenAIEmbeddings(unittest.TestCase):
     
-    @patch("raglight.embeddings.openai_embeddings_model.OpenAI")
+    @patch("raglight.embeddings.openai_embeddings.OpenAI")
     def test_model_load(self, mock_openai: MagicMock):
         """Test OpenAI client initialization."""
         mock_openai.return_value = MagicMock()
@@ -15,7 +15,7 @@ class TestOpenAIEmbeddings(unittest.TestCase):
         self.assertIsNotNone(model.model)
         mock_openai.assert_called_once()
 
-    @patch("raglight.embeddings.openai_embeddings_model.OpenAI")
+    @patch("raglight.embeddings.openai_embeddings.OpenAI")
     def test_embed_documents(self, mock_openai: MagicMock):
         """Test document embedding (batch)."""
         mock_client = mock_openai.return_value
@@ -40,7 +40,7 @@ class TestOpenAIEmbeddings(unittest.TestCase):
             model=TestsConfig.OPENAI_EMBEDDING_MODEL
         )
 
-    @patch("raglight.embeddings.openai_embeddings_model.OpenAI")
+    @patch("raglight.embeddings.openai_embeddings.OpenAI")
     def test_embed_query(self, mock_openai: MagicMock):
         """Test single query embedding."""
         mock_client = mock_openai.return_value
