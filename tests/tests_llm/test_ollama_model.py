@@ -13,6 +13,7 @@ class TestOllamaModel(unittest.TestCase):
         self.model = OllamaModel(
             model_name=TestsConfig.OLLAMA_MODEL,
             system_prompt_file=TestsConfig.TEST_SYSTEM_PROMPT,
+            preload_model=False,
             options={"temperature": 0.3},
             headers={"x-some-header": "some-value"},
         )
