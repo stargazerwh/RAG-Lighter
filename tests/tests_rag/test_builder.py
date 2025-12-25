@@ -6,6 +6,7 @@ from raglight.rag.builder import Builder
 
 logging.getLogger().setLevel(logging.WARNING)
 
+
 class TestRAGBuilder(unittest.TestCase):
     @patch("raglight.rag.builder.ChromaVS")
     def test_builder_rag(self, mock_chroma):
@@ -24,6 +25,7 @@ class TestRAGBuilder(unittest.TestCase):
 
         mock_chroma.assert_called_once()
         self.assertIsNotNone(rag)
+
 
 class TestRATBuilder(unittest.TestCase):
     @patch("raglight.rag.builder.ChromaVS")
