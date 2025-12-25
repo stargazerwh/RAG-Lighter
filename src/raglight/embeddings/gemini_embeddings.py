@@ -1,18 +1,16 @@
 from __future__ import annotations
-from typing import Optional, List
+from typing import Optional, List, Any
 from typing_extensions import override
+
+import google.generativeai as genai
 
 from ..config.settings import Settings
 from .embeddings_model import EmbeddingsModel
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
 class GeminiEmbeddingsModel(EmbeddingsModel):
     """
-    Concrete implementation of the EmbeddingsModel for Gemini models.
-
-    This class provides a specific implementation of the abstract `EmbeddingsModel` for
-    loading and using Google Gemini embeddings via LangChain.
+    Concrete implementation of the EmbeddingsModel for Gemini models using the official Google GenAI library.
     """
 
     def __init__(self, model_name: str, api_base: Optional[str] = None) -> None:
@@ -20,41 +18,43 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
         Initializes a GeminiEmbeddingsModel instance.
 
         Args:
-            model_name (str): The name of the Gemini model to load.
-            api_base (Optional[str]): Base API config (optional).
+            model_name (str): The name of the Gemini model to load (e.g., "models/embedding-001").
+            api_base (Optional[str]): Not strictly used by the official lib as it relies on global config,
+                                      but kept for interface consistency.
         """
-        # Logique inspirée de la classe Ollama : on résout l'api_base avant d'appeler super
-        resolved_api_base = api_base or Settings.DEFAULT_GOOGLE_CLIENT
-        super().__init__(model_name, api_base=resolved_api_base)
+        super().__init__(model_name, api_base)
 
     @override
-    def load(self) -> GoogleGenerativeAIEmbeddings:
+    def load(self) -> Any:
         """
-        Loads the Gemini embeddings model via LangChain.
-
-        Returns:
-            GoogleGenerativeAIEmbeddings: The loaded Gemini embeddings model.
+        Configures the Google GenAI library.
+        Returns the module reference as the 'client'.
         """
-        return GoogleGenerativeAIEmbeddings(
-            model=self.model_name, 
-            google_api_key=Settings.GEMINI_API_KEY
-        )
+        genai.configure(api_key=Settings.GEMINI_API_KEY)
+        return genai
 
     @override
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
-        Embed list of documents.
-        
-        Delegates to the underlying LangChain model's embed_documents method.
-        LangChain typically handles the batching logic internally for Gemini.
+        Embed list of documents using Google GenAI.
+        Specifies 'retrieval_document' task type for optimized document storage embeddings.
         """
-        return self.model.embed_documents(texts)
+        result = self.model.embed_content(
+            model=self.model_name,
+            content=texts,
+            task_type="retrieval_document"
+        )
+        return result['embedding']
 
     @override
     def embed_query(self, text: str) -> List[float]:
         """
         Embed a single query text.
-        
-        Delegates to the underlying LangChain model's embed_query method.
+        Specifies 'retrieval_query' task type for optimized search query embeddings.
         """
-        return self.model.embed_query(text)
+        result = self.model.embed_content(
+            model=self.model_name,
+            content=text,
+            task_type="retrieval_query"
+        )
+        return result['embedding']
