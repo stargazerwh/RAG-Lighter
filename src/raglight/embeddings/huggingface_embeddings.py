@@ -2,16 +2,15 @@ from __future__ import annotations
 from typing import List
 from typing_extensions import override
 
+from sentence_transformers import SentenceTransformer
+
 from .embeddings_model import EmbeddingsModel
-from langchain_huggingface import HuggingFaceEmbeddings
 
 
 class HuggingfaceEmbeddingsModel(EmbeddingsModel):
     """
-    Concrete implementation of the EmbeddingsModel for HuggingFace models.
-
-    This class provides a specific implementation of the abstract `EmbeddingsModel` for
-    loading and using HuggingFace embeddings via LangChain.
+    Concrete implementation of the EmbeddingsModel for HuggingFace models using sentence-transformers.
+    This runs locally.
     """
 
     def __init__(self, model_name: str) -> None:
@@ -19,36 +18,32 @@ class HuggingfaceEmbeddingsModel(EmbeddingsModel):
         Initializes a HuggingfaceEmbeddingsModel instance.
 
         Args:
-            model_name (str): The name of the HuggingFace model to load.
+            model_name (str): The name of the HuggingFace model to load locally.
         """
-        # Les modèles HuggingFace tournent généralement en local ou via le Hub sans base URL spécifique,
-        # on laisse donc api_base à None via le constructeur parent.
         super().__init__(model_name)
 
     @override
-    def load(self) -> HuggingFaceEmbeddings:
+    def load(self) -> SentenceTransformer:
         """
-        Loads the HuggingFace embeddings model via LangChain.
+        Loads the SentenceTransformer model locally.
 
         Returns:
-            HuggingFaceEmbeddings: The loaded HuggingFace embeddings model.
+            SentenceTransformer: The loaded model.
         """
-        return HuggingFaceEmbeddings(model_name=self.model_name)
+        return SentenceTransformer(self.model_name)
 
     @override
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
         Embed list of documents.
-
-        Delegates to the underlying LangChain model's embed_documents method.
         """
-        return self.model.embed_documents(texts)
+        embeddings = self.model.encode(texts)
+        return embeddings.tolist()
 
     @override
     def embed_query(self, text: str) -> List[float]:
         """
         Embed a single query text.
-
-        Delegates to the underlying LangChain model's embed_query method.
         """
-        return self.model.embed_query(text)
+        embedding = self.model.encode(text)
+        return embedding.tolist()
