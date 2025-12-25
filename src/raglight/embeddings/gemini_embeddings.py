@@ -40,11 +40,9 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
         Specifies 'retrieval_document' task type for optimized document storage embeddings.
         """
         result = self.model.embed_content(
-            model=self.model_name,
-            content=texts,
-            task_type="retrieval_document"
+            model=self.model_name, content=texts, task_type="retrieval_document"
         )
-        return result['embedding']
+        return result["embedding"]
 
     @override
     def embed_query(self, text: str) -> List[float]:
@@ -53,8 +51,6 @@ class GeminiEmbeddingsModel(EmbeddingsModel):
         Specifies 'retrieval_query' task type for optimized search query embeddings.
         """
         result = self.model.embed_content(
-            model=self.model_name,
-            content=text,
-            task_type="retrieval_query"
+            model=self.model_name, content=text, task_type="retrieval_query"
         )
-        return result['embedding']
+        return result["embedding"]

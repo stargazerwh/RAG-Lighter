@@ -37,7 +37,7 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
             HuggingfaceCrossEncoderModel: The loaded HuggingFace cross encoder model.
         """
         return CrossEncoder(self.model_name)
-    
+
     @override
     def predict(self, query: str, documents: List[str], top_k: int) -> List[str]:
         """
@@ -53,11 +53,8 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
         """
         # rank returns a list of dicts: [{'corpus_id': int, 'score': float, 'text': str}, ...]
         results = self.model.rank(
-            query=query,
-            documents=documents,
-            top_k=top_k,
-            return_documents=True
+            query=query, documents=documents, top_k=top_k, return_documents=True
         )
-        
+
         # We extract and return only the text strings
-        return [res['text'] for res in results]
+        return [res["text"] for res in results]

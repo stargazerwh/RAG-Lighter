@@ -12,6 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class State(TypedDict):
     """
     Represents the state of the RAG process.
@@ -22,10 +23,12 @@ class State(TypedDict):
         answer (str): The generated answer based on the input question and context.
         history (List[Dict[str, str]]): The history of the conversation.
     """
+
     question: str
     answer: str
     context: List[Document] = []
     history: List[Dict[str, str]] = []
+
 
 class RAG:
     """
@@ -134,15 +137,17 @@ class RAG:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            
-            ranked_texts = self.cross_encoder.predict(question, doc_texts, int(self.k / 4))
-            
+
+            ranked_texts = self.cross_encoder.predict(
+                question, doc_texts, int(self.k / 4)
+            )
+
             ranked_docs = [Document(page_content=text) for text in ranked_texts]
-            
+
         except Exception as e:
             logger.warning(f"Reranking failed: {e}")
             ranked_docs = state["context"]
-            
+
         return {"context": ranked_docs, "question": state["question"]}
 
     def _createGraph(self) -> Any:
@@ -156,7 +161,7 @@ class RAG:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._rerank, self._generate_graph]
             )
-            self.k = 4 * self.k # Increase retrieval window for reranking
+            self.k = 4 * self.k  # Increase retrieval window for reranking
         else:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._generate_graph]
