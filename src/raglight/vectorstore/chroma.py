@@ -99,10 +99,10 @@ class ChromaVS(VectorStore):
             f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.collection_classes.name}'..."
             f"⏳ Adding {len(documents)} class documents to ChromaDB collection '{self.collection_classes.name}'..."
         )
-        
+
         # Direct addition of all documents at once
         self._add_docs_to_collection(self.collection_classes, documents)
-        
+
         logging.info("✅ Class documents successfully added to the class collection.")
 
     def _add_docs_to_collection(
