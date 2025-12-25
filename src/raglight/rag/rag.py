@@ -23,6 +23,7 @@ class State(TypedDict):
         answer (str): The generated answer based on the input question and context.
         history (List[Dict[str, str]]): The history of the conversation.
     """
+
     question: str
     answer: str
     context: List[Document] = []
