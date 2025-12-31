@@ -1,6 +1,5 @@
 import logging
 from typing import List, Dict
-from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from .document_processor import DocumentProcessor
@@ -11,21 +10,30 @@ class TextProcessor(DocumentProcessor):
         self, file_path: str, chunk_size: int, chunk_overlap: int
     ) -> Dict[str, List[Document]]:
         try:
-            loader = UnstructuredFileLoader(file_path, mode="single")
-            docs = loader.load()
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    text = f.read()
+            except UnicodeDecodeError:
+                logging.warning(f"UTF-8 decode failed for {file_path}, trying latin-1.")
+                with open(file_path, "r", encoding="latin-1") as f:
+                    text = f.read()
 
-            if not docs:
-                logging.warning(
-                    f"UnstructuredFileLoader returned no documents for {file_path}."
-                )
+            if not text:
+                logging.warning(f"File {file_path} is empty.")
                 return {"chunks": [], "classes": []}
+
+            doc = Document(
+                page_content=text,
+                metadata={"source": file_path}
+            )
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=chunk_size, chunk_overlap=chunk_overlap
             )
-            chunks = text_splitter.split_documents(docs)
+            chunks = text_splitter.split_documents([doc])
 
             return {"chunks": chunks, "classes": []}
+            
         except Exception as e:
             logging.error(f"Failed to process text file {file_path}. Error: {e}")
             return {"chunks": [], "classes": []}
