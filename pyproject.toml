@@ -14,7 +14,6 @@ dependencies = [
     "smolagents[mcp]==1.21.1",
     "langchain-text-splitters==0.3.2",
     "ollama==0.4.0",
-    "unstructured[all-docs]==0.16.11",
     "langchain-core==0.3.24",
     "typing==3.7.4.3",
     "typing-extensions==4.12.2",
