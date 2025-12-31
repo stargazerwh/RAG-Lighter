@@ -2,6 +2,7 @@
 
 ![License](https://img.shields.io/github/license/Bessouat40/RAGLight)
 [![Downloads](https://static.pepy.tech/personalized-badge/raglight?period=total&units=international_system&left_color=grey&right_color=red&left_text=Downloads)](https://pepy.tech/projects/raglight)
+[![Run Test](https://github.com/Bessouat40/RAGLight/actions/workflows/test.yml/badge.svg)](https://github.com/Bessouat40/RAGLight/actions/workflows/test.yml)
 
 <div align="center">
     <img alt="RAGLight" height="200px" src="./media/raglight.png">
