@@ -21,13 +21,29 @@ dependencies = [
     "questionary==2.0.1",
     "python-dotenv>=1.1.1",
     "pydantic>=2.11.7",
-    "google-genai>=1.2.0",
+    "google-genai==1.2.0",
     "black>=25.12.0",
     "langchain==1.2.0",
     "langchain-text-splitters==1.1.0",
     "langchain-core==1.2.5",
     "langgraph==1.0.5",
     "pymupdf==1.26.7",
+    "chromadb==0.5.23",
+    "sentence-transformers==5.1.2",
+    "google-generativeai==0.8.5",
 ]
 [project.scripts]
 raglight = "raglight.cli.main:app"
+
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+raglight = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "raglight",
+]
