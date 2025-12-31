@@ -9,12 +9,9 @@ license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "langchain-ollama==0.2.1",
-    "langchain-openai==0.2.0",
     "langchain==0.3.11",
     "mistralai==1.5.0",
     "smolagents[mcp]==1.21.1",
-    "langchain-huggingface==0.1.2",
     "langchain-text-splitters==0.3.2",
     "ollama==0.4.0",
     "unstructured[all-docs]==0.16.11",
@@ -22,14 +19,12 @@ dependencies = [
     "typing==3.7.4.3",
     "typing-extensions==4.12.2",
     "langgraph==0.2.59",
-    "langchain-chroma==0.1.4",
     "langchain-community==0.3.11",
     "litellm==1.52.16",
     "typer==0.16.0",
     "rich==14.0.0",
     "quo==2023.5.1",
     "questionary==2.0.1",
-    "langchain-google-genai==2.0.7",
     "python-dotenv>=1.1.1",
     "pydantic>=2.11.7",
     "google-genai>=1.2.0",
