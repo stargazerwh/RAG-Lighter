@@ -1,13 +1,9 @@
 from __future__ import annotations
-import logging
-from typing import Optional, List, Dict, Any
-import logging
 from typing import Optional, List, Dict, Any
 from typing_extensions import override
 
 from ..config.settings import Settings
 from .embeddings_model import EmbeddingsModel
-from ollama import Client
 from ollama import Client
 
 
@@ -50,7 +46,6 @@ class OllamaEmbeddingsModel(EmbeddingsModel):
         return response["embeddings"]
 
     @override
-    def embed_query(self, text: str) -> List[float]:
     def embed_query(self, text: str) -> List[float]:
         """
         Embed a single query text.

@@ -3,11 +3,6 @@ from typing import List
 from typing_extensions import override
 from .cross_encoder_model import CrossEncoderModel
 from sentence_transformers import CrossEncoder
-from transformers import AutoModel
-from typing import Any, List, Tuple
-from transformers import AutoModel
-from typing import Any, List, Tuple
-
 
 class HuggingfaceCrossEncoderModel(CrossEncoderModel):
     """
