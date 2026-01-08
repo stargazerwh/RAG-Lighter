@@ -8,6 +8,9 @@ from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict, Dict
 from langchain_core.documents import Document
 from typing import Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class State(TypedDict):
@@ -61,7 +64,7 @@ class RAG:
         """
         self.embeddings: EmbeddingsModel = embedding_model.get_model()
         self.cross_encoder: CrossEncoderModel = (
-            cross_encoder_model.get_model() if cross_encoder_model else None
+            cross_encoder_model if cross_encoder_model else None
         )
         self.vector_store: VectorStore = vector_store
         self.llm: LLM = llm
@@ -134,13 +137,18 @@ class RAG:
             question = state["question"]
             docs = state["context"]
             doc_texts = [doc.page_content for doc in docs]
-            scores = self.cross_encoder.predict(
-                [(question, doc_text) for doc_text in doc_texts]
+
+            ranked_texts = self.cross_encoder.predict(
+                question, doc_texts, int(self.k / 4)
             )
-            ranked_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
-        except:
+
+            ranked_docs = [Document(page_content=text) for text in ranked_texts]
+
+        except Exception as e:
+            logger.warning(f"Reranking failed: {e}")
             ranked_docs = state["context"]
-        return {"context": ranked_docs}
+
+        return {"context": ranked_docs, "question": state["question"]}
 
     def _createGraph(self) -> Any:
         """
@@ -153,6 +161,7 @@ class RAG:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._rerank, self._generate_graph]
             )
+            self.k = 4 * self.k  # Increase retrieval window for reranking
         else:
             graph_builder = StateGraph(State).add_sequence(
                 [self._retrieve, self._generate_graph]

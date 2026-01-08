@@ -1,9 +1,8 @@
 from __future__ import annotations
-from typing import Any
+from typing import List
 from typing_extensions import override
 from .cross_encoder_model import CrossEncoderModel
 from sentence_transformers import CrossEncoder
-
 
 class HuggingfaceCrossEncoderModel(CrossEncoderModel):
     """
@@ -36,4 +35,25 @@ class HuggingfaceCrossEncoderModel(CrossEncoderModel):
         Returns:
             HuggingfaceCrossEncoderModel: The loaded HuggingFace cross encoder model.
         """
-        return CrossEncoder(model_name=self.model_name)
+        return CrossEncoder(self.model_name)
+
+    @override
+    def predict(self, query: str, documents: List[str], top_k: int) -> List[str]:
+        """
+        Predicts the similarity scores and returns the list of most relevant document texts.
+
+        Args:
+            query (str): The input query.
+            documents (List[str]): The list of document texts to rank.
+            top_k (int): The number of top results to return.
+
+        Returns:
+            List[str]: The list of top_k re-ranked document texts.
+        """
+        # rank returns a list of dicts: [{'corpus_id': int, 'score': float, 'text': str}, ...]
+        results = self.model.rank(
+            query=query, documents=documents, top_k=top_k, return_documents=True
+        )
+
+        # We extract and return only the text strings
+        return [res["text"] for res in results]

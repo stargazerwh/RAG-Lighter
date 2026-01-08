@@ -1,18 +1,16 @@
 from __future__ import annotations
+from typing import List
 from typing_extensions import override
+
+from sentence_transformers import SentenceTransformer
+
 from .embeddings_model import EmbeddingsModel
-from langchain_huggingface import HuggingFaceEmbeddings
 
 
 class HuggingfaceEmbeddingsModel(EmbeddingsModel):
     """
-    Concrete implementation of the EmbeddingsModel for HuggingFace models.
-
-    This class provides a specific implementation of the abstract `EmbeddingsModel` for
-    loading and using HuggingFace embeddings.
-
-    Attributes:
-        model_name (str): The name of the HuggingFace model to be loaded.
+    Concrete implementation of the EmbeddingsModel for HuggingFace models using sentence-transformers.
+    This runs locally.
     """
 
     def __init__(self, model_name: str) -> None:
@@ -20,20 +18,32 @@ class HuggingfaceEmbeddingsModel(EmbeddingsModel):
         Initializes a HuggingfaceEmbeddingsModel instance.
 
         Args:
-            model_name (str): The name of the HuggingFace model to load.
+            model_name (str): The name of the HuggingFace model to load locally.
         """
-        self.api_base = None
         super().__init__(model_name)
 
     @override
-    def load(self) -> HuggingFaceEmbeddings:
+    def load(self) -> SentenceTransformer:
         """
-        Loads the HuggingFace embeddings model.
-
-        This method overrides the abstract `load` method from the `EmbeddingsModel` class
-        and initializes the HuggingFace embeddings model with the specified `model_name`.
+        Loads the SentenceTransformer model locally.
 
         Returns:
-            HuggingFaceEmbeddings: The loaded HuggingFace embeddings model.
+            SentenceTransformer: The loaded model.
         """
-        return HuggingFaceEmbeddings(model_name=self.model_name)
+        return SentenceTransformer(self.model_name)
+
+    @override
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """
+        Embed list of documents.
+        """
+        embeddings = self.model.encode(texts)
+        return embeddings.tolist()
+
+    @override
+    def embed_query(self, text: str) -> List[float]:
+        """
+        Embed a single query text.
+        """
+        embedding = self.model.encode(text)
+        return embedding.tolist()

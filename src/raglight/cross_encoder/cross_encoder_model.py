@@ -47,6 +47,7 @@ class CrossEncoderModel(ABC):
         """
         return self.model
 
+    @abstractmethod
     def predict(self, quer_list: List[Tuple[str, str]]) -> List[float]:
         """
         Abstract method to predict the similarity scores for a list of queries.
@@ -57,4 +58,4 @@ class CrossEncoderModel(ABC):
         Returns:
             List[float]: The list of similarity scores for the input queries.
         """
-        return self.model.predict(quer_list)
+        pass

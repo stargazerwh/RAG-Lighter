@@ -52,15 +52,16 @@ class OllamaModel(LLM):
         self.headers = headers
         self.preload_model = preload_model
         self.options = options
+        super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
+        logging.info(f"Using Ollama with {model_name} model 🤖")
+        self.role: str = role
+        self.options = options
         self.max_context_size = (
             self.options.get(OLLAMA_OPTION_CONTEXT_SIZE, OLLAMA_DEFAULT_CONTEXT_SIZE)
             if self.options
             else OLLAMA_DEFAULT_CONTEXT_SIZE
         )
-        super().__init__(model_name, system_prompt, system_prompt_file, self.api_base)
-        logging.info(f"Using Ollama with {model_name} model 🤖")
-        self.role: str = role
-        
+
     @override
     def load(self) -> Client:
         """

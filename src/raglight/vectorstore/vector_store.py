@@ -29,7 +29,7 @@ class VectorStore(ABC):
         """
         Initializes a VectorStore instance.
         """
-        self.embeddings_model: Any = embeddings_model.get_model()
+        self.embeddings_model: EmbeddingsModel = embeddings_model
         self.persist_directory: str = persist_directory
         self.vector_store: Any = None
         self.vector_store_classes: Any = None
