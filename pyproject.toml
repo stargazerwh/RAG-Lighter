@@ -27,7 +27,6 @@ dependencies = [
     "langchain-text-splitters==1.1.0",
     "langchain-core==1.2.5",
     "langgraph==1.0.5",
-    "pymupdf==1.26.7",
     "chromadb==0.5.23",
     "sentence-transformers==5.1.2",
     "google-generativeai==0.8.5",
