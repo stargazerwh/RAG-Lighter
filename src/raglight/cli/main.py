@@ -453,7 +453,12 @@ def interactive_chat_command():
     console.print("[bold blue]\n--- 🧠 Step 3: Embeddings Model ---[/bold blue]")
     emb_provider = questionary.select(
         "Which embeddings provider do you want to use?",
-        choices=[Settings.HUGGINGFACE, Settings.OLLAMA, Settings.OPENAI],
+        choices=[
+            Settings.HUGGINGFACE,
+            Settings.OLLAMA,
+            Settings.OPENAI,
+            Settings.GOOGLE_GEMINI,
+        ],
         default=Settings.HUGGINGFACE,
         style=custom_style,
     ).ask()
@@ -463,6 +468,8 @@ def interactive_chat_command():
         default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
     elif emb_provider == Settings.OPENAI:
         default_api_base = Settings.DEFAULT_OPENAI_CLIENT
+    elif emb_provider == Settings.GOOGLE_GEMINI:
+        default_api_base = Settings.DEFAULT_GOOGLE_CLIENT
 
     embeddings_base_url = RichPrompt.ask(
         "[bold]What is your base URL for the embeddings provider? (Not needed for HuggingFace)[/bold]",
@@ -476,18 +483,29 @@ def interactive_chat_command():
     console.print("[bold blue]\n--- 🤖 Step 4: Language Model (LLM) ---[/bold blue]")
     llm_provider = questionary.select(
         "Which LLM provider do you want to use?",
-        choices=[Settings.OLLAMA, Settings.MISTRAL, Settings.OPENAI, Settings.LMSTUDIO],
+        choices=[
+            Settings.OLLAMA,
+            Settings.MISTRAL,
+            Settings.OPENAI,
+            Settings.LMSTUDIO,
+            Settings.GOOGLE_GEMINI,
+        ],
         default=Settings.OLLAMA,
         style=custom_style,
     ).ask()
 
+    api_key = None
     llm_default_api_base = None
     if llm_provider == Settings.OLLAMA:
         llm_default_api_base = Settings.DEFAULT_OLLAMA_CLIENT
     elif llm_provider == Settings.OPENAI:
         llm_default_api_base = Settings.DEFAULT_OPENAI_CLIENT
+        api_key = Settings.OPENAI_API_KEY
     elif llm_provider == Settings.LMSTUDIO:
         llm_default_api_base = Settings.DEFAULT_LMSTUDIO_CLIENT
+    elif llm_provider == Settings.GOOGLE_GEMINI:
+        api_key = Settings.GEMINI_API_KEY
+        llm_default_api_base = Settings.DEFAULT_GOOGLE_CLIENT
 
     llm_base_url = RichPrompt.ask(
         "[bold]What is your base URL for the LLM provider? (Not needed for Mistral)[/bold]",
@@ -535,7 +553,7 @@ def interactive_chat_command():
             k=k,
             system_prompt=Settings.DEFAULT_AGENT_PROMPT,
             max_steps=4,
-            api_key=Settings.MISTRAL_API_KEY,  # os.environ.get('MISTRAL_API_KEY')
+            api_key=api_key,
             api_base=llm_base_url,
         )
 
