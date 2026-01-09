@@ -27,26 +27,5 @@ class TestRAGBuilder(unittest.TestCase):
         self.assertIsNotNone(rag)
 
 
-class TestRATBuilder(unittest.TestCase):
-    @patch("raglight.rag.builder.ChromaVS")
-    def test_builder_rat(self, mock_chroma):
-        mock_chroma_instance = MagicMock()
-        mock_chroma.return_value = mock_chroma_instance
-
-        rat = (
-            Builder()
-            .with_embeddings(Settings.OLLAMA, model_name="gpt-oss:20b")
-            .with_vector_store(
-                Settings.CHROMA, persist_directory="/", collection_name="test"
-            )
-            .with_llm(Settings.OLLAMA, model_name="gpt-oss:20b", preload_model=False)
-            .with_reasoning_llm(Settings.OLLAMA, model_name="deepseek:r1:20b", preload_model=False)
-            .build_rat()
-        )
-
-        mock_chroma.assert_called_once()
-        self.assertIsNotNone(rat)
-
-
 if __name__ == "__main__":
     unittest.main()

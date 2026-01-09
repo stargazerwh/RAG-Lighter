@@ -15,7 +15,6 @@ from ..vectorstore.vector_store import VectorStore
 from ..vectorstore.chroma import ChromaVS
 from ..config.settings import Settings
 from .rag import RAG
-from ..rat.rat import RAT
 from ..embeddings.embeddings_model import EmbeddingsModel
 from ..embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
 from ..embeddings.gemini_embeddings import GeminiEmbeddingsModel
@@ -31,9 +30,7 @@ class Builder:
         vector_store (Optional[VectorStore]): The configured vector store instance.
         embeddings (Optional[EmbeddingsModel]): The configured embeddings model instance.
         llm (Optional[LLM]): The configured large language model (LLM) instance.
-        reasoning_llm (Optional[LLM]): The configured reasoning LLM instance for RAT pipelines.
         rag (Optional[RAG]): The configured RAG pipeline instance.
-        rat (Optional[RAT]): The configured RAT pipeline instance.
     """
 
     def __init__(self) -> None:
@@ -46,7 +43,6 @@ class Builder:
         self.llm: Optional[LLM] = None
         self.reasoning_llm: Optional[LLM] = None
         self.rag: Optional[RAG] = None
-        self.rat: Optional[RAT] = None
 
     def with_embeddings(self, type: str, **kwargs) -> Builder:
         """
@@ -154,32 +150,6 @@ class Builder:
         logging.info("✅ LLM created")
         return self
 
-    def with_reasoning_llm(self, type: str, **kwargs) -> Builder:
-        """
-        Configures the reasoning large language model (LLM) for RAT pipelines.
-
-        Args:
-            type (str): The type of LLM to create (e.g., deepseek-r1).
-            **kwargs: Additional parameters required to initialize the LLM.
-
-        Returns:
-            Builder: The current instance of the Builder for method chaining.
-
-        Raises:
-            ValueError: If an unknown or invalid LLM type is specified.
-        """
-        logging.info("⏳ Creating a reasoning LLM...")
-
-        if type == Settings.OLLAMA:
-            self.reasoning_llm = OllamaModel(**kwargs)
-        elif type == Settings.LMSTUDIO:
-            self.reasoning_llm = LMStudioModel(**kwargs)
-        else:
-            raise ValueError(f"Unknown LLM type: {type}")
-
-        logging.info("✅ Reasoning LLM created")
-        return self
-
     def build_rag(self, k: int = 10) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
@@ -205,41 +175,6 @@ class Builder:
         )
         logging.info("✅ RAG pipeline created")
         return self.rag
-
-    def build_rat(self, reflection: int = 1, k: int = Settings.DEFAULT_K) -> RAT:
-        """
-        Builds the RAT pipeline with the configured components.
-
-        Args:
-            reflection (int, optional): The number of reasoning iterations to perform. Defaults to 1.
-            k (int, optional): The number of top documents to retrieve. Defaults to 5.
-
-        Returns:
-            RAT: The fully configured RAT pipeline instance.
-
-        Raises:
-            ValueError: If any of the required components (vector store, LLM, reasoning LLM, embeddings) are not set.
-        """
-        if self.vector_store is None:
-            raise ValueError("VectorStore is required")
-        if self.llm is None:
-            raise ValueError("LLM is required")
-        if self.reasoning_llm is None:
-            raise ValueError("Reasoning LLM is required")
-        if self.embeddings is None:
-            raise ValueError("Embeddings Model is required")
-        logging.info("⏳ Building the RAT pipeline...")
-        self.rat = RAT(
-            self.embeddings,
-            self.vector_store,
-            self.llm,
-            k,
-            self.reasoning_llm,
-            reflection,
-            self.cross_encoder,
-        )
-        logging.info("✅ RAT pipeline created")
-        return self.rat
 
     def build_vector_store(self) -> VectorStore:
         """
