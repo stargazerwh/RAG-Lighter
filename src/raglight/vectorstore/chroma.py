@@ -164,3 +164,15 @@ class ChromaVS(VectorStore):
                 found_docs.append(Document(page_content=text, metadata=safe_meta))
 
         return found_docs
+
+    @override
+    def get_available_collections(self) -> List[str]:
+        """
+        Retrieves the list of available collections in the ChromaDB.
+        """
+        try:
+            collections = self.client.list_collections()
+            return [col.name for col in collections]
+        except Exception as e:
+            logging.error(f"Error listing collections: {e}")
+            return []
