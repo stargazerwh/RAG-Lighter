@@ -11,8 +11,6 @@ from ..vectorstore.vector_store import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
 from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 
-nest_asyncio.apply()
-
 class AgenticRAGPipeline:
     def __init__(
         self,
