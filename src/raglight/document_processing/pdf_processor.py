@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from .document_processor import DocumentProcessor
 
+
 class PDFProcessor(DocumentProcessor):
     def process(
         self, file_path: str, chunk_size: int, chunk_overlap: int
@@ -18,7 +19,7 @@ class PDFProcessor(DocumentProcessor):
                 page_text_parts = []
 
                 for block in blocks:
-                    if block["type"] == 0:  
+                    if block["type"] == 0:
                         for line in block["lines"]:
                             for span in line["spans"]:
                                 page_text_parts.append(span["text"])
@@ -30,10 +31,7 @@ class PDFProcessor(DocumentProcessor):
                 if full_page_text:
                     document = Document(
                         page_content=full_page_text,
-                        metadata={
-                            "source": file_path,
-                            "page": page_index
-                        }
+                        metadata={"source": file_path, "page": page_index},
                     )
                     raw_documents.append(document)
 

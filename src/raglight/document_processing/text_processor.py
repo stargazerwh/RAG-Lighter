@@ -22,10 +22,7 @@ class TextProcessor(DocumentProcessor):
                 logging.warning(f"File {file_path} is empty.")
                 return {"chunks": [], "classes": []}
 
-            doc = Document(
-                page_content=text,
-                metadata={"source": file_path}
-            )
+            doc = Document(page_content=text, metadata={"source": file_path})
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=chunk_size, chunk_overlap=chunk_overlap
@@ -33,7 +30,7 @@ class TextProcessor(DocumentProcessor):
             chunks = text_splitter.split_documents([doc])
 
             return {"chunks": chunks, "classes": []}
-            
+
         except Exception as e:
             logging.error(f"Failed to process text file {file_path}. Error: {e}")
             return {"chunks": [], "classes": []}

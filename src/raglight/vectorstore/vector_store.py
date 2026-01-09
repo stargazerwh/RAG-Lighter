@@ -158,12 +158,12 @@ class VectorStore(ABC):
         """
         normalized_path = os.path.normpath(path)
         return any(folder in normalized_path.split(os.sep) for folder in ignore_folders)
-    
+
     @abstractmethod
     def get_available_collections(self) -> List[str]:
         """
         Retrieves the list of available collections in the vector store.
-        
+
         Returns:
             List[str]: A list of collection names available for querying.
         """

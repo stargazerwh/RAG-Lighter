@@ -4,6 +4,7 @@ from typing_extensions import override
 from .cross_encoder_model import CrossEncoderModel
 from sentence_transformers import CrossEncoder
 
+
 class HuggingfaceCrossEncoderModel(CrossEncoderModel):
     """
     Concrete implementation of the CrossEncoderModel for HuggingFace models.

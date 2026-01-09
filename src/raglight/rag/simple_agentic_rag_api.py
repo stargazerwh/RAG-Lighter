@@ -11,6 +11,7 @@ from ..vectorstore.vector_store import VectorStore
 from ..scrapper.github_scrapper import GithubScrapper
 from ..models.data_source_model import DataSource, FolderSource, GitHubSource
 
+
 class AgenticRAGPipeline:
     def __init__(
         self,
@@ -77,6 +78,8 @@ class AgenticRAGPipeline:
             asyncio.set_event_loop(loop)
 
         if loop.is_running():
-            return loop.run_until_complete(self.agenticRag.generate(question, stream=stream))
+            return loop.run_until_complete(
+                self.agenticRag.generate(question, stream=stream)
+            )
         else:
             return asyncio.run(self.agenticRag.generate(question, stream=stream))
