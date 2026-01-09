@@ -41,7 +41,6 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
   - [RAG](#rag)
   - [Agentic RAG](#agentic-rag)
   - [MCP Integration](#mcp-integration)
-  - [RAT](#rat)
   - [Use Custom Pipeline](#use-custom-pipeline)
   - [Override Default Processors](#override-default-processors)
 
@@ -70,7 +69,6 @@ Designed for simplicity and flexibility, RAGLight provides modular components to
 - **Embeddings Model Integration**: Plug in your preferred embedding models (e.g., HuggingFace **all-MiniLM-L6-v2**) for compact and efficient vector embeddings.
 - **LLM Agnostic**: Seamlessly integrates with different LLMs from different providers (Ollama and LMStudio supported).
 - **RAG Pipeline**: Combines document retrieval and language generation in a unified workflow.
-- **RAT Pipeline**: Combines document retrieval and language generation in a unified workflow. Add reflection loops using a reasoning model like **Deepseek-R1** or **o1**.
 - **Agentic RAG Pipeline**: Use Agent to improve your RAG performances.
 - 🔌 **MCP Integration**: Add external tool capabilities (e.g. code execution, database access) via MCP servers.
 - **Flexible Document Support**: Ingest and index various document types (e.g., PDF, TXT, DOCX, Python, Javascript, ...).
@@ -140,7 +138,6 @@ The ignore folders feature is also available in all configuration classes, allow
 
 - **RAGConfig**: Use `ignore_folders` parameter to exclude folders during RAG pipeline indexing
 - **AgenticRAGConfig**: Use `ignore_folders` parameter to exclude folders during AgenticRAG pipeline indexing
-- **RATConfig**: Use `ignore_folders` parameter to exclude folders during RAT pipeline indexing
 - **VectorStoreConfig**: Use `ignore_folders` parameter to exclude folders during vector store operations
 
 All configuration classes use `Settings.DEFAULT_IGNORE_FOLDERS` as the default value, but you can override this with your custom list:
