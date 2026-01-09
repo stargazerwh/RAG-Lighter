@@ -4,6 +4,8 @@ from pathlib import Path
 import logging
 import os
 import questionary
+import shutil
+from typing import List, Optional, Tuple
 
 from raglight.rag.builder import Builder
 from raglight.config.settings import Settings
@@ -20,6 +22,8 @@ from quo.prompt import Prompt
 from raglight.config.agentic_rag_config import AgenticRAGConfig
 from raglight.config.vector_store_config import VectorStoreConfig
 from raglight.rag.simple_agentic_rag_api import AgenticRAGPipeline
+from raglight.models.data_source_model import GitHubSource
+from raglight.scrapper.github_scrapper import GithubScrapper
 
 
 def download_nltk_resources_if_needed():
@@ -72,6 +76,77 @@ def select_with_arrows(message, choices, default=None):
     return questionary.select(message, choices=choices, default=default).ask()
 
 
+def prompt_local_source() -> Path:
+    cwd = os.getcwd()
+    data_path_str = typer.prompt(
+        "Enter the path to the directory with your documents", default=cwd
+    )
+    data_path = Path(data_path_str)
+    if not data_path.is_dir():
+        console.print(
+            f"[bold red]❌ Error: The path '{data_path_str}' is not a valid directory.[/bold red]"
+        )
+        raise typer.Exit(code=1)
+    return data_path
+
+
+def prompt_github_sources() -> List[GitHubSource]:
+    github_sources: List[GitHubSource] = []
+    console.print(
+        "[cyan]Enter GitHub repository URLs (one per line, press Enter twice to finish):[/cyan]"
+    )
+    while True:
+        repo_url = input("GitHub repo URL (or Enter to finish): ").strip()
+        if not repo_url:
+            break
+        branch = typer.prompt(
+            "Which branch should be used for this repository?", default="main"
+        )
+        github_sources.append(GitHubSource(url=repo_url, branch=branch))
+    if github_sources:
+        console.print(
+            f"[green]✅ Added {len(github_sources)} GitHub repository(ies).[/green]"
+        )
+    return github_sources
+
+
+def prompt_data_sources() -> Tuple[Optional[Path], List[GitHubSource]]:
+    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
+    source_type = questionary.select(
+        "Which knowledge source do you want to use?",
+        choices=["Local folder", "GitHub repositories"],
+        default="Local folder",
+        style=custom_style,
+    ).ask()
+
+    if source_type == "Local folder":
+        return prompt_local_source(), []
+
+    github_sources = prompt_github_sources()
+    if not github_sources:
+        console.print(
+            "[bold red]❌ Error: At least one GitHub repository is required.[/bold red]"
+        )
+        raise typer.Exit(code=1)
+    return None, github_sources
+
+
+def ingest_github_sources(
+    vector_store, github_sources: List[GitHubSource], ignore_folders: List[str]
+) -> None:
+    if not github_sources:
+        return
+    console.print("[bold cyan]⏳ Cloning GitHub repositories...[/bold cyan]")
+    github_scrapper = GithubScrapper()
+    github_scrapper.set_repositories(github_sources)
+    repos_path = github_scrapper.clone_all()
+    try:
+        vector_store.ingest(data_path=repos_path, ignore_folders=ignore_folders)
+        console.print("[bold green]✅ GitHub repositories indexed.[/bold green]")
+    finally:
+        shutil.rmtree(repos_path, ignore_errors=True)
+
+
 app = typer.Typer(
     help="RAGLight CLI: An interactive wizard to index and chat with your documents."
 )
@@ -109,17 +184,7 @@ def interactive_chat_command():
         "[magenta]I will guide you through setting up your RAG pipeline.[/magenta]"
     )
 
-    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
-    cwd = os.getcwd()
-    data_path_str = typer.prompt(
-        f"Enter the path to the directory with your documents)", default=cwd
-    )
-    data_path = Path(data_path_str)
-    if not data_path.is_dir():
-        console.print(
-            f"[bold red]❌ Error: The path '{data_path_str}' is not a valid directory.[/bold red]"
-        )
-        raise typer.Exit(code=1)
+    data_path, github_sources = prompt_data_sources()
 
     # Configure ignore folders
     console.print(
@@ -268,7 +333,11 @@ def interactive_chat_command():
 
         if should_index:
             vector_store = builder.build_vector_store()
-            vector_store.ingest(data_path=str(data_path), ignore_folders=ignore_folders)
+            if data_path:
+                vector_store.ingest(
+                    data_path=str(data_path), ignore_folders=ignore_folders
+                )
+            ingest_github_sources(vector_store, github_sources, ignore_folders)
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
             console.print(
@@ -329,17 +398,7 @@ def interactive_chat_command():
         "[magenta]I will guide you through setting up your RAG pipeline.[/magenta]"
     )
 
-    console.print("[bold cyan]\n--- 📂 Step 1: Data Source ---[/bold cyan]")
-    cwd = os.getcwd()
-    data_path_str = typer.prompt(
-        f"Enter the path to the directory with your documents)", default=cwd
-    )
-    data_path = Path(data_path_str)
-    if not data_path.is_dir():
-        console.print(
-            f"[bold red]❌ Error: The path '{data_path_str}' is not a valid directory.[/bold red]"
-        )
-        raise typer.Exit(code=1)
+    data_path, github_sources = prompt_data_sources()
 
     # Configure ignore folders
     console.print(
@@ -483,8 +542,12 @@ def interactive_chat_command():
         agenticRag = AgenticRAGPipeline(config, vector_store_config)
 
         if should_index:
-            agenticRag.get_vector_store().ingest(
-                data_path=str(data_path), ignore_folders=ignore_folders
+            if data_path:
+                agenticRag.get_vector_store().ingest(
+                    data_path=str(data_path), ignore_folders=ignore_folders
+                )
+            ingest_github_sources(
+                agenticRag.get_vector_store(), github_sources, ignore_folders
             )
             console.print("[bold green]✅ Indexing complete.[/bold green]")
         else:
