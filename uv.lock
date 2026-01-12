@@ -850,15 +850,6 @@ wheels = [
 ]
 
 [[package]]
-name = "jsonref"
-version = "1.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/aa/0d/c1f3277e90ccdb50d33ed5ba1ec5b3f0a242ed8c1b1a85d3afeb68464dca/jsonref-1.1.0.tar.gz", hash = "sha256:32fe8e1d85af0fdefbebce950af85590b22b60f9e95443176adbde4e1ecea552", size = 8814, upload-time = "2023-01-16T16:10:04.455Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/0c/ec/e1db9922bceb168197a558a2b8c03a7963f1afe93517ddd3cf99f202f996/jsonref-1.1.0-py3-none-any.whl", hash = "sha256:590dc7773df6c21cbf948b5dac07a72a251db28b0238ceecce0a2abfa8ec30a9", size = 9425, upload-time = "2023-01-16T16:10:02.255Z" },
-]
-
-[[package]]
 name = "jsonschema"
 version = "4.25.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1190,21 +1181,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d3/a8/564c094de5d6199f727f5d9f5672dbec3b00dfafd0f67bf52d995eaa5951/mcp-1.13.0.tar.gz", hash = "sha256:70452f56f74662a94eb72ac5feb93997b35995e389b3a3a574e078bed2aa9ab3", size = 434709, upload-time = "2025-08-14T15:03:58.58Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/6b/46b8bcefc2ee9e2d2e8d2bd25f1c2512f5a879fac4619d716b194d6e7ccc/mcp-1.13.0-py3-none-any.whl", hash = "sha256:8b1a002ebe6e17e894ec74d1943cc09aa9d23cb931bf58d49ab2e9fa6bb17e4b", size = 160226, upload-time = "2025-08-14T15:03:56.641Z" },
-]
-
-[[package]]
-name = "mcpadapt"
-version = "0.1.13"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "jsonref" },
-    { name = "mcp" },
-    { name = "pydantic" },
-    { name = "python-dotenv" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a6/96/9f423d4317695386f5bf1156574b6505d056fe6509f09cf86e8b99df60dc/mcpadapt-0.1.13.tar.gz", hash = "sha256:896f00288eb7515042c3b940d415917d363854f300d29d805ebaa40dc63b5574", size = 4226699, upload-time = "2025-08-08T15:33:57.675Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/2a/a0e044807ecba9d25a99093ff1f386fc64adc6c07a5ccd8207dec779b90c/mcpadapt-0.1.13-py3-none-any.whl", hash = "sha256:0ce7dba3982c31db008f8492399c03e0d2d5a4de185871357e59f82446faa73b", size = 19311, upload-time = "2025-08-08T15:33:56.5Z" },
 ]
 
 [[package]]
@@ -2330,7 +2306,6 @@ dependencies = [
     { name = "quo" },
     { name = "rich" },
     { name = "sentence-transformers" },
-    { name = "smolagents", extra = ["mcp"] },
     { name = "typer" },
     { name = "typing" },
     { name = "typing-extensions" },
@@ -2367,7 +2342,6 @@ requires-dist = [
     { name = "quo", specifier = "==2023.5.1" },
     { name = "rich", specifier = "==14.0.0" },
     { name = "sentence-transformers", specifier = "==5.1.2" },
-    { name = "smolagents", extras = ["mcp"], specifier = "==1.21.1" },
     { name = "typer", specifier = "==0.16.0" },
     { name = "typing", specifier = "==3.7.4.3" },
     { name = "typing-extensions", specifier = "==4.15.0" },
@@ -2747,29 +2721,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
-]
-
-[[package]]
-name = "smolagents"
-version = "1.21.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "huggingface-hub" },
-    { name = "jinja2" },
-    { name = "pillow" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-    { name = "rich" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/31/a9/f50c7e921675c7295fb4e80795b3cfd4baa8f3ebd0d3c5d7e9d4221f6e30/smolagents-1.21.1.tar.gz", hash = "sha256:bd8a26868cb294949aa8ced954f90f1f1ece96f417fc60c6be1ac6d2f762f130", size = 202388, upload-time = "2025-08-11T10:49:05.942Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/ec/ad3f2e88aac2b143bb1c7c301a8d248d42f710a5d8113ad73ded146f6be5/smolagents-1.21.1-py3-none-any.whl", hash = "sha256:9490bc16a1efd326132daef4add6c09099aa5d652777332239f62d3b75f55761", size = 145419, upload-time = "2025-08-11T10:49:03.915Z" },
-]
-
-[package.optional-dependencies]
-mcp = [
-    { name = "mcp" },
-    { name = "mcpadapt" },
 ]
 
 [[package]]
