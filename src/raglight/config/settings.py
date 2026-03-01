@@ -210,6 +210,14 @@ class Settings:
     BGE_M3_MODEL = "BAAI/bge-m3"
     BGE_LARGE_MODEL = "BAAI/bge-large-en-v1.5"
 
+    # Document Segmentation (Deep Learning)
+    DL_SEGMENTATION_ENABLED = os.environ.get("DL_SEGMENTATION_ENABLED", "false").lower() == "true"
+    DL_SEGMENTATION_MODEL = os.environ.get(
+        "DL_SEGMENTATION_MODEL", 
+        "damo/nlp_bert_document-segmentation_chinese-base"
+    )
+    DL_SEGMENTATION_FALLBACK = os.environ.get("DL_SEGMENTATION_FALLBACK", "true").lower() == "true"
+
     DEFAULT_IGNORE_FOLDERS = [
         ".venv",
         "venv",
