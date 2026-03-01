@@ -1,4 +1,4 @@
-# RAG-Light
+# RAG-Lighter
 
 A lightweight, modular Retrieval-Augmented Generation (RAG) framework for Python.
 

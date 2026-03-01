@@ -1,4 +1,4 @@
-# RAG-Light
+# RAG-Lighter
 
 轻量级模块化 RAG (检索增强生成) 框架
 
