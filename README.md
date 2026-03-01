@@ -15,6 +15,7 @@ A lightweight, modular Retrieval-Augmented Generation (RAG) framework for Python
 - **Agentic RAG** - Advanced retrieval with tool usage
 - **Multi-modal Support** - Text, code, and image processing
 - **RAG Evaluation** - RAGAS metrics for quality assessment
+- **Training Data Generation** - Auto-generate QA pairs from documents
 - **Local & Cloud** - Run locally with Ollama or use cloud APIs
 
 ## Supported LLM Providers
@@ -185,6 +186,25 @@ print(f"Context Recall: {scores.context_recall}")
 # Batch evaluation
 results = [result1, result2, result3]
 report = evaluator.generate_report(results)
+```
+
+### Training Data Generation
+
+Automatically generate question-answer pairs from your documents for fine-tuning or evaluation:
+
+```python
+from raglight.embeddings.build.traindata import load_corpus, documents_to_qa
+from raglight.llm import OpenAIModel
+
+# Load and chunk documents
+docs = load_corpus(["train.pdf"], chunk_size=512, verbose=True)
+
+# Generate QA pairs using LLM
+llm = OpenAIModel(model_name="gpt-4")
+qa_df = documents_to_qa(docs, llm=llm, verbose=True)
+
+# Save for training
+qa_df.to_csv("train_qa.csv", index=False)
 ```
 
 ### Agentic RAG

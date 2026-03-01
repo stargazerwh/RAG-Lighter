@@ -13,6 +13,7 @@
 - **Agentic RAG** - 支持工具调用的智能检索
 - **多模态支持** - 文本、代码和图像处理
 - **RAG 评估** - 使用 RAGAS 指标评估质量
+- **训练数据生成** - 从文档自动生成问答对
 - **本地与云端** - 本地 Ollama 或云端 API
 
 ## 支持的 LLM 提供商
@@ -183,6 +184,25 @@ print(f"上下文召回率 (Context Recall): {scores.context_recall}")
 # 批量评估
 results = [result1, result2, result3]
 report = evaluator.generate_report(results)
+```
+
+### 训练数据生成
+
+从文档自动生成问答对，用于微调或评估：
+
+```python
+from raglight.embeddings.build.traindata import load_corpus, documents_to_qa
+from raglight.llm import OpenAIModel
+
+# 加载并分块文档
+docs = load_corpus(["train.pdf"], chunk_size=512, verbose=True)
+
+# 使用 LLM 生成问答对
+llm = OpenAIModel(model_name="gpt-4")
+qa_df = documents_to_qa(docs, llm=llm, verbose=True)
+
+# 保存用于训练
+qa_df.to_csv("train_qa.csv", index=False)
 ```
 
 ### Agentic RAG
