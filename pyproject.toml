@@ -36,6 +36,7 @@ dependencies = [
     "nest-asyncio>=1.6.0",
     "typing-extensions==4.15.0",
     "nltk>=3.9.2",
+    "pandas>=2.0.0",
 ]
 [project.scripts]
 raglight = "raglight.cli.main:app"
