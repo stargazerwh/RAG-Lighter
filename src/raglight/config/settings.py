@@ -185,6 +185,18 @@ class Settings:
     THINKING_PATTERN = r"<think>(.*?)</think>"
     DEFAULT_K = 5
 
+    # Kimi (Moonshot AI)
+    KIMI = "Kimi"
+    KIMI_API_KEY = os.environ.get("KIMI_API_KEY", "")
+    DEFAULT_KIMI_CLIENT = os.environ.get("KIMI_CLIENT_URL", "https://api.moonshot.cn/v1")
+    KIMI_LLM_MODEL = "kimi-k2.5"
+
+    # DeepSeek
+    DEEPSEEK = "DeepSeek"
+    DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
+    DEFAULT_DEEPSEEK_CLIENT = os.environ.get("DEEPSEEK_CLIENT_URL", "https://api.deepseek.com/v1")
+    DEEPSEEK_LLM_MODEL = "deepseek-chat"
+
     DEFAULT_IGNORE_FOLDERS = [
         ".venv",
         "venv",
