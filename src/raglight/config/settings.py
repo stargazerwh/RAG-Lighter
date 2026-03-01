@@ -197,6 +197,19 @@ class Settings:
     DEFAULT_DEEPSEEK_CLIENT = os.environ.get("DEEPSEEK_CLIENT_URL", "https://api.deepseek.com/v1")
     DEEPSEEK_LLM_MODEL = "deepseek-chat"
 
+    # Milvus Vector Store
+    MILVUS = "Milvus"
+    MILVUS_HOST = os.environ.get("MILVUS_HOST", "localhost")
+    MILVUS_PORT = int(os.environ.get("MILVUS_PORT", "19530"))
+    MILVUS_URI = os.environ.get("MILVUS_URI", None)
+    MILVUS_TOKEN = os.environ.get("MILVUS_TOKEN", None)
+    DEFAULT_MILVUS_INDEX_TYPE = os.environ.get("MILVUS_INDEX_TYPE", "IVF_FLAT")
+    DEFAULT_MILVUS_METRIC_TYPE = os.environ.get("MILVUS_METRIC_TYPE", "COSINE")
+
+    # BGE-M3 Embeddings
+    BGE_M3_MODEL = "BAAI/bge-m3"
+    BGE_LARGE_MODEL = "BAAI/bge-large-en-v1.5"
+
     DEFAULT_IGNORE_FOLDERS = [
         ".venv",
         "venv",

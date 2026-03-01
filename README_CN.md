@@ -9,8 +9,10 @@
 
 - **模块化设计** - 易于扩展和定制
 - **多 LLM 提供商** - 支持多种 AI 模型
+- **多向量数据库** - 支持 ChromaDB、Milvus
 - **Agentic RAG** - 支持工具调用的智能检索
 - **多模态支持** - 文本、代码和图像处理
+- **RAG 评估** - 使用 RAGAS 指标评估质量
 - **本地与云端** - 本地 Ollama 或云端 API
 
 ## 支持的 LLM 提供商
@@ -24,6 +26,22 @@
 | **LM Studio** | ✅ 支持 | 本地 GUI 管理 |
 | **Kimi (月之暗面)** | ✅ 支持 | OpenAI 兼容 API |
 | **DeepSeek** | ✅ 支持 | 支持推理模型 |
+
+## 支持的向量数据库
+
+| 向量数据库 | 状态 | 说明 |
+|------------|------|------|
+| **ChromaDB** | ✅ 支持 | 默认，本地/远程 |
+| **Milvus** | ✅ 支持 | 支持向量索引 (IVF_FLAT, HNSW 等) |
+
+## 支持的嵌入模型
+
+| 模型 | 状态 | 说明 |
+|------|------|------|
+| **Sentence Transformers** | ✅ 支持 | all-MiniLM-L6-v2 等 |
+| **BGE-M3** | ✅ 支持 | 多语言，1024 维 |
+| **OpenAI** | ✅ 支持 | text-embedding-ada-002 |
+| **Google Gemini** | ✅ 支持 | gemini-embedding-001 |
 
 ## 安装
 
@@ -96,6 +114,77 @@ print(result["reasoning"])  # 推理过程
 print(result["answer"])     # 最终答案
 ```
 
+### 使用 Milvus 向量数据库
+
+```python
+from raglight.vectorstore import MilvusVS
+from raglight.embeddings import HuggingfaceEmbeddingsModel
+
+# 初始化 Milvus 并配置向量索引
+embeddings = HuggingfaceEmbeddingsModel("all-MiniLM-L6-v2")
+
+# 本地 Milvus Lite
+vector_store = MilvusVS(
+    collection_name="my_collection",
+    embeddings_model=embeddings,
+    persist_directory="./milvus_db",  # Milvus Lite 模式
+    index_type="HNSW",  # 或 "IVF_FLAT", "IVF_SQ8"
+    metric_type="COSINE"  # 或 "L2", "IP"
+)
+
+# 或连接 Milvus 服务器
+vector_store = MilvusVS(
+    collection_name="my_collection",
+    embeddings_model=embeddings,
+    host="localhost",
+    port=19530,
+    index_type="HNSW",
+    metric_type="COSINE"
+)
+```
+
+### 使用 BGE-M3 嵌入模型
+
+```python
+from raglight.embeddings import BgeM3EmbeddingsModel
+
+# BGE-M3 多语言检索
+embeddings = BgeM3EmbeddingsModel(
+    model_name="BAAI/bge-m3",
+    use_fp16=True  # 使用半精度加速推理
+)
+
+# 或使用 BGE-Large
+embeddings = BgeM3EmbeddingsModel("BAAI/bge-large-en-v1.5")
+```
+
+### RAG 评估 (RAGAS)
+
+```python
+from raglight.evaluation import RAGASEvaluator, RAGResult
+
+# 初始化评估器
+evaluator = RAGASEvaluator()
+
+# 创建 RAG 结果
+result = RAGResult(
+    question="主要内容是什么？",
+    answer="文档讨论了...",
+    contexts=retrieved_documents
+)
+
+# 评估
+scores = evaluator.evaluate(result)
+print(f"忠实度 (Faithfulness): {scores.faithfulness}")
+print(f"答案相关性 (Answer Relevancy): {scores.answer_relevancy}")
+print(f"上下文相关性 (Context Relevancy): {scores.context_relevancy}")
+print(f"上下文召回率 (Context Recall): {scores.context_recall}")
+
+# 批量评估
+results = [result1, result2, result3]
+report = evaluator.generate_report(results)
+```
+
 ### Agentic RAG
 
 ```python
@@ -124,6 +213,12 @@ KIMI_API_KEY=your_kimi_key
 
 # DeepSeek
 DEEPSEEK_API_KEY=your_deepseek_key
+
+# Milvus (可选)
+MILVUS_HOST=localhost
+MILVUS_PORT=19530
+MILVUS_URI=your_milvus_uri  # Zilliz Cloud 使用
+MILVUS_TOKEN=your_token
 ```
 
 ## CLI 用法
@@ -148,11 +243,12 @@ src/raglight/
 ├── cross_encoder/          # 重排序模型
 ├── document_processing/    # 文档解析
 ├── embeddings/             # 嵌入模型
+├── evaluation/             # RAG 评估 (RAGAS)
 ├── llm/                    # LLM 实现
 ├── models/                 # 数据模型
 ├── rag/                    # 核心 RAG 实现
 ├── scrapper/               # 网页抓取
-└── vectorstore/            # 向量数据库
+└── vectorstore/            # 向量数据库 (Chroma, Milvus)
 ```
 
 ## 支持的文档类型
