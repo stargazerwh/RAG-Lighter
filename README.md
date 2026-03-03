@@ -17,6 +17,8 @@ A lightweight, modular Retrieval-Augmented Generation (RAG) framework for Python
 - **RAG Evaluation** - RAGAS metrics for quality assessment
 - **Training Data Generation** - Auto-generate QA pairs from documents
 - **Local & Cloud** - Run locally with Ollama or use cloud APIs
+- **🔥 Parent-Child Chunking** - Small chunks for retrieval, large chunks for generation
+- **🔥 Query Rewriting** - Auto/Direct/HyDE/Subquery strategies with LLM-based selection
 
 ## Supported LLM Providers
 
@@ -65,31 +67,83 @@ pip install -e .
 ### Basic Usage
 
 ```python
-from raglight.rag import RAG
-from raglight.llm import OllamaModel
-from raglight.embeddings import HuggingfaceEmbeddingsModel
-
-# Initialize components
-llm = OllamaModel(model_name="llama3")
-embeddings = HuggingfaceEmbeddingsModel()
+from raglight.rag.builder import Builder
+from raglight.config.settings import Settings
 
 # Create RAG pipeline
-rag = RAG(
-    llm=llm,
-    embeddings=embeddings,
-    persist_directory="./my_db"
+rag = (
+    Builder()
+    .with_embeddings(Settings.HUGGINGFACE, model_name="all-MiniLM-L6-v2")
+    .with_vector_store(Settings.CHROMA, collection_name="my_docs")
+    .with_llm(Settings.OLLAMA, model_name="llama3.1:8b")
+    .build_rag(k=5)
 )
 
 # Index documents
-rag.index([
-    "./documents/file1.pdf",
-    "./documents/file2.txt"
-])
+rag.vector_store.ingest("./documents")
 
 # Query
-response = rag.query("What is the main topic of these documents?")
+response = rag.generate("What is the main topic?")
 print(response)
 ```
+
+### 🔥 Parent-Child Chunking (Recommended)
+
+Small chunks for precise retrieval, large chunks for complete context:
+
+```python
+from raglight.config.rag_config import RAGConfig
+
+# Configure parent-child chunking
+config = RAGConfig(
+    llm="llama3.1:8b",
+    provider=Settings.OLLAMA,
+    use_parent_child_chunking=True,
+    parent_chunk_size=2000,    # Large chunks for LLM context
+    child_chunk_size=400,      # Small chunks for retrieval
+    query_rewrite_strategy="Auto"  # Auto-select strategy
+)
+
+rag = (
+    Builder()
+    .with_embeddings(Settings.HUGGINGFACE, model_name="all-MiniLM-L6-v2")
+    .with_vector_store(Settings.CHROMA, collection_name="pc_docs")
+    .with_llm(Settings.OLLAMA, model_name="llama3.1:8b")
+    .with_cross_encoder(Settings.HUGGINGFACE, model_name="cross-encoder/ms-marco-MiniLM-L-6-v2")
+    .build_rag(config=config)
+)
+
+# Cross-encoder reranks child chunks, returns parent chunks
+response = rag.generate("Your complex question?")
+print(f"Strategy used: {rag.get_last_strategy()}")  # Direct/HyDE/Subquery
+```
+
+### 🔥 Query Rewriting Strategies
+
+```python
+from raglight.config.rag_config import RAGConfig
+
+config = RAGConfig(
+    llm="llama3.1:8b",
+    provider=Settings.OLLAMA,
+    query_rewrite_strategy="HyDE"  # or "Direct", "Subquery", "Auto"
+)
+
+rag = Builder().with_embeddings(...).with_vector_store(...).with_llm(...).build_rag(config=config)
+
+# HyDE: Generates hypothetical document for better retrieval
+# Subquery: Decomposes complex questions into sub-queries
+# Auto: LLM selects the best strategy dynamically
+```
+
+### Query Strategy Comparison
+
+| Strategy | Use Case | Description |
+|----------|----------|-------------|
+| **Direct** | Simple, clear questions | Query as-is |
+| **HyDE** | Abstract/conceptual questions | Generate hypothetical answer document |
+| **Subquery** | Complex multi-part questions | Decompose into sub-queries |
+| **Auto** | Unknown question type | LLM dynamically selects strategy |
 
 ### Using Kimi (Moonshot AI)
 

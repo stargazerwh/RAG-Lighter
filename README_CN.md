@@ -15,6 +15,8 @@
 - **RAG 评估** - 使用 RAGAS 指标评估质量
 - **训练数据生成** - 从文档自动生成问答对
 - **本地与云端** - 本地 Ollama 或云端 API
+- **🔥 父子分块** - 小块检索精准，大块生成完整
+- **🔥 查询改写** - 支持 Direct/HyDE/Subquery/Auto 策略，LLM 动态选择
 
 ## 支持的 LLM 提供商
 
@@ -63,31 +65,83 @@ pip install -e .
 ### 基础用法
 
 ```python
-from raglight.rag import RAG
-from raglight.llm import OllamaModel
-from raglight.embeddings import HuggingfaceEmbeddingsModel
-
-# 初始化组件
-llm = OllamaModel(model_name="llama3")
-embeddings = HuggingfaceEmbeddingsModel()
+from raglight.rag.builder import Builder
+from raglight.config.settings import Settings
 
 # 创建 RAG 管道
-rag = RAG(
-    llm=llm,
-    embeddings=embeddings,
-    persist_directory="./my_db"
+rag = (
+    Builder()
+    .with_embeddings(Settings.HUGGINGFACE, model_name="all-MiniLM-L6-v2")
+    .with_vector_store(Settings.CHROMA, collection_name="my_docs")
+    .with_llm(Settings.OLLAMA, model_name="llama3.1:8b")
+    .build_rag(k=5)
 )
 
 # 索引文档
-rag.index([
-    "./documents/file1.pdf",
-    "./documents/file2.txt"
-])
+rag.vector_store.ingest("./documents")
 
 # 查询
-response = rag.query("这些文档的主要内容是什么？")
+response = rag.generate("主要内容是什么？")
 print(response)
 ```
+
+### 🔥 父子分块 (推荐)
+
+小块用于精准检索，大块用于完整生成：
+
+```python
+from raglight.config.rag_config import RAGConfig
+
+# 配置父子分块
+config = RAGConfig(
+    llm="llama3.1:8b",
+    provider=Settings.OLLAMA,
+    use_parent_child_chunking=True,  # 启用父子分块
+    parent_chunk_size=2000,    # 父块：给 LLM 的完整上下文
+    child_chunk_size=400,      # 子块：用于向量检索
+    query_rewrite_strategy="Auto"  # 自动选择策略
+)
+
+rag = (
+    Builder()
+    .with_embeddings(Settings.HUGGINGFACE, model_name="all-MiniLM-L6-v2")
+    .with_vector_store(Settings.CHROMA, collection_name="pc_docs")
+    .with_llm(Settings.OLLAMA, model_name="llama3.1:8b")
+    .with_cross_encoder(Settings.HUGGINGFACE, model_name="cross-encoder/ms-marco-MiniLM-L-6-v2")
+    .build_rag(config=config)
+)
+
+# Cross-encoder 重排序子块，返回父块
+response = rag.generate("你的复杂问题？")
+print(f"使用策略: {rag.get_last_strategy()}")  # Direct/HyDE/Subquery
+```
+
+### 🔥 查询改写策略
+
+```python
+from raglight.config.rag_config import RAGConfig
+
+config = RAGConfig(
+    llm="llama3.1:8b",
+    provider=Settings.OLLAMA,
+    query_rewrite_strategy="HyDE"  # 或 "Direct", "Subquery", "Auto"
+)
+
+rag = Builder().with_embeddings(...).with_vector_store(...).with_llm(...).build_rag(config=config)
+
+# HyDE: 生成假设文档辅助检索
+# Subquery: 将复杂问题分解为子查询
+# Auto: LLM 动态选择最佳策略
+```
+
+### 查询策略对比
+
+| 策略 | 适用场景 | 说明 |
+|------|----------|------|
+| **Direct** | 简单明确的问题 | 直接查询 |
+| **HyDE** | 抽象/概念性问题 | 生成假设答案文档 |
+| **Subquery** | 复杂多条件问题 | 分解为子查询 |
+| **Auto** | 未知类型问题 | LLM 动态选择策略 |
 
 ### 使用 Kimi (月之暗面)
 
