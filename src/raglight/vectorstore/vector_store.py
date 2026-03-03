@@ -34,24 +34,56 @@ class VectorStore(ABC):
         self.vector_store: Any = None
         self.vector_store_classes: Any = None
         self.custom_processors: Dict[str, DocumentProcessor] = custom_processors or {}
+        
+        # 父子分块相关
+        self.use_parent_child: bool = False
+        self.chunk_config: Optional[Dict] = None
+        self.parent_store: Any = None  # 父块存储
+
+    def set_parent_child_config(self, use_parent_child: bool, chunk_config: Optional[Dict] = None):
+        """
+        设置父子分块配置
+        
+        Args:
+            use_parent_child: 是否启用父子分块
+            chunk_config: 分块配置字典
+        """
+        self.use_parent_child = use_parent_child
+        self.chunk_config = chunk_config or {}
+        logging.info(f"VectorStore parent-child config: enabled={use_parent_child}")
 
     @staticmethod
     def _process_file(
-        file_path: str, factory: DocumentProcessorFactory, flatten_metadata
+        file_path: str, factory: DocumentProcessorFactory, flatten_metadata,
+        use_parent_child: bool = False, chunk_config: Optional[Dict] = None
     ):
         processor = factory.get_processor(file_path)
         if not processor:
-            return [], []
+            return [], [], []
         try:
             processed_docs = processor.process(
-                file_path, chunk_size=2500, chunk_overlap=250
+                file_path, 
+                chunk_size=2500, 
+                chunk_overlap=250,
+                use_parent_child=use_parent_child,
+                chunk_config=chunk_config
             )
-            chunks = flatten_metadata(processed_docs.get("chunks", []))
-            classes = flatten_metadata(processed_docs.get("classes", []))
-            return chunks, classes
+            
+            if use_parent_child:
+                # 父子分块模式
+                parents = flatten_metadata(processed_docs.get("parents", []))
+                children = flatten_metadata(processed_docs.get("children", []))
+                classes = flatten_metadata(processed_docs.get("classes", []))
+                return parents, children, classes
+            else:
+                # 标准模式
+                chunks = flatten_metadata(processed_docs.get("chunks", []))
+                classes = flatten_metadata(processed_docs.get("classes", []))
+                return chunks, [], classes
+                
         except Exception as e:
             logging.warning(f"⚠️ Error processing {file_path}: {e}")
-            return [], []
+            return [], [], []
 
     def ingest(self, data_path: str, ignore_folders: List[str] = None) -> None:
         """
@@ -70,6 +102,8 @@ class VectorStore(ABC):
         factory = DocumentProcessorFactory(custom_processors=self.custom_processors)
 
         logging.info(f"⏳ Starting ingestion from '{data_path}'...")
+        if self.use_parent_child:
+            logging.info("  Mode: Parent-Child Chunking")
 
         files_to_process = []
         for root, dirs, files in os.walk(data_path, topdown=True):
@@ -90,18 +124,28 @@ class VectorStore(ABC):
         with ThreadPoolExecutor(max_workers=4) as executor:
             futures = [
                 executor.submit(
-                    self._process_file, file_path, factory, self._flatten_metadata
+                    self._process_file, file_path, factory, self._flatten_metadata,
+                    self.use_parent_child, self.chunk_config
                 )
                 for file_path, _ in files_to_process
             ]
 
             for future in as_completed(futures):
                 try:
-                    chunks, classes = future.result()
-                    if chunks:
-                        self.add_documents(chunks)
-                    if classes:
-                        self.add_class_documents(classes)
+                    if self.use_parent_child:
+                        parents, children, classes = future.result()
+                        if parents:
+                            self.add_parent_documents(parents)
+                        if children:
+                            self.add_child_documents(children)
+                        if classes:
+                            self.add_class_documents(classes)
+                    else:
+                        chunks, _, classes = future.result()
+                        if chunks:
+                            self.add_documents(chunks)
+                        if classes:
+                            self.add_class_documents(classes)
                 except Exception as e:
                     logging.warning(f"⚠️ Future raised an exception: {e}")
 
@@ -135,6 +179,20 @@ class VectorStore(ABC):
         pass
 
     @abstractmethod
+    def add_parent_documents(self, documents: List[Document]) -> None:
+        """
+        Adds parent documents to the parent vector store (for parent-child chunking).
+        """
+        pass
+
+    @abstractmethod
+    def add_child_documents(self, documents: List[Document]) -> None:
+        """
+        Adds child documents to the child vector store (for parent-child chunking).
+        """
+        pass
+
+    @abstractmethod
     def similarity_search(
         self, question: str, k: int = 5, filter: Dict[str, str] = None
     ) -> List[Document]:
@@ -149,6 +207,17 @@ class VectorStore(ABC):
     ) -> List[Document]:
         """
         Performs a similarity search in the class vector store.
+        """
+        pass
+
+    @abstractmethod
+    def similarity_search_parent_child(
+        self, question: str, k: int = 5, filter: Dict[str, str] = None, cross_encoder=None
+    ) -> List[Document]:
+        """
+        Performs a similarity search using parent-child chunking.
+        Searches in child collection and returns parent documents.
+        Optionally uses cross_encoder to rerank children before mapping to parents.
         """
         pass
 

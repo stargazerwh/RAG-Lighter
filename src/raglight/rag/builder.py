@@ -1,4 +1,3 @@
-from __future__ import annotations
 import logging
 from typing import Optional
 
@@ -14,6 +13,7 @@ from ..llm.openai_model import OpenAIModel
 from ..vectorstore.vector_store import VectorStore
 from ..vectorstore.chroma import ChromaVS
 from ..config.settings import Settings
+from ..config.rag_config import RAGConfig
 from .rag import RAG
 from ..embeddings.embeddings_model import EmbeddingsModel
 from ..embeddings.huggingface_embeddings import HuggingfaceEmbeddingsModel
@@ -150,12 +150,13 @@ class Builder:
         logging.info("✅ LLM created")
         return self
 
-    def build_rag(self, k: int = 10) -> RAG:
+    def build_rag(self, k: int = 10, config: Optional[RAGConfig] = None) -> RAG:
         """
         Builds the RAG pipeline with the configured components.
 
         Args:
-            k (int, optional): The number of top documents to retrieve. Defaults to 5.
+            k (int, optional): The number of top documents to retrieve. Defaults to 10.
+            config (RAGConfig, optional): RAG 配置，包含父子分块和查询改写策略配置
 
         Returns:
             RAG: The fully configured RAG pipeline instance.
@@ -169,10 +170,43 @@ class Builder:
             raise ValueError("LLM is required")
         if self.embeddings is None:
             raise ValueError("Embeddings Model is required")
+            
         logging.info("⏳ Building the RAG pipeline...")
-        self.rag = RAG(
-            self.embeddings, self.vector_store, self.llm, k, self.cross_encoder
-        )
+        
+        # 如果提供了 config，应用配置
+        if config:
+            # 配置父子分块
+            if config.use_parent_child_chunking:
+                chunk_config = {
+                    "parent_chunk_size": config.parent_chunk_size,
+                    "parent_chunk_overlap": config.parent_chunk_overlap,
+                    "child_chunk_size": config.child_chunk_size,
+                    "child_chunk_overlap": config.child_chunk_overlap,
+                }
+                self.vector_store.set_parent_child_config(True, chunk_config)
+                logging.info("✅ Parent-child chunking configured")
+            
+            # 使用 config 中的 k
+            k = config.k if config.k else k
+            
+            # 使用 config 中的 cross_encoder
+            cross_encoder = config.cross_encoder_model if config.cross_encoder_model else self.cross_encoder
+            
+            self.rag = RAG(
+                embedding_model=self.embeddings,
+                vector_store=self.vector_store,
+                llm=self.llm,
+                k=k,
+                cross_encoder_model=cross_encoder,
+                stream=config.stream,
+                config=config
+            )
+        else:
+            # 标准构建
+            self.rag = RAG(
+                self.embeddings, self.vector_store, self.llm, k, self.cross_encoder
+            )
+            
         logging.info("✅ RAG pipeline created")
         return self.rag
 
