@@ -57,8 +57,8 @@ pip install raglight
 Or install from source:
 
 ```bash
-git clone https://github.com/stargazerwh/RAG-lightweight.git
-cd RAG-lightweight
+git clone https://github.com/stargazerwh/RAG-Lighter.git
+cd RAG-Lighter
 pip install -e .
 ```
 
@@ -139,7 +139,7 @@ rag = Builder().with_embeddings(...).with_vector_store(...).with_llm(...).build_
 ### Query Strategy Comparison
 
 | Strategy | Use Case | Description |
-|----------|----------|-------------|
+|---------|----------|------------|
 | **Direct** | Simple, clear questions | Query as-is |
 | **HyDE** | Abstract/conceptual questions | Generate hypothetical answer document |
 | **Subquery** | Complex multi-part questions | Decompose into sub-queries |
@@ -158,14 +158,14 @@ print(response)
 ### Using DeepSeek
 
 ```python
-from raglight.llm import DeepSeekModel
+from raglight.lll import DeepSeekModel
 
 # Standard chat model
 deepseek = DeepSeekModel(model_name="deepseek-chat")
 response = deepseek.generate({"question": "Explain quantum computing"})
 
 # Reasoning model (R1)
-r1 = DeepSeekModel(model_name="deepseek-reasoner")
+21 = DeepSeekModel(model_name="deepseek-reasoner")
 result = r1.generate_with_thinking({"question": "Solve this complex problem..."})
 print(result["reasoning"])  # Chain of thought
 print(result["answer"])     # Final answer
@@ -186,8 +186,7 @@ vector_store = MilvusVS(
     embeddings_model=embeddings,
     persist_directory="./milvus_db",  # Milvus Lite mode
     index_type="HNSW",  # or "IVF_FLAT", "IVF_SQ8"
-    metric_type="COSINE"  # or "L2", "IP"
-)
+    metric_type="COSINE"  # or "L2", "IP")
 
 # Or connect to Milvus server
 vector_store = MilvusVS(
@@ -233,8 +232,8 @@ result = RAGResult(
 # Evaluate
 scores = evaluator.evaluate(result)
 print(f"Faithfulness: {scores.faithfulness}")
-print(f"Answer Relevancy: {scores.answer_relevancy}")
-print(f"Context Relevancy: {scores.context_relevancy}")
+print(f"Answer Relevancy: {scores.answer_relevance}")
+print(f"Context Relevancy: {scores.context_relevance}")
 print(f"Context Recall: {scores.context_recall}")
 
 # Batch evaluation
@@ -315,15 +314,14 @@ raglight index ./my_documents
 ```
 src/raglight/
 ├── cli/                    # Command line interface
-├── config/                 # Configuration management
+├── config/                  # Configuration management
 ├── cross_encoder/          # Re-ranking models
 ├── document_processing/    # Document parsing
-├── embeddings/             # Embedding models
+├── embeddings/              # Embedding models
 ├── evaluation/             # RAG evaluation (RAGAS)
-├── llm/                    # LLM implementations
-├── models/                 # Data models
-├── rag/                    # Core RAG implementation
-├── scrapper/               # Web scraping
+├── llm/                     # LLM implementations
+├── models/                  # Data models
+├── rag/                     # Core RAG implementation├── scrapper/                # Web scraping
 └── vectorstore/            # Vector database (Chroma, Milvus)
 ```
 
